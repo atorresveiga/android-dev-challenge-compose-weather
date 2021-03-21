@@ -9,7 +9,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class GetLocationUseCase @Inject constructor(
+/**
+ * Get user's location saved in local datastore.
+ */
+class GetCurrentLocationUseCase @Inject constructor(
     @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
     private val dataStoreManager: DataStoreManager
 ) : FlowUseCase<Unit, Location?>(defaultDispatcher) {

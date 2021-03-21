@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocalForecastRepository @Inject constructor(
     private val dataStoreManager: DataStoreManager,
@@ -37,4 +36,8 @@ class LocalForecastRepository @Inject constructor(
     }
 
     fun getCurrentLocation() = dataStoreManager.currentLocation
+
+    suspend fun saveCurrentLocation(location: Location) {
+        dataStoreManager.saveCurrentLocation(location)
+    }
 }

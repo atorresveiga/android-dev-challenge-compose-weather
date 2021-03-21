@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import com.example.androiddevchallenge.BuildConfig
 import com.example.androiddevchallenge.data.AppDatabase
-import com.example.androiddevchallenge.data.DataStoreManager
+import com.example.androiddevchallenge.data.GMSLocationDataSource
+import com.example.androiddevchallenge.data.LocationDataSource
 import com.example.androiddevchallenge.data.OpenWeatherAPI
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

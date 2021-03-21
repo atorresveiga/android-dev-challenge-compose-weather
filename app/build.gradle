@@ -85,6 +85,9 @@ dependencies {
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation 'androidx.room:room-runtime:2.2.6'
+
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
     annotationProcessor 'androidx.room:room-compiler:2.2.6'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 

@@ -8,7 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.data.Result
-import com.example.androiddevchallenge.domain.GetLocationUseCase
+import com.example.androiddevchallenge.domain.FindLocationUseCase
+import com.example.androiddevchallenge.domain.GetCurrentLocationUseCase
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getLocationUseCase: GetLocationUseCase
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val findLocationUseCase: FindLocationUseCase
 ) : ViewModel() {
 
     private val _requestLocationAccess = MutableLiveData<Event<Unit>>()
@@ -34,11 +36,11 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getLocationUseCase.invoke(Unit).collect { result ->
+            getCurrentLocationUseCase.invoke(Unit).collect { result ->
                 val needsUserLocation = result is Result.Success && result.data == null
                 when {
                     needsUserLocation && isLocationAccessGranted -> {
-                        state = State.FindingLocation
+                        findUserLocation()
                     }
                     needsUserLocation && !isLocationAccessGranted -> {
                         state = State.NeedLocationAccess
@@ -60,7 +62,14 @@ class MainViewModel @Inject constructor(
 
     fun onLocationAccessGranted() {
         isLocationAccessGranted = true
+        findUserLocation()
+    }
+
+    private fun findUserLocation(){
         state = State.FindingLocation
+        viewModelScope.launch {
+            findLocationUseCase.invoke(Unit)
+        }
     }
 
 }
