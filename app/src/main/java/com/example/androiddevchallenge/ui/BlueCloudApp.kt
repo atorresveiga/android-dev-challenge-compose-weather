@@ -5,7 +5,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.androiddevchallenge.ui.access.NeedsLocationAccess
+import com.example.androiddevchallenge.ui.access.NeedsLocationAccessScreen
 import com.example.androiddevchallenge.ui.main.State
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
@@ -15,7 +15,7 @@ fun BlueCloudApp(state: State, onRequestPermission: () -> Unit) {
     Surface(color = MaterialTheme.colors.background) {
         when (state) {
             State.NeedLocationAccess -> {
-                NeedsLocationAccess(onRequestPermission = onRequestPermission)
+                NeedsLocationAccessScreen(onRequestPermission = onRequestPermission)
             }
             State.FindingLocation -> {
                 Text(text = "Yeah!! Finding Location")
