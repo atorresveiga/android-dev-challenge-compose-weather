@@ -16,7 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
         buildConfigField('String', 'OpenWeatherSecAPIKey', OpenWeatherAPIKey)
-        buildConfigField('String', 'OpenWeatherBaseURL', "\"api.openweathermap.org/data/2.5\"")
+        buildConfigField('String', 'OpenWeatherBaseURL', "\"https://api.openweathermap.org/data/2.5/\"")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -107,6 +107,12 @@ dependencies {
     // Datastore
     implementation "androidx.datastore:datastore-preferences:1.0.0-alpha08"
 
+    // Work Manager
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
+    implementation "androidx.hilt:hilt-work:1.0.0-beta01"
+    kapt "androidx.hilt:hilt-compiler:1.0.0-beta01"
+
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3"
@@ -117,5 +123,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation "com.google.truth:truth:1.1.2"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
 
 }

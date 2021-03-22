@@ -55,7 +55,7 @@ class FindLocationUseCaseTest {
         coroutineRule.runBlockingTest {
             // WHEN location datasource can't access user location
             locationDataSource.location = null
-            val result = useCase.invoke(Unit)
+            val result = useCase.invoke(Unit.INSTANCE)
             // THEN throw a LocationNotFoundException
             assert(result is Result.Error)
             val exception = (result as Result.Error).exception

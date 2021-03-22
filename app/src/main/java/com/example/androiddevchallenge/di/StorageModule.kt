@@ -6,8 +6,10 @@ import com.example.androiddevchallenge.BuildConfig
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.DataStoreManager
 import com.example.androiddevchallenge.data.LocalForecastRepository
-import com.example.androiddevchallenge.data.LocalForecastRepositoryImplementation
+import com.example.androiddevchallenge.data.LocalForecastRepositoryDefault
+import com.example.androiddevchallenge.data.NetworkForecastDataSource
 import com.example.androiddevchallenge.data.OpenWeatherAPI
+import com.example.androiddevchallenge.data.OpenWeatherDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,11 +46,12 @@ object StorageModule {
             chain.proceed(newRequest)
         }.build()
 
-        return Retrofit.Builder()
+        val retrofit = Retrofit.Builder()
             .client(client)
             .baseUrl(BuildConfig.OpenWeatherBaseURL)
             .build()
-            .create(OpenWeatherAPI::class.java)
+
+        return retrofit.create(OpenWeatherAPI::class.java)
     }
 
     @Provides
@@ -65,9 +68,13 @@ object StorageModule {
         dataStoreManager: DataStoreManager,
         appDatabase: AppDatabase
     ): LocalForecastRepository {
-        return LocalForecastRepositoryImplementation(
+        return LocalForecastRepositoryDefault(
             dataStoreManager, appDatabase
         )
     }
+
+    @Provides
+    fun provideNetworkForecastDataSource(api: OpenWeatherAPI):
+            NetworkForecastDataSource = OpenWeatherDataSource(api)
 
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.domain.FindLocationUseCase
 import com.example.androiddevchallenge.domain.GetCurrentLocationUseCase
+import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
-    private val findLocationUseCase: FindLocationUseCase
+    private val findLocationUseCase: FindLocationUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase
 ) : ViewModel() {
 
     private val _requestLocationAccess = MutableLiveData<Event<Unit>>()
@@ -65,7 +67,7 @@ class MainViewModel @Inject constructor(
         findUserLocation()
     }
 
-    private fun findUserLocation(){
+    private fun findUserLocation() {
         state = State.FindingLocation
         viewModelScope.launch {
             findLocationUseCase.invoke(Unit)

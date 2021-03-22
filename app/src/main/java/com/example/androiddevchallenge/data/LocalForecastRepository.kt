@@ -2,7 +2,6 @@ package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -13,13 +12,17 @@ interface LocalForecastRepository {
     fun getForecast(): Flow<Result<Forecast?>>
     fun getCurrentLocation(): Flow<Location?>
     suspend fun saveCurrentLocation(location: Location)
+    suspend fun saveForecast(forecast: Forecast)
+    suspend fun clearOldData(olderTime: Long)
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class LocalForecastRepositoryImplementation(
+class LocalForecastRepositoryDefault(
     private val dataStoreManager: DataStoreManager,
-    private val appDatabase: AppDatabase
+    appDatabase: AppDatabase
 ) : LocalForecastRepository {
+
+    private val hourForecastDAO = appDatabase.hourForecastDAO()
 
     override fun getForecast(): Flow<Result<Forecast?>> {
         var location: Location? = null
@@ -27,8 +30,10 @@ class LocalForecastRepositoryImplementation(
             .flatMapLatest { currentLocation ->
                 location = currentLocation
                 if (currentLocation != null) {
-                    appDatabase.hourForecastDAO()
-                        .getHourlyForecastFrom(currentLocation.latitude, currentLocation.longitude)
+                    hourForecastDAO.getHourlyForecastFrom(
+                        currentLocation.latitude,
+                        currentLocation.longitude
+                    )
                 } else {
                     flow { Result.Success(null) }
                 }
@@ -43,7 +48,19 @@ class LocalForecastRepositoryImplementation(
 
     override fun getCurrentLocation() = dataStoreManager.currentLocation
 
-    override suspend fun saveCurrentLocation(location: Location) {
+    override suspend fun saveCurrentLocation(location: Location) =
         dataStoreManager.saveCurrentLocation(location)
+
+    override suspend fun saveForecast(forecast: Forecast) {
+        dataStoreManager.saveCurrentLocation(forecast.location)
+        hourForecastDAO.saveForecast(
+            forecast.hourly.map {
+                it.toHourForecastEntity(
+                    latitude = forecast.location.latitude,
+                    longitude = forecast.location.longitude
+                )
+            })
     }
+
+    override suspend fun clearOldData(olderTime: Long) = hourForecastDAO.clearOlderThan(olderTime)
 }

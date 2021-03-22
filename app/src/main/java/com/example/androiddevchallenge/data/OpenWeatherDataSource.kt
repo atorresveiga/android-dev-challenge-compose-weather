@@ -4,18 +4,18 @@ import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
 import javax.inject.Inject
-import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
+interface NetworkForecastDataSource {
+    suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast>
+}
 
 class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI) :
-    ForecastDataSource {
-    override fun getForecast(latitude: Double, longitude: Double) = flow {
-        emit(Result.Loading)
+    NetworkForecastDataSource {
+    override suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast> {
         val apiLocationForecast = api.oneCall(latitude, longitude)
-        val result = Result.Success(apiLocationForecast.transformToForecast())
-        emit(result)
+        return Result.Success(apiLocationForecast.transformToForecast())
     }
 }
 
