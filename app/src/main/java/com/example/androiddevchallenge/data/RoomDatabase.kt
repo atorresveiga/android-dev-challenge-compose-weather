@@ -54,6 +54,26 @@ fun HourForecastEntity.toHourForecast() = HourForecast(
     snow = this.snow
 )
 
+fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = HourForecastEntity(
+    datetime = this.datetime,
+    temperature = this.temperature,
+    feelsLike = this.feelsLike,
+    pressure = this.pressure,
+    humidity = this.humidity,
+    uvi = this.uvi,
+    clouds = this.clouds,
+    visibility = this.visibility,
+    windSpeed = this.windSpeed,
+    windDegrees = this.windDegrees,
+    weather = this.weather,
+    sunPosition = this.sunPosition,
+    pop = this.pop,
+    rain = this.rain,
+    snow = this.snow,
+    latitude = latitude,
+    longitude = longitude
+)
+
 @Dao
 interface HourForecastDAO {
     @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
