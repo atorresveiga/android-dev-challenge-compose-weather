@@ -9,13 +9,19 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
+interface LocalForecastRepository {
+    fun getForecast(): Flow<Result<Forecast?>>
+    fun getCurrentLocation(): Flow<Location?>
+    suspend fun saveCurrentLocation(location: Location)
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
-class LocalForecastRepository @Inject constructor(
+class LocalForecastRepositoryImplementation(
     private val dataStoreManager: DataStoreManager,
     private val appDatabase: AppDatabase
-) {
+) : LocalForecastRepository {
 
-    fun getForecast(): Flow<Result<Forecast?>> {
+    override fun getForecast(): Flow<Result<Forecast?>> {
         var location: Location? = null
         return dataStoreManager.currentLocation
             .flatMapLatest { currentLocation ->
@@ -35,9 +41,9 @@ class LocalForecastRepository @Inject constructor(
             }
     }
 
-    fun getCurrentLocation() = dataStoreManager.currentLocation
+    override fun getCurrentLocation() = dataStoreManager.currentLocation
 
-    suspend fun saveCurrentLocation(location: Location) {
+    override suspend fun saveCurrentLocation(location: Location) {
         dataStoreManager.saveCurrentLocation(location)
     }
 }

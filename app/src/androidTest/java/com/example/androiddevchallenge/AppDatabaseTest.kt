@@ -21,7 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.HourForecastDAO
-import com.example.androiddevchallenge.data.TestUtil
+import com.example.androiddevchallenge.test.TestUtil
 import com.example.androiddevchallenge.data.toHourForecastEntity
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException

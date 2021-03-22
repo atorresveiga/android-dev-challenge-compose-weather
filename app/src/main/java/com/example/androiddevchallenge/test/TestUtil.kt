@@ -1,4 +1,4 @@
-package com.example.androiddevchallenge.data
+package com.example.androiddevchallenge.test
 
 import androidx.annotation.VisibleForTesting
 import com.example.androiddevchallenge.model.HourForecast
