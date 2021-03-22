@@ -4,7 +4,7 @@ import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.test.TestUtil
+import com.example.androiddevchallenge.data.TestUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
