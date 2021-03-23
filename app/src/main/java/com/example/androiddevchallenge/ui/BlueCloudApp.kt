@@ -5,13 +5,21 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.access.NeedsLocationAccessScreen
+import com.example.androiddevchallenge.ui.forecast.EmptyForecast
+import com.example.androiddevchallenge.ui.forecast.ForecastScreen
 import com.example.androiddevchallenge.ui.main.State
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 // Start building your app here!
 @Composable
-fun BlueCloudApp(state: State, onRequestPermission: () -> Unit) {
+fun BlueCloudApp(
+    state: State,
+    forecast: Forecast?,
+    onRequestPermission: () -> Unit,
+    onRefreshData: () -> Unit
+) {
     Surface(color = MaterialTheme.colors.background) {
         when (state) {
             State.NeedLocationAccess -> {
@@ -19,6 +27,11 @@ fun BlueCloudApp(state: State, onRequestPermission: () -> Unit) {
             }
             State.FindingLocation -> {
                 Text(text = "Yeah!! Finding Location")
+            }
+            State.Ready -> {
+                forecast?.let {
+                    ForecastScreen(it.hourly)
+                } ?: EmptyForecast(onRefreshData)
             }
             else -> {
                 Text(text = state.toString())
@@ -32,7 +45,7 @@ fun BlueCloudApp(state: State, onRequestPermission: () -> Unit) {
 @Composable
 fun LightPreview() {
     MyTheme {
-        BlueCloudApp(State.Ready) {}
+        BlueCloudApp(State.Ready, null, {  }) {}
     }
 }
 
@@ -40,6 +53,6 @@ fun LightPreview() {
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        BlueCloudApp(State.Ready) {}
+        BlueCloudApp(State.Ready, null, {  }) {}
     }
 }

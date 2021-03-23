@@ -16,25 +16,16 @@
 package com.example.androiddevchallenge.ui.main
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.example.androiddevchallenge.ui.BlueCloudApp
 import com.example.androiddevchallenge.ui.EventObserver
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 
 const val REQUEST_LOCATION_PERMISSION = 167
@@ -58,8 +49,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MyTheme {
                 BlueCloudApp(
-                    viewModel.state,
-                    viewModel::requestLocationAccess
+                    state = viewModel.state,
+                    forecast = viewModel.forecast,
+                    onRefreshData = viewModel::onRefreshData,
+                    onRequestPermission = viewModel::requestLocationAccess
                 )
             }
         }

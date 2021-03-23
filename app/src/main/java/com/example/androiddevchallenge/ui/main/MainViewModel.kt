@@ -10,8 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.domain.FindLocationUseCase
 import com.example.androiddevchallenge.domain.GetCurrentLocationUseCase
+import com.example.androiddevchallenge.domain.GetForecastUseCase
 import com.example.androiddevchallenge.domain.RefreshDataUseCase
-import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 class MainViewModel @Inject constructor(
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val findLocationUseCase: FindLocationUseCase,
-    private val refreshDataUseCase: RefreshDataUseCase
+    private val refreshDataUseCase: RefreshDataUseCase,
+    private val getForecastUseCase: GetForecastUseCase
 ) : ViewModel() {
 
     private val _requestLocationAccess = MutableLiveData<Event<Unit>>()
@@ -31,27 +33,30 @@ class MainViewModel @Inject constructor(
 
     var isLocationAccessGranted = false
 
-    var currentLocation by mutableStateOf<Location?>(null)
+    var forecast by mutableStateOf<Forecast?>(null)
 
     var state by mutableStateOf(State.Initializing)
         private set
 
     init {
         viewModelScope.launch {
-            getCurrentLocationUseCase.invoke(Unit).collect { result ->
-                val needsUserLocation = result is Result.Success && result.data == null
-                when {
-                    needsUserLocation && isLocationAccessGranted -> {
-                        findUserLocation()
-                    }
-                    needsUserLocation && !isLocationAccessGranted -> {
-                        state = State.NeedLocationAccess
-                    }
-                    result is Result.Success && result.data != null -> {
-                        state = State.Ready
-                    }
-                    result is Result.Error -> {
-                        // Show Error
+            launch {
+                getCurrentLocationUseCase.invoke(Unit).collect { result ->
+                    val needsUserLocation = result is Result.Success && result.data == null
+                    when {
+                        needsUserLocation && isLocationAccessGranted -> {
+                            findUserLocation()
+                        }
+                        needsUserLocation && !isLocationAccessGranted -> {
+                            state = State.NeedLocationAccess
+                        }
+                        result is Result.Success && result.data != null -> {
+                            state = State.Ready
+                            getForecast()
+                        }
+                        result is Result.Error -> {
+                            // Show Error
+                        }
                     }
                 }
             }
@@ -65,6 +70,29 @@ class MainViewModel @Inject constructor(
     fun onLocationAccessGranted() {
         isLocationAccessGranted = true
         findUserLocation()
+    }
+
+    private fun getForecast() {
+        viewModelScope.launch {
+            getForecastUseCase.invoke(Unit).collect { result ->
+                if (result is Result.Success) {
+                    result.data?.let { data ->
+                        if (data.hourly.size > 35) {
+                            forecast = data
+                        } else {
+                            onRefreshData()
+                        }
+
+                    } ?: onRefreshData()
+                }
+            }
+        }
+    }
+
+    fun onRefreshData() {
+        viewModelScope.launch {
+            refreshDataUseCase.invoke(Unit)
+        }
     }
 
     private fun findUserLocation() {
