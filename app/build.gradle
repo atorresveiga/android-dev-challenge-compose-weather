@@ -18,6 +18,7 @@ android {
         buildConfigField('String', 'OpenWeatherSecAPIKey', OpenWeatherAPIKey)
         buildConfigField('String', 'OpenWeatherBaseURL', "\"https://api.openweathermap.org/data/2.5/\"")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -64,6 +65,14 @@ android {
         // our test APK to build (has no effect on our AARs)
         excludes += "/META-INF/AL2.0"
         excludes += "/META-INF/LGPL2.1"
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -112,6 +121,8 @@ dependencies {
     androidTestImplementation "androidx.work:work-testing:$work_version"
     implementation "androidx.hilt:hilt-work:1.0.0-beta01"
     kapt "androidx.hilt:hilt-compiler:1.0.0-beta01"
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"

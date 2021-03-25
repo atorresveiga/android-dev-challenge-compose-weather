@@ -10,7 +10,8 @@ interface OpenWeatherAPI {
     suspend fun oneCall(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
-        @Query("exclude") exclude: String = "minutely,current,alerts"
+        @Query("exclude") exclude: String = "minutely,current,alerts",
+        @Query("units") units: String = "metric"
     ): LocationForecast
 }
 

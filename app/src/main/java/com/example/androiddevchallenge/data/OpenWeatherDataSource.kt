@@ -35,7 +35,7 @@ class OpenWeatherTransformation {
                     val sunPosition =
                         calculateSunPosition(hour.datetime, day.sunrise, day.sunset)
                     val hourForecast = HourForecast(
-                        datetime = hour.datetime - locationForecast.offset,  // local representation of datetime
+                        datetime = hour.datetime,  // local representation of datetime
                         temperature = hour.temperature,
                         feelsLike = hour.feelsLike,
                         pressure = hour.pressure,
