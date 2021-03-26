@@ -25,23 +25,29 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.androiddevchallenge.model.HourForecast
-import java.time.format.TextStyle
-import java.util.*
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlin.random.Random
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
 
+/**
+ * Wind indicator control
+ * @param windDegrees wind direction, degrees (meteorological)
+ * @param windSpeed wind speed.
+ * @param color text & shape colors
+ * @param modifier Modifier
+ */
 @Composable
-fun WindIndicator(hourForecast: HourForecast, color: Color, modifier: Modifier = Modifier) {
+fun WindIndicator(
+    windDegrees: Float,
+    windSpeed: Float,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
     // Multiply -1 to get counterclockwise direction
-    val degrees by animateFloatAsState(targetValue = hourForecast.windDegrees * -1)
+    val degrees by animateFloatAsState(targetValue = windDegrees * -1)
     Box(
         modifier = modifier
             .size(72.dp)
@@ -89,37 +95,44 @@ fun WindIndicator(hourForecast: HourForecast, color: Color, modifier: Modifier =
             }
     ) {
 
-        val speed = hourForecast.windSpeed.roundToInt()
+        val speed = windSpeed.roundToInt()
         Text(
             modifier = Modifier.align(Alignment.Center),
             text = speed.toString(),
             style = MaterialTheme.typography.button
         )
 
-        for (i in 0..speed * 4) {
+        for (i in 0..(speed * 3).coerceAtMost(27)) {
             WindFlow(
-                degrees = degrees,
-                speed = hourForecast.windSpeed,
+                windDegrees = degrees,
+                windSpeed = windSpeed,
                 color = color,
                 isClockWise = i % 2 == 0,
-                marginStart = if (i % 3 == 0) 0.dp else Random.nextInt(6, 8).dp
+                margin = if (i % 3 == 0) 0.dp else Random.nextInt(0, 8).dp
             )
         }
     }
 }
 
+/**
+ * Wind flow animation
+ * @param windDegrees wind direction, degrees (meteorological)
+ * @param windSpeed wind speed.
+ * @param isClockWise boolean to indicate if the animation is clockwise or counterclockwise
+ * @param margin margin of the inner circle. Affects the start point & control points of the bezier
+ */
 @Composable
 fun WindFlow(
-    degrees: Float,
-    speed: Float,
+    windDegrees: Float,
+    windSpeed: Float,
     color: Color,
     isClockWise: Boolean = false,
-    marginStart: Dp
+    margin: Dp
 ) {
 
     val infiniteTransition = rememberInfiniteTransition()
-    val duration = (3000 / speed).coerceIn(400f, 1500f).roundToInt()
-    val delay = (200 * Random.nextInt(0, 5))
+    val duration = (3300 / windSpeed).coerceIn(250f, 1500f).roundToInt()
+    val delay = Random.nextInt(duration/2)
 
     val time by infiniteTransition.animateFloat(
         initialValue = 0.1f,
@@ -149,28 +162,30 @@ fun WindFlow(
 
     val clockWiseDirection = if (isClockWise) 1 else -1
 
-
     Spacer(modifier =
     Modifier
         .fillMaxSize()
         .drawBehind {
             val backgroundRadius = (size.minDimension) / 2
-            val marginStartPX = marginStart.toPx()
+            val marginPX = margin.toPx()
             val start =
-                (degrees).getCircularOffset(center, backgroundRadius - marginStartPX)
+                (windDegrees).getCircularOffset(center, backgroundRadius - marginPX)
 
             val control1 =
-                (degrees + 80 * clockWiseDirection).getCircularOffset(
+                (windDegrees + 80 * clockWiseDirection).getCircularOffset(
                     center,
-                    backgroundRadius - marginStartPX
+                    backgroundRadius - marginPX
                 )
             val control2 =
-                (degrees + 100 * clockWiseDirection).getCircularOffset(
+                (windDegrees + 100 * clockWiseDirection).getCircularOffset(
                     center,
-                    backgroundRadius - marginStartPX
+                    backgroundRadius - marginPX
                 )
             val end =
-                (degrees + 180 * clockWiseDirection).getCircularOffset(center, backgroundRadius)
+                (windDegrees + 180 * clockWiseDirection).getCircularOffset(
+                    center,
+                    backgroundRadius
+                )
 
             val offset = calculateBezier(
                 time = time,
@@ -197,6 +212,14 @@ fun WindFlow(
     )
 }
 
+/**
+ * Util function to calculate [WindFlow] bezier
+ * @param time get position in time from 0f to 1f
+ * @param start start point
+ * @param control1 first control point
+ * @param control2 second control point
+ * @param end end point
+ */
 fun calculateBezier(
     time: Float,
     start: Offset,
@@ -221,19 +244,16 @@ fun calculateBezier(
     return Offset(x = x, y = y)
 }
 
-// TODO find a better way to do this
-fun Long.toHourFormat(): String {
-    val datetime = Instant.fromEpochSeconds(this)
-        .toLocalDateTime(TimeZone.currentSystemDefault())
-
-    val currentTime = Clock.System.now()
-        .toLocalDateTime(TimeZone.currentSystemDefault())
-
-    val date = when (datetime.date) {
-        currentTime.date -> "Today"
-        currentTime.date.plus(1, DateTimeUnit.DAY) -> "Tomorrow"
-        else -> datetime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.US)
-    }
-
-    return "$date ${datetime.hour.toString().padStart(2, '0')}:00 h"
+/**
+ * Util function to calculate the (x,y) position of a degree in a circumference
+ * @param center (x,y) position of the center of the circumference
+ * @param radius of the circumference
+ */
+fun Float.getCircularOffset(
+    center: Offset = Offset(0f, 0f),
+    radius: Float
+): Offset {
+    val x = center.x + radius * cos(this * PI / 180).toFloat()
+    val y = center.y + radius * sin(this * PI / 180).toFloat()
+    return Offset(x, y)
 }
