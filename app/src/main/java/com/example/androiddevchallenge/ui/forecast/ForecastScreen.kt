@@ -42,6 +42,8 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import dev.chrisbanes.accompanist.insets.navigationBarsPadding
+import dev.chrisbanes.accompanist.insets.systemBarsPadding
 import kotlin.math.roundToInt
 
 @Composable
@@ -58,6 +60,7 @@ fun ForecastScreen(forecast: Forecast) {
             selectedHour,
             modifier = Modifier
                 .align(Alignment.BottomStart)
+                .navigationBarsPadding()
                 .padding(start = 16.dp, bottom = 16.dp)
         )
         WindIndicator(
@@ -66,6 +69,7 @@ fun ForecastScreen(forecast: Forecast) {
             color = MaterialTheme.colors.primary,
             modifier = Modifier
                 .align(Alignment.TopEnd)
+                .systemBarsPadding()
                 .padding(end = 8.dp, top = 8.dp)
         )
     }

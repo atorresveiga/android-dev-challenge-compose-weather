@@ -23,11 +23,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.example.androiddevchallenge.ui.BlueCloudApp
 import com.example.androiddevchallenge.ui.EventObserver
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import dagger.hilt.android.AndroidEntryPoint
+import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 
 const val REQUEST_LOCATION_PERMISSION = 167
 val REQUIRED_LOCATION_PERMISSIONS =
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         viewModel.isLocationAccessGranted = isLocationPermissionGranted()
 
         viewModel.requestLocationAccess.observe(
@@ -53,12 +56,14 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MyTheme {
                 CompositionLocalProvider(LocalDataFormatter provides viewModel.dataFormatter) {
-                    BlueCloudApp(
-                        state = viewModel.state,
-                        forecast = viewModel.forecast,
-                        onRefreshData = viewModel::onRefreshData,
-                        onRequestPermission = viewModel::requestLocationAccess
-                    )
+                    ProvideWindowInsets {
+                        BlueCloudApp(
+                            state = viewModel.state,
+                            forecast = viewModel.forecast,
+                            onRefreshData = viewModel::onRefreshData,
+                            onRequestPermission = viewModel::requestLocationAccess
+                        )
+                    }
                 }
             }
         }
