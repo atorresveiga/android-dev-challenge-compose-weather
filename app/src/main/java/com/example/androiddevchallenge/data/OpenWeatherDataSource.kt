@@ -1,11 +1,26 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
-import javax.inject.Inject
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import javax.inject.Inject
 
 interface NetworkForecastDataSource {
     suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast>
@@ -35,7 +50,7 @@ class OpenWeatherTransformation {
                     val sunPosition =
                         calculateSunPosition(hour.datetime, day.sunrise, day.sunset)
                     val hourForecast = HourForecast(
-                        datetime = hour.datetime,  // local representation of datetime
+                        datetime = hour.datetime, // local representation of datetime
                         temperature = hour.temperature,
                         feelsLike = hour.feelsLike,
                         pressure = hour.pressure,

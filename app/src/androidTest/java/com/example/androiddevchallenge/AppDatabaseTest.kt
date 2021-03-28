@@ -24,13 +24,13 @@ import com.example.androiddevchallenge.data.HourForecastDAO
 import com.example.androiddevchallenge.data.TestUtil
 import com.example.androiddevchallenge.data.toHourForecastEntity
 import com.google.common.truth.Truth.assertThat
-import java.io.IOException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -91,13 +91,13 @@ class AppDatabaseTest {
         val newDatetime = oldForecast.last().datetime + 3600
 
         val newForecast = TestUtil
-            .createHourlyForecast(startEpoch = newDatetime , hours = 3)
+            .createHourlyForecast(startEpoch = newDatetime, hours = 3)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
         hourForecastDAO.saveForecast(oldForecast + newForecast)
         hourForecastDAO.clearOlderThan(newDatetime)
 
-        val currentForecast = hourForecastDAO.getHourlyForecastFrom(latitude,longitude).first()
+        val currentForecast = hourForecastDAO.getHourlyForecastFrom(latitude, longitude).first()
         assertThat(currentForecast).isEqualTo(newForecast)
     }
 }

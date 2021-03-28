@@ -21,12 +21,13 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.content.ContextCompat
 import com.example.androiddevchallenge.ui.BlueCloudApp
 import com.example.androiddevchallenge.ui.EventObserver
+import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import dagger.hilt.android.AndroidEntryPoint
-
 
 const val REQUEST_LOCATION_PERMISSION = 167
 val REQUIRED_LOCATION_PERMISSIONS =
@@ -42,18 +43,23 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.isLocationAccessGranted = isLocationPermissionGranted()
 
-        viewModel.requestLocationAccess.observe(this, EventObserver {
-            requestPermissions(REQUIRED_LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSION)
-        })
+        viewModel.requestLocationAccess.observe(
+            this,
+            EventObserver {
+                requestPermissions(REQUIRED_LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSION)
+            }
+        )
 
         setContent {
             MyTheme {
-                BlueCloudApp(
-                    state = viewModel.state,
-                    forecast = viewModel.forecast,
-                    onRefreshData = viewModel::onRefreshData,
-                    onRequestPermission = viewModel::requestLocationAccess
-                )
+                CompositionLocalProvider(LocalDataFormatter provides viewModel.dataFormatter) {
+                    BlueCloudApp(
+                        state = viewModel.state,
+                        forecast = viewModel.forecast,
+                        onRefreshData = viewModel::onRefreshData,
+                        onRequestPermission = viewModel::requestLocationAccess
+                    )
+                }
             }
         }
     }
@@ -77,4 +83,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-

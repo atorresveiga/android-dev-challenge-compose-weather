@@ -12,4 +12,50 @@
     <string name="app_name">AndroidDevChallenge</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
+    <string name="midnight">Midnight</string>
+    <string name="noon">Noon</string>
+    <string name="wind_direction">From %1$s %2$s</string>
+    <string name="feels_like">Feels like %1$s</string>
+
+
+    <string name="n_ne">N/NE</string>
+    <string name="ne">NE</string>
+    <string name="e_ne">E/NE</string>
+    <string name="e">E</string>
+    <string name="e_se">E/SE</string>
+    <string name="se">SE</string>
+    <string name="s_se">S/SE</string>
+    <string name="s">S</string>
+    <string name="s_sw">S/SW</string>
+    <string name="sw">SW</string>
+    <string name="w_sw">W/SW</string>
+    <string name="w">W</string>
+    <string name="w_nw">W/NW</string>
+    <string name="nw">NW</string>
+    <string name="n_nw">N/NW</string>
+    <string name="n">N</string>
+
+    <string name="calm_still">Calm and still</string>
+    <string name="light_winds">Light winds</string>
+    <string name="light_breeze">Light breeze</string>
+    <string name="gentle_breeze">Gentle breeze</string>
+    <string name="fresh_breeze">Fresh breeze</string>
+    <string name="strong_breeze">Strong breeze</string>
+    <string name="moderate_gale">Moderate gale</string>
+    <string name="fresh_gale">Fresh gale</string>
+    <string name="strong_gale">Strong gale</string>
+    <string name="whole_gale">Whole gale</string>
+    <string name="storm">Storm</string>
+    <string name="hurricane">Hurricane</string>
+
+    <string name="no_precipitation">No precipitation</string>
+    <string name="chance_precipitation">Chance of precipitation</string>
+    <string name="light">Light %1$s</string>
+    <string name="moderate">Moderate %1$s</string>
+    <string name="heavy">Heavy %1$s</string>
+    <string name="violent">Violent %1$s</string>
+
+    <string name="rain">rain</string>
+    <string name="snow">snow</string>
+
 </resources>

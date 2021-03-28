@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.androiddevchallenge.ui.forecast
 
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -9,8 +24,10 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -23,8 +40,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.ui.LocalDataFormatter
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -46,71 +66,84 @@ fun WindIndicator(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    // Multiply -1 to get counterclockwise direction
-    val degrees by animateFloatAsState(targetValue = windDegrees * -1)
-    Box(
-        modifier = modifier
-            .size(72.dp)
-            .drawBehind {
-                val pointerSize = size.minDimension * .10f
-                val strokeWidth = 4.dp.toPx()
-                val margin = 8.dp.toPx()
-                val backgroundRadius =
-                    (size.minDimension - (pointerSize * 4) - strokeWidth - margin) / 2
+    Column(modifier = modifier, horizontalAlignment = Alignment.End) {
+        // In meteorological degrees North is 0°
+        val degrees by animateFloatAsState(targetValue = windDegrees - 90f)
+        Box(
+            Modifier
+                .size(72.dp)
+                .drawBehind {
+                    val pointerSize = size.minDimension * .10f
+                    val strokeWidth = 4.dp.toPx()
+                    val margin = 8.dp.toPx()
+                    val backgroundRadius =
+                        (size.minDimension - (pointerSize * 4) - strokeWidth - margin) / 2
 
-                val pointerRadius = backgroundRadius + 4.dp.toPx()
+                    val pointerRadius = backgroundRadius + 4.dp.toPx()
 
-                val pointerPath = Path()
-                val pointerStartOffset =
-                    (degrees - 160).getCircularOffset(center, pointerRadius)
-                val pointerEndOffset =
-                    (degrees - 200).getCircularOffset(center, pointerRadius)
-                val pointerControlOffset =
-                    (degrees - 180).getCircularOffset(center, pointerRadius + pointerSize * .2f)
-                val pointerTopOffset =
-                    (degrees - 180).getCircularOffset(center, pointerRadius + pointerSize)
+                    val pointerPath = Path()
+                    val pointerStartOffset =
+                        (degrees - 160).getCircularOffset(center, pointerRadius)
+                    val pointerEndOffset =
+                        (degrees - 200).getCircularOffset(center, pointerRadius)
+                    val pointerControlOffset =
+                        (degrees - 180).getCircularOffset(center, pointerRadius + pointerSize * .2f)
+                    val pointerTopOffset =
+                        (degrees - 180).getCircularOffset(center, pointerRadius + pointerSize)
 
-                pointerPath.moveTo(pointerStartOffset.x, pointerStartOffset.y)
-                pointerPath.quadraticBezierTo(
-                    x1 = pointerControlOffset.x,
-                    y1 = pointerControlOffset.y,
-                    x2 = pointerEndOffset.x,
-                    y2 = pointerEndOffset.y
-                )
-                pointerPath.lineTo(pointerTopOffset.x, pointerTopOffset.y)
-                pointerPath.close()
+                    pointerPath.moveTo(pointerStartOffset.x, pointerStartOffset.y)
+                    pointerPath.quadraticBezierTo(
+                        x1 = pointerControlOffset.x,
+                        y1 = pointerControlOffset.y,
+                        x2 = pointerEndOffset.x,
+                        y2 = pointerEndOffset.y
+                    )
+                    pointerPath.lineTo(pointerTopOffset.x, pointerTopOffset.y)
+                    pointerPath.close()
 
-                drawPath(
-                    path = pointerPath,
-                    color = color
-                )
+                    drawPath(
+                        path = pointerPath,
+                        color = color
+                    )
 
-                drawCircle(
-                    color = color,
-                    radius = backgroundRadius,
-                    center = center,
-                    style = Stroke(width = strokeWidth)
-                )
+                    drawCircle(
+                        color = color,
+                        radius = backgroundRadius,
+                        center = center,
+                        style = Stroke(width = strokeWidth)
+                    )
+                }
+        ) {
 
-            }
-    ) {
-
-        val speed = windSpeed.roundToInt()
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = speed.toString(),
-            style = MaterialTheme.typography.button
-        )
-
-        for (i in 0..(speed * 3).coerceAtMost(27)) {
-            WindFlow(
-                windDegrees = degrees,
-                windSpeed = windSpeed,
-                color = color,
-                isClockWise = i % 2 == 0,
-                margin = if (i % 3 == 0) 0.dp else Random.nextInt(0, 8).dp
+            val speed = windSpeed.roundToInt()
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = speed.toString(),
+                style = MaterialTheme.typography.button
             )
+
+            for (i in 0..(speed * 3).coerceAtMost(27)) {
+                WindFlow(
+                    windDegrees = degrees,
+                    windSpeed = windSpeed,
+                    color = color,
+                    isClockWise = i % 2 == 0,
+                    margin = if (i % 3 == 0) 0.dp else Random.nextInt(0, 8).dp
+                )
+            }
         }
+        Text(
+            text = LocalDataFormatter.current.wind.getValue(windSpeed),
+            modifier = Modifier.padding(end = 16.dp)
+        )
+        Text(
+            text = stringResource(
+                R.string.wind_direction,
+                LocalDataFormatter.current.wind.getDirection(windDegrees),
+                "(m/s)"
+            ),
+            modifier = Modifier.padding(end = 16.dp)
+        )
     }
 }
 
@@ -132,7 +165,7 @@ fun WindFlow(
 
     val infiniteTransition = rememberInfiniteTransition()
     val duration = (3300 / windSpeed).coerceIn(250f, 1500f).roundToInt()
-    val delay = Random.nextInt(duration/2)
+    val delay = Random.nextInt(duration / 2)
 
     val time by infiniteTransition.animateFloat(
         initialValue = 0.1f,
@@ -162,53 +195,54 @@ fun WindFlow(
 
     val clockWiseDirection = if (isClockWise) 1 else -1
 
-    Spacer(modifier =
-    Modifier
-        .fillMaxSize()
-        .drawBehind {
-            val backgroundRadius = (size.minDimension) / 2
-            val marginPX = margin.toPx()
-            val start =
-                (windDegrees).getCircularOffset(center, backgroundRadius - marginPX)
+    Spacer(
+        modifier =
+        Modifier
+            .fillMaxSize()
+            .drawBehind {
+                val backgroundRadius = (size.minDimension) / 2
+                val marginPX = margin.toPx()
+                val start =
+                    (windDegrees).getCircularOffset(center, backgroundRadius - marginPX)
 
-            val control1 =
-                (windDegrees + 80 * clockWiseDirection).getCircularOffset(
-                    center,
-                    backgroundRadius - marginPX
-                )
-            val control2 =
-                (windDegrees + 100 * clockWiseDirection).getCircularOffset(
-                    center,
-                    backgroundRadius - marginPX
-                )
-            val end =
-                (windDegrees + 180 * clockWiseDirection).getCircularOffset(
-                    center,
-                    backgroundRadius
+                val control1 =
+                    (windDegrees + 80 * clockWiseDirection).getCircularOffset(
+                        center,
+                        backgroundRadius - marginPX
+                    )
+                val control2 =
+                    (windDegrees + 100 * clockWiseDirection).getCircularOffset(
+                        center,
+                        backgroundRadius - marginPX
+                    )
+                val end =
+                    (windDegrees + 180 * clockWiseDirection).getCircularOffset(
+                        center,
+                        backgroundRadius
+                    )
+
+                val offset = calculateBezier(
+                    time = time,
+                    start = start,
+                    control1 = control1,
+                    control2 = control2,
+                    end = end
                 )
 
-            val offset = calculateBezier(
-                time = time,
-                start = start,
-                control1 = control1,
-                control2 = control2,
-                end = end
-            )
-
-            val offset2 = calculateBezier(
-                time = time - .08f,
-                start = start,
-                control1 = control1,
-                control2 = control2,
-                end = end
-            )
-            drawLine(
-                color = color,
-                start = offset,
-                end = offset2,
-                alpha = alpha
-            )
-        }
+                val offset2 = calculateBezier(
+                    time = time - .08f,
+                    start = start,
+                    control1 = control1,
+                    control2 = control2,
+                    end = end
+                )
+                drawLine(
+                    color = color,
+                    start = offset,
+                    end = offset2,
+                    alpha = alpha
+                )
+            }
     )
 }
 
