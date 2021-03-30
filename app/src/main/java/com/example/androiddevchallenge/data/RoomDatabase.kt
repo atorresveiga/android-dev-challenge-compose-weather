@@ -24,6 +24,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import kotlinx.coroutines.flow.Flow
 
@@ -43,12 +44,94 @@ data class HourForecastEntity(
     val windSpeed: Float,
     val windDegrees: Float,
     val weather: String,
-    val sunPosition: Int,
     val pop: Float,
     val rain: Float,
     val snow: Float,
     val latitude: Double,
     val longitude: Double
+)
+
+@Entity(
+    tableName = "day_forecast_table",
+    primaryKeys = ["datetime", "latitude", "longitude"]
+)
+data class DayForecastEntity(
+    val datetime: Long,
+    val pressure: Int,
+    val humidity: Int,
+    val uvi: Float,
+    val sunrise: Long,
+    val sunset: Long,
+    val minTemperature: Float,
+    val maxTemperature: Float,
+    val rain: Float = 0f,
+    val snow: Float = 0f,
+    val latitude: Double,
+    val longitude: Double
+)
+
+@Dao
+interface ForecastDAO {
+    @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
+    fun getHourlyForecastFrom(latitude: Double, longitude: Double): Flow<List<HourForecastEntity>>
+
+    @Query("SELECT * from day_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
+    fun getDailyForecastFrom(latitude: Double, longitude: Double): Flow<List<DayForecastEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveHourlyForecast(hourly: List<HourForecastEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveDailyForecast(daily: List<DayForecastEntity>)
+
+    @Query("DELETE FROM hour_forecast_table WHERE datetime < :datetime")
+    suspend fun clearOlderThan(datetime: Long)
+}
+
+/**
+ * The [Room] database for this app.
+ */
+@Database(entities = [HourForecastEntity::class, DayForecastEntity::class], version = 1, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun forecastDAO(): ForecastDAO
+
+    companion object {
+        private const val databaseName = "besafe-db"
+
+        fun buildDatabase(context: Context): AppDatabase {
+            return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
+                .fallbackToDestructiveMigration()
+                .build()
+        }
+    }
+}
+
+fun DayForecastEntity.toDayForecast() = DayForecast(
+    datetime = this.datetime,
+    pressure = this.pressure,
+    humidity = this.humidity,
+    uvi = this.uvi,
+    sunrise = this.sunrise,
+    sunset = this.sunset,
+    minTemperature = this.minTemperature,
+    maxTemperature = this.maxTemperature,
+    rain = this.rain,
+    snow = this.snow
+)
+
+fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayForecastEntity(
+    datetime = this.datetime,
+    pressure = this.pressure,
+    humidity = this.humidity,
+    uvi = this.uvi,
+    sunrise = this.sunrise,
+    sunset = this.sunset,
+    minTemperature = this.minTemperature,
+    maxTemperature = this.maxTemperature,
+    rain = this.rain,
+    snow = this.snow,
+    latitude = latitude,
+    longitude = longitude
 )
 
 fun HourForecastEntity.toHourForecast() = HourForecast(
@@ -63,7 +146,6 @@ fun HourForecastEntity.toHourForecast() = HourForecast(
     windSpeed = this.windSpeed,
     windDegrees = this.windDegrees,
     weather = this.weather,
-    sunPosition = this.sunPosition,
     pop = this.pop,
     rain = this.rain,
     snow = this.snow
@@ -81,40 +163,9 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
     windSpeed = this.windSpeed,
     windDegrees = this.windDegrees,
     weather = this.weather,
-    sunPosition = this.sunPosition,
     pop = this.pop,
     rain = this.rain,
     snow = this.snow,
     latitude = latitude,
     longitude = longitude
 )
-
-@Dao
-interface HourForecastDAO {
-    @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
-    fun getHourlyForecastFrom(latitude: Double, longitude: Double): Flow<List<HourForecastEntity>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveForecast(forecast: List<HourForecastEntity>)
-
-    @Query("DELETE FROM hour_forecast_table WHERE datetime < :datetime")
-    suspend fun clearOlderThan(datetime: Long)
-}
-
-/**
- * The [Room] database for this app.
- */
-@Database(entities = [HourForecastEntity::class], version = 1, exportSchema = false)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun hourForecastDAO(): HourForecastDAO
-
-    companion object {
-        private const val databaseName = "besafe-db"
-
-        fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
-                .fallbackToDestructiveMigration()
-                .build()
-        }
-    }
-}

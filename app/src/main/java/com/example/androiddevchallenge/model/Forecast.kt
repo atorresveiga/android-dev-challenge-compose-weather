@@ -19,10 +19,12 @@ package com.example.androiddevchallenge.model
  * A data class that holds the forecast data.
  * @param location location of the current forecast (timezone,lat lon..ect)
  * @param hourly forecast for the next 48 hours
+ * @param daily forecast for the next 7 days
  */
 data class Forecast(
     val location: Location,
-    val hourly: List<HourForecast>
+    val hourly: List<HourForecast>,
+    val daily: List<DayForecast>
 )
 
 /**
@@ -52,7 +54,6 @@ data class Location(
  * @param windSpeed Wind speed. Units metre/sec
  * @param windDegrees Wind direction, degrees (meteorological)
  * @param weather group of weather parameters (Rain, Snow, Extreme etc.)
- * @param sunPosition sun position % calculated by the period between sunrise and sunset
  * @param pop probability of precipitation
  * @param rain rain volume for last hour
  * @param snow snow volume for last hour
@@ -69,8 +70,33 @@ data class HourForecast(
     val windSpeed: Float,
     val windDegrees: Float,
     val weather: String,
-    val sunPosition: Int,
     val pop: Float,
     val rain: Float,
     val snow: Float
+)
+
+/**
+ * A data class that holds the forecast for this specific Hour.
+ * @param datetime time of the forecasted data, unix, UTC
+ * @param pressure atmospheric pressure on the sea level, hPa
+ * @param humidity, %
+ * @param uvi UV index
+ * @param sunrise Sunrise time, Unix, UTC
+ * @param sunset Sunset time, Unix, UTC
+ * @param minTemperature Min daily temperature
+ * @param maxTemperature Max daily temperature
+ * @param rain rain volume
+ * @param snow snow volume
+ */
+data class DayForecast(
+    val datetime: Long,
+    val pressure: Int,
+    val humidity: Int,
+    val uvi: Float,
+    val sunrise: Long,
+    val sunset: Long,
+    val minTemperature: Float,
+    val maxTemperature: Float,
+    val rain: Float = 0f,
+    val snow: Float = 0f
 )

@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.data
 
+import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
@@ -42,32 +43,41 @@ class OpenWeatherTransformation {
     companion object {
         fun transformToForecast(locationForecast: LocationForecast): Forecast {
             val hours = mutableListOf<HourForecast>()
-            val days = locationForecast.daily.associateBy { day -> day.datetime.getStringDate() }
-
+            val days = mutableListOf<DayForecast>()
             for (hour in locationForecast.hourly) {
-                val hourDate = hour.datetime.getStringDate()
-                days[hourDate]?.let { day ->
-                    val sunPosition =
-                        calculateSunPosition(hour.datetime, day.sunrise, day.sunset)
-                    val hourForecast = HourForecast(
-                        datetime = hour.datetime, // local representation of datetime
-                        temperature = hour.temperature,
-                        feelsLike = hour.feelsLike,
-                        pressure = hour.pressure,
-                        humidity = hour.humidity,
-                        uvi = hour.uvi,
-                        clouds = hour.clouds,
-                        visibility = hour.visibility,
-                        windSpeed = hour.windSpeed,
-                        windDegrees = hour.windDegrees,
-                        weather = hour.weather.joinToString { it.description },
-                        pop = hour.pop,
-                        sunPosition = sunPosition,
-                        rain = hour.rain.lastHour,
-                        snow = hour.snow.lastHour
-                    )
-                    hours.add(hourForecast)
-                }
+                val hourForecast = HourForecast(
+                    datetime = hour.datetime, // local representation of datetime
+                    temperature = hour.temperature,
+                    feelsLike = hour.feelsLike,
+                    pressure = hour.pressure,
+                    humidity = hour.humidity,
+                    uvi = hour.uvi,
+                    clouds = hour.clouds,
+                    visibility = hour.visibility,
+                    windSpeed = hour.windSpeed,
+                    windDegrees = hour.windDegrees,
+                    weather = hour.weather.joinToString { it.description },
+                    pop = hour.pop,
+                    rain = hour.rain.lastHour,
+                    snow = hour.snow.lastHour
+                )
+                hours.add(hourForecast)
+            }
+
+            for (day in locationForecast.daily) {
+                val dayForecast = DayForecast(
+                    datetime = day.datetime,
+                    pressure = day.pressure,
+                    humidity = day.humidity,
+                    uvi = day.uvi,
+                    sunrise = day.sunrise,
+                    sunset = day.sunset,
+                    minTemperature = day.temperature.min,
+                    maxTemperature = day.temperature.max,
+                    rain = day.rain,
+                    snow = day.snow
+                )
+                days.add(dayForecast)
             }
 
             val location = Location(
@@ -79,18 +89,9 @@ class OpenWeatherTransformation {
 
             return Forecast(
                 location = location,
-                hourly = hours
+                hourly = hours,
+                daily = days
             )
-        }
-
-        private fun calculateSunPosition(datetime: Long, sunrise: Long, sunset: Long): Int {
-            val top = (sunset - sunrise) / 2
-            return when {
-                datetime < sunrise -> -1
-                datetime > sunset -> -1
-                datetime < top -> ((datetime - sunrise) * 100 / top).toInt()
-                else -> ((sunset - datetime) * 100 / top).toInt()
-            }
         }
     }
 }

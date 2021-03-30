@@ -20,7 +20,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
-import com.example.androiddevchallenge.data.HourForecastDAO
+import com.example.androiddevchallenge.data.ForecastDAO
 import com.example.androiddevchallenge.data.TestUtil
 import com.example.androiddevchallenge.data.toHourForecastEntity
 import com.google.common.truth.Truth.assertThat
@@ -39,7 +39,7 @@ import java.io.IOException
  */
 @RunWith(AndroidJUnit4::class)
 class AppDatabaseTest {
-    private lateinit var hourForecastDAO: HourForecastDAO
+    private lateinit var forecastDAO: ForecastDAO
     private lateinit var db: AppDatabase
 
     @Before
@@ -48,7 +48,7 @@ class AppDatabaseTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        hourForecastDAO = db.hourForecastDAO()
+        forecastDAO = db.forecastDAO()
     }
 
     @After
@@ -68,10 +68,10 @@ class AppDatabaseTest {
             .createHourlyForecast(startEpoch = 1616407200, hours = 5)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
-        hourForecastDAO.saveForecast(locationForecast)
+        forecastDAO.saveHourlyForecast(locationForecast)
 
-        val wrongLocation = hourForecastDAO.getHourlyForecastFrom(100.0, 100.0).first()
-        val rightLocation = hourForecastDAO.getHourlyForecastFrom(0.0, 0.0).first()
+        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0).first()
+        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0).first()
 
         assertThat(wrongLocation).isEmpty()
         assertThat(rightLocation).isEqualTo(locationForecast)
@@ -94,10 +94,10 @@ class AppDatabaseTest {
             .createHourlyForecast(startEpoch = newDatetime, hours = 3)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
-        hourForecastDAO.saveForecast(oldForecast + newForecast)
-        hourForecastDAO.clearOlderThan(newDatetime)
+        forecastDAO.saveHourlyForecast(oldForecast + newForecast)
+        forecastDAO.clearOlderThan(newDatetime)
 
-        val currentForecast = hourForecastDAO.getHourlyForecastFrom(latitude, longitude).first()
+        val currentForecast = forecastDAO.getHourlyForecastFrom(latitude, longitude).first()
         assertThat(currentForecast).isEqualTo(newForecast)
     }
 }

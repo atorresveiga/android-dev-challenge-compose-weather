@@ -40,7 +40,6 @@ object TestUtil {
                 windSpeed = Random.nextInt(30).toFloat(),
                 windDegrees = Random.nextInt(360).toFloat(),
                 weather = weather[Random.nextInt(0, 3)],
-                sunPosition = Random.nextInt(-1, 100),
                 pop = Random.nextInt(0, 100) / 100f,
                 rain = Random.nextInt(0, 1000) / 100f,
                 snow = Random.nextInt(0, 1000) / 100f
