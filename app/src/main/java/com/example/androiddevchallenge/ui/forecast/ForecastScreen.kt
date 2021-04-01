@@ -18,15 +18,22 @@ package com.example.androiddevchallenge.ui.forecast
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.North
+import androidx.compose.material.icons.rounded.Place
+import androidx.compose.material.icons.rounded.South
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,25 +44,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.roundToInt
 
 @Composable
 fun ForecastScreen(forecast: Forecast) {
+    val indexForecast = IndexForecast(forecast)
     Box(modifier = Modifier.fillMaxSize()) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
-        HourNavigation(forecast.hourly, index, onIndexChange)
+        HourNavigation(indexForecast.hourly, index, onIndexChange)
 
-        val selectedHour = forecast.hourly[index]
+        val selectedHour = indexForecast.hourly[index]
+        val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
 
-        CurrentTemperature(selectedHour, modifier = Modifier.align(Alignment.Center))
+        MainInformation(
+            timezone = indexForecast.location.timezone,
+            weather = currentDay.weather,
+            hourForecast = selectedHour,
+            minTemperature = currentDay.minTemperature,
+            maxTemperature = currentDay.maxTemperature,
+            modifier = Modifier.align(Alignment.Center)
+        )
         Precipitation(
             selectedHour,
             modifier = Modifier
@@ -66,7 +87,7 @@ fun ForecastScreen(forecast: Forecast) {
         WindIndicator(
             selectedHour.windDegrees,
             selectedHour.windSpeed,
-            color = MaterialTheme.colors.primary,
+            color = MaterialTheme.colors.onPrimary,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .systemBarsPadding()
@@ -111,20 +132,75 @@ fun HourNavigation(
 }
 
 @Composable
-fun CurrentTemperature(hourForecast: HourForecast, modifier: Modifier = Modifier) {
+fun MainInformation(
+    timezone: String,
+    weather: String,
+    minTemperature: Float,
+    maxTemperature: Float,
+    hourForecast: HourForecast,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = LocalDataFormatter.current.date.getDateHour(datetime = hourForecast.datetime))
+        Row(
+            modifier = Modifier.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Place,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text(
+                text = LocalDataFormatter.current.timezone.getValue(timezone),
+                style = MaterialTheme.typography.h5
+            )
+        }
+        Text(
+            modifier = Modifier.padding(top = 8.dp),
+            text = LocalDataFormatter.current.date.getDateHour(datetime = hourForecast.datetime)
+        )
         Text(
             modifier = Modifier.offset(x = 16.dp),
             text = LocalDataFormatter.current.temperature.getValue(hourForecast.temperature),
             style = MaterialTheme.typography.h1
+
         )
         Text(
             text = stringResource(
-                R.string.feels_like,
-                LocalDataFormatter.current.temperature.getValue(hourForecast.feelsLike)
-            )
+                R.string.feels_like_uvi,
+                LocalDataFormatter.current.temperature.getValue(hourForecast.feelsLike),
+                LocalDataFormatter.current.uvi.getValue(hourForecast.uvi)
+            ),
+            textAlign = TextAlign.Center
         )
+        Text(
+            modifier = Modifier.padding(top = 16.dp),
+            text = weather,
+            style = MaterialTheme.typography.h5
+        )
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.South,
+                contentDescription = null,
+            )
+            Text(
+                modifier = Modifier.padding(end = 16.dp),
+                text = LocalDataFormatter.current.temperature.getValue(minTemperature),
+                style = MaterialTheme.typography.h5
+            )
+            Icon(
+                imageVector = Icons.Rounded.North,
+                contentDescription = null
+            )
+            Text(
+                text = LocalDataFormatter.current.temperature.getValue(maxTemperature),
+                style = MaterialTheme.typography.h5
+            )
+        }
     }
 }
 
@@ -161,4 +237,30 @@ fun EmptyForecast(onRefreshData: () -> Unit) {
     Button(onClick = { onRefreshData() }) {
         Text(text = "Refresh data")
     }
+}
+
+class IndexForecast(forecast: Forecast) {
+    val location = forecast.location
+    private val daily = forecast.daily
+    val hourly = forecast.hourly
+
+    private val dayIndex: HashMap<Long, Int> = hashMapOf()
+
+    init {
+        daily.forEachIndexed { index, dayForecast ->
+            val timezone = TimeZone.currentSystemDefault()
+            val date = Instant.fromEpochSeconds(dayForecast.datetime).toLocalDateTime(timezone).date
+            for (hour in hourly) {
+                val hourDate =
+                    Instant.fromEpochSeconds(hour.datetime).toLocalDateTime(timezone).date
+                if (date == hourDate) {
+                    dayIndex[hour.datetime] = index
+                }
+            }
+        }
+    }
+
+    fun getDayForecast(hourDatetime: Long): DayForecast =
+        dayIndex[hourDatetime]?.let { daily[it] }
+            ?: throw IllegalArgumentException("Hour not belongs to current forecast")
 }

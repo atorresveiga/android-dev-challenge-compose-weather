@@ -87,6 +87,7 @@ data class HourForecast(
  * @param maxTemperature Max daily temperature
  * @param rain rain volume
  * @param snow snow volume
+ * @param weather group of weather parameters (Rain, Snow, Extreme etc.)
  */
 data class DayForecast(
     val datetime: Long,
@@ -98,5 +99,6 @@ data class DayForecast(
     val minTemperature: Float,
     val maxTemperature: Float,
     val rain: Float = 0f,
-    val snow: Float = 0f
+    val snow: Float = 0f,
+    val weather: String
 )

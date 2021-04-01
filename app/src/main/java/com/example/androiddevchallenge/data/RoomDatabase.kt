@@ -66,6 +66,7 @@ data class DayForecastEntity(
     val maxTemperature: Float,
     val rain: Float = 0f,
     val snow: Float = 0f,
+    val weather: String,
     val latitude: Double,
     val longitude: Double
 )
@@ -91,7 +92,11 @@ interface ForecastDAO {
 /**
  * The [Room] database for this app.
  */
-@Database(entities = [HourForecastEntity::class, DayForecastEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [HourForecastEntity::class, DayForecastEntity::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun forecastDAO(): ForecastDAO
 
@@ -116,7 +121,8 @@ fun DayForecastEntity.toDayForecast() = DayForecast(
     minTemperature = this.minTemperature,
     maxTemperature = this.maxTemperature,
     rain = this.rain,
-    snow = this.snow
+    snow = this.snow,
+    weather = this.weather
 )
 
 fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayForecastEntity(
@@ -130,6 +136,7 @@ fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayFo
     maxTemperature = this.maxTemperature,
     rain = this.rain,
     snow = this.snow,
+    weather = this.weather,
     latitude = latitude,
     longitude = longitude
 )

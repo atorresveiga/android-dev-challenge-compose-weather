@@ -75,7 +75,8 @@ class OpenWeatherTransformation {
                     minTemperature = day.temperature.min,
                     maxTemperature = day.temperature.max,
                     rain = day.rain,
-                    snow = day.snow
+                    snow = day.snow,
+                    weather = day.weather.joinToString { it.description }
                 )
                 days.add(dayForecast)
             }

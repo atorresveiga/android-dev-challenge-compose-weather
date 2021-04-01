@@ -142,11 +142,32 @@ class PrecipitationFormatter {
     fun getVolume(volume: Float) = volume.toString().plus(" mm")
 }
 
+class TimeZoneFormatter {
+    fun getValue(timezone: String): String {
+        val sections = timezone.split("/")
+        return sections.getOrElse(sections.size - 1) { timezone }.replace("_", " ")
+    }
+}
+
+class UVFormatter {
+    fun getValue(uvi: Float): String {
+        return when (uvi) {
+            in 0f..2.99f -> "Low"
+            in 2.99f..4.99f -> "Moderate"
+            in 4.99f..7.99f -> "High"
+            in 7.99f..10.99f -> "Very High"
+            else -> "Extreme"
+        }
+    }
+}
+
 class DataFormatter(
     var temperature: TemperatureFormatter = TemperatureFormatter(),
     val date: DateFormatter = DateFormatter(),
     val wind: WindFormatter = WindFormatter(),
-    val precipitation: PrecipitationFormatter = PrecipitationFormatter()
+    val timezone: TimeZoneFormatter = TimeZoneFormatter(),
+    val precipitation: PrecipitationFormatter = PrecipitationFormatter(),
+    val uvi: UVFormatter = UVFormatter()
 )
 
 val LocalDataFormatter = compositionLocalOf<DataFormatter> { error("No data formatter found!") }
