@@ -33,32 +33,38 @@ private val Context.dataStore by preferencesDataStore("forecast")
 @Singleton
 class DataStoreManager @Inject constructor(@ApplicationContext appContext: Context) {
 
-    private val dataStore = appContext.dataStore
+    private val _dataStore = appContext.dataStore
 
-    private val timezone = stringPreferencesKey("timezone")
-    private val latitude = doublePreferencesKey("latitude")
-    private val longitude = doublePreferencesKey("longitude")
-    private val lastUpdated = longPreferencesKey("last_updated")
+    private val _timezone = stringPreferencesKey("timezone")
+    private val _latitude = doublePreferencesKey("latitude")
+    private val _longitude = doublePreferencesKey("longitude")
+    private val _lastUpdated = longPreferencesKey("last_updated")
 
-    suspend fun saveCurrentLocation(location: Location) {
-        dataStore.edit { forecast ->
-            forecast[timezone] = location.timezone
-            forecast[latitude] = location.latitude
-            forecast[longitude] = location.longitude
-            forecast[lastUpdated] = location.lastUpdated
+    suspend fun setCurrentLocation(location: Location) {
+        _dataStore.edit { preferences ->
+            preferences[_timezone] = location.timezone
+            preferences[_latitude] = location.latitude
+            preferences[_longitude] = location.longitude
         }
     }
 
-    val currentLocation: Flow<Location?> = dataStore.data.map { preferences ->
-        val timezoneValue = preferences[timezone] ?: return@map null
-        val latitudeValue = preferences[latitude] ?: return@map null
-        val longitudeValue = preferences[longitude] ?: return@map null
-        val lastUpdatedValue = preferences[lastUpdated] ?: return@map null
+    suspend fun setLastUpdated(datetime: Long) {
+        _dataStore.edit { preferences ->
+            preferences[_lastUpdated] = datetime
+        }
+    }
+
+    val lastUpdated =
+        _dataStore.data.map { preferences -> preferences[_lastUpdated] ?: return@map null }
+
+    val currentLocation: Flow<Location?> = _dataStore.data.map { preferences ->
+        val timezoneValue = preferences[_timezone] ?: return@map null
+        val latitudeValue = preferences[_latitude] ?: return@map null
+        val longitudeValue = preferences[_longitude] ?: return@map null
         Location(
             timezone = timezoneValue,
             latitude = latitudeValue,
-            longitude = longitudeValue,
-            lastUpdated = lastUpdatedValue
+            longitude = longitudeValue
         )
     }
 }

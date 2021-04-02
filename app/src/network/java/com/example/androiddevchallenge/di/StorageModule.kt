@@ -36,15 +36,6 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import javax.inject.Qualifier
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class NetworkDataSource
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class LocalDataSource
 
 @Module
 @InstallIn(SingletonComponent::class)

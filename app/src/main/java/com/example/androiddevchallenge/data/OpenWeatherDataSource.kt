@@ -84,14 +84,14 @@ class OpenWeatherTransformation {
             val location = Location(
                 timezone = locationForecast.timezone,
                 latitude = locationForecast.latitude,
-                longitude = locationForecast.longitude,
-                lastUpdated = Clock.System.now().epochSeconds
+                longitude = locationForecast.longitude
             )
 
             return Forecast(
                 location = location,
                 hourly = hours,
-                daily = days
+                daily = days,
+                lastUpdated = Clock.System.now().epochSeconds
             )
         }
     }

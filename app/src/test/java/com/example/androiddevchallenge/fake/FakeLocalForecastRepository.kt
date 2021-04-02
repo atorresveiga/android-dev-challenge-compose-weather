@@ -16,8 +16,8 @@
 package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
+import com.example.androiddevchallenge.data.MockDataUtil
 import com.example.androiddevchallenge.data.Result
-import com.example.androiddevchallenge.data.TestUtil
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +36,9 @@ class FakeLocalForecastRepository : LocalForecastRepository {
         currentLocation?.let {
             val forecast = Forecast(
                 location = it,
-                hourly = TestUtil.createHourlyForecast(1616407200)
+                hourly = MockDataUtil.createHourlyForecast(1616407200),
+                daily = MockDataUtil.createDailyForecast(1616407200),
+                lastUpdated = 1616407200
             )
             emit(Result.Success(forecast))
         } ?: emit(Result.Success(null))

@@ -21,10 +21,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import dev.chrisbanes.accompanist.insets.systemBarsPadding
 
 @Composable
 fun NeedsLocationAccessScreen(onRequestPermission: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
         Button(onClick = { onRequestPermission() }) {
             Text("I understand")
         }

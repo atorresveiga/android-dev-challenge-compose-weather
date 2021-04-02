@@ -21,7 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.ForecastDAO
-import com.example.androiddevchallenge.data.TestUtil
+import com.example.androiddevchallenge.data.MockDataUtil
 import com.example.androiddevchallenge.data.toHourForecastEntity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -64,7 +64,7 @@ class AppDatabaseTest {
         val latitude = 0.0
         val longitude = 0.0
 
-        val locationForecast = TestUtil
+        val locationForecast = MockDataUtil
             .createHourlyForecast(startEpoch = 1616407200, hours = 5)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
@@ -84,13 +84,13 @@ class AppDatabaseTest {
         val latitude = 0.0
         val longitude = 0.0
 
-        val oldForecast = TestUtil
+        val oldForecast = MockDataUtil
             .createHourlyForecast(startEpoch = 1616407200, hours = 3)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
         val newDatetime = oldForecast.last().datetime + 3600
 
-        val newForecast = TestUtil
+        val newForecast = MockDataUtil
             .createHourlyForecast(startEpoch = newDatetime, hours = 3)
             .map { it.toHourForecastEntity(latitude, longitude) }
 

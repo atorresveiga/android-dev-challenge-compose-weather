@@ -42,39 +42,46 @@ class LocalForecastRepositoryDefault(
     override fun getForecast(): Flow<Result<Forecast?>> {
 
         return dataStoreManager.currentLocation
-            .flatMapLatest { currentLocation ->
-                if (currentLocation != null) {
-                    forecastDAO.getHourlyForecastFrom(
-                        currentLocation.latitude,
-                        currentLocation.longitude
-                    )
-                        .combine(
-                            forecastDAO.getDailyForecastFrom(
-                                currentLocation.latitude,
-                                currentLocation.longitude
+            .combine(dataStoreManager.lastUpdated) { currentLocation, lastUpdated ->
+                Pair(currentLocation, lastUpdated)
+            }
+            .flatMapLatest { pair ->
+                val currentLocation =
+                    pair.first ?: return@flatMapLatest flow { Result.Success(null) }
+                val lastUpdated = pair.second ?: return@flatMapLatest flow { Result.Success(null) }
+
+                forecastDAO.getHourlyForecastFrom(
+                    currentLocation.latitude,
+                    currentLocation.longitude
+                )
+                    .combine(
+                        forecastDAO.getDailyForecastFrom(
+                            currentLocation.latitude,
+                            currentLocation.longitude
+                        )
+                    ) { hourly, daily ->
+                        Result.Success(
+                            Forecast(
+                                location = currentLocation,
+                                hourly = hourly.map { it.toHourForecast() },
+                                daily = daily.map { it.toDayForecast() },
+                                lastUpdated = lastUpdated
                             )
-                        ) { hourly, daily ->
-                            Result.Success(
-                                Forecast(
-                                    location = currentLocation,
-                                    hourly = hourly.map { it.toHourForecast() },
-                                    daily = daily.map { it.toDayForecast() }
-                                )
-                            )
-                        }
-                } else {
-                    flow { Result.Success(null) }
-                }
+                        )
+                    }
             }
     }
 
     override fun getCurrentLocation() = dataStoreManager.currentLocation
 
     override suspend fun saveCurrentLocation(location: Location) =
-        dataStoreManager.saveCurrentLocation(location)
+        dataStoreManager.setCurrentLocation(location)
 
     override suspend fun saveForecast(forecast: Forecast) {
-        dataStoreManager.saveCurrentLocation(forecast.location)
+        dataStoreManager.run {
+            setCurrentLocation(forecast.location)
+            setLastUpdated(forecast.lastUpdated)
+        }
         forecastDAO.saveHourlyForecast(
             forecast.hourly.map {
                 it.toHourForecastEntity(

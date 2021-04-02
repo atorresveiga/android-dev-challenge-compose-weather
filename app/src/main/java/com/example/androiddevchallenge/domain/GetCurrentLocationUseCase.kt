@@ -15,7 +15,7 @@
  */
 package com.example.androiddevchallenge.domain
 
-import com.example.androiddevchallenge.data.DataStoreManager
+import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.di.DefaultDispatcher
 import com.example.androiddevchallenge.model.Location
@@ -29,9 +29,9 @@ import javax.inject.Inject
  */
 class GetCurrentLocationUseCase @Inject constructor(
     @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
-    private val dataStoreManager: DataStoreManager
+    private val localForecastRepository: LocalForecastRepository
 ) : FlowUseCase<Unit, Location?>(defaultDispatcher) {
     override fun execute(parameters: Unit): Flow<Result<Location?>> {
-        return dataStoreManager.currentLocation.map { Result.Success(it) }
+        return localForecastRepository.getCurrentLocation().map { Result.Success(it) }
     }
 }

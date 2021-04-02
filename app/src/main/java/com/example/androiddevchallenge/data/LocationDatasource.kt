@@ -25,7 +25,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
@@ -47,8 +46,7 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
             return@let Location(
                 timezone = timezone,
                 latitude = location.latitude,
-                longitude = location.longitude,
-                lastUpdated = Clock.System.now().epochSeconds
+                longitude = location.longitude
             )
         }
     }
