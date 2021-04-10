@@ -21,8 +21,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.ForecastDAO
-import com.example.androiddevchallenge.data.MockDataUtil
+import com.example.androiddevchallenge.data.MockDataGenerator
+import com.example.androiddevchallenge.data.toDayForecast
+import com.example.androiddevchallenge.data.toDayForecastEntity
+import com.example.androiddevchallenge.data.toHourForecast
 import com.example.androiddevchallenge.data.toHourForecastEntity
+import com.example.androiddevchallenge.model.Location
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -64,8 +68,8 @@ class AppDatabaseTest {
         val latitude = 0.0
         val longitude = 0.0
 
-        val locationForecast = MockDataUtil
-            .createHourlyForecast(startEpoch = 1616407200, hours = 5)
+        val locationForecast = MockDataGenerator
+            .createHourlyForecast(startEpoch = 1616407200, hours = 5, weatherId = 0)
             .map { it.toHourForecastEntity(latitude, longitude) }
 
         forecastDAO.saveHourlyForecast(locationForecast)
@@ -79,25 +83,84 @@ class AppDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun clearOlderThanTest() = runBlocking {
+    fun getDailyForecastFromLocation() = runBlocking {
 
         val latitude = 0.0
         val longitude = 0.0
 
-        val oldForecast = MockDataUtil
-            .createHourlyForecast(startEpoch = 1616407200, hours = 3)
-            .map { it.toHourForecastEntity(latitude, longitude) }
+        val locationForecast = MockDataGenerator
+            .createDailyForecast(startEpoch = 1616407200, days = 5)
+            .map { it.toDayForecastEntity(latitude, longitude) }
 
-        val newDatetime = oldForecast.last().datetime + 3600
+        forecastDAO.saveDailyForecast(locationForecast)
 
-        val newForecast = MockDataUtil
-            .createHourlyForecast(startEpoch = newDatetime, hours = 3)
-            .map { it.toHourForecastEntity(latitude, longitude) }
+        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0).first()
+        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0).first()
 
-        forecastDAO.saveHourlyForecast(oldForecast + newForecast)
+        assertThat(wrongLocation).isEmpty()
+        assertThat(rightLocation).isEqualTo(locationForecast)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun clearHourlyForecastOlderThanTest() = runBlocking {
+
+        val location = Location("test_timezone", 0.0, 0.0)
+
+        val oldForecast = MockDataGenerator
+            .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
+
+        val newDatetime = oldForecast.hourly.last().datetime + 3600
+
+        val newForecast = MockDataGenerator
+            .createForecast(startEpoch = newDatetime, days = 5, hours = 5, location = location)
+
+        val hourlyEntities = (oldForecast.hourly + newForecast.hourly)
+            .map {
+                it.toHourForecastEntity(
+                    location.latitude,
+                    location.longitude
+                )
+            }
+
+        forecastDAO.saveHourlyForecast(hourlyEntities)
+
         forecastDAO.clearOlderThan(newDatetime)
 
-        val currentForecast = forecastDAO.getHourlyForecastFrom(latitude, longitude).first()
-        assertThat(currentForecast).isEqualTo(newForecast)
+        val currentHourlyForecast =
+            forecastDAO.getHourlyForecastFrom(location.latitude, location.longitude).first()
+
+        assertThat(currentHourlyForecast.map { it.toHourForecast() }).isEqualTo(newForecast.hourly)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun clearDailyForecastOlderThanTest() = runBlocking {
+
+        val location = Location("test_timezone", 0.0, 0.0)
+
+        val oldForecast = MockDataGenerator
+            .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
+
+        val newDatetime = 1616407200 + 86400 * 8L
+
+        val newForecast = MockDataGenerator
+            .createForecast(startEpoch = newDatetime, days = 5, hours = 5, location = location)
+
+        val dailyEntities = (oldForecast.daily + newForecast.daily)
+            .map {
+                it.toDayForecastEntity(
+                    location.latitude,
+                    location.longitude
+                )
+            }
+
+        forecastDAO.saveDailyForecast(dailyEntities)
+        forecastDAO.clearOlderThan(newDatetime)
+
+        val currentDailyForecast =
+            forecastDAO.getDailyForecastFrom(location.latitude, location.longitude).first()
+
+        assertThat(currentDailyForecast.map { it.toDayForecast() }).isEqualTo(newForecast.daily)
     }
 }
