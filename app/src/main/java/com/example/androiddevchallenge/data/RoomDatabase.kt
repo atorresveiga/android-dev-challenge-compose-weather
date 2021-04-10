@@ -87,7 +87,16 @@ interface ForecastDAO {
     suspend fun saveDailyForecast(daily: List<DayForecastEntity>)
 
     @Query("DELETE FROM hour_forecast_table WHERE datetime < :datetime")
-    suspend fun clearOlderThan(datetime: Long)
+    suspend fun clearHourlyForecastOlderThan(datetime: Long)
+
+    @Query("DELETE FROM day_forecast_table WHERE datetime < :datetime")
+    suspend fun clearDailyForecastOlderThan(datetime: Long)
+
+    @Transaction
+    suspend fun clearOlderThan(datetime: Long) {
+        clearDailyForecastOlderThan(datetime)
+        clearHourlyForecastOlderThan(datetime)
+    }
 }
 
 /**
