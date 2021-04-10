@@ -53,10 +53,20 @@ data class Location(
  * @param visibility average visibility, metres
  * @param windSpeed Wind speed. Units metre/sec
  * @param windDegrees Wind direction, degrees (meteorological)
- * @param weather group of weather parameters (Rain, Snow, Extreme etc.)
  * @param pop probability of precipitation
  * @param rain rain volume for last hour
  * @param snow snow volume for last hour
+ * @param weatherId is an encoded value of [shower/thunder][scale id][scale position][2 digits weather position],
+ * for example the value 32105 represents:
+ * [first digit] 3 the weather is of type showers and has thunders, first digit is a binary check where
+ * first position is whether is of type showers and the second is if the weather have thunders for example
+ * 05 is just drizzle
+ * 10005 is drizzle showers
+ * 20005 is drizzle and thunder
+ * 30005 is drizzle showers and thunder
+ * [second digit] 2 the scale id 1 (clouds scale), 2 (precipitations scale), 0 weather without scale
+ * [third digit] 1 the scale is light (position 1 in array precipitations scale)
+ * [four and five digit] 05 drizzle position 5 in string array weather
  */
 data class HourForecast(
     val datetime: Long,
@@ -69,7 +79,7 @@ data class HourForecast(
     val visibility: Long,
     val windSpeed: Float,
     val windDegrees: Float,
-    val weather: String,
+    val weatherId: Int,
     val pop: Float,
     val rain: Float,
     val snow: Float
@@ -87,7 +97,17 @@ data class HourForecast(
  * @param maxTemperature Max daily temperature
  * @param rain rain volume
  * @param snow snow volume
- * @param weather group of weather parameters (Rain, Snow, Extreme etc.)
+ * @param weatherId is an encoded value of [shower/thunder][scale id][scale position][2 digits weather position],
+ * for example the value 32105 represents:
+ * [first digit] 3 the weather is of type showers and has thunders, first digit is a binary check where
+ * first position is whether is of type showers and the second is if the weather have thunders for example
+ * 05 is just drizzle
+ * 10005 is drizzle showers
+ * 20005 is drizzle and thunder
+ * 30005 is drizzle showers and thunder
+ * [second digit] 2 the scale id 1 (clouds scale), 2 (precipitations scale), 0 weather without scale
+ * [third digit] 1 the scale is light (position 1 in array precipitations scale)
+ * [four and five digit] 05 drizzle position 5 in string array weather
  */
 data class DayForecast(
     val datetime: Long,
@@ -100,5 +120,5 @@ data class DayForecast(
     val maxTemperature: Float,
     val rain: Float = 0f,
     val snow: Float = 0f,
-    val weather: String
+    val weatherId: Int
 )

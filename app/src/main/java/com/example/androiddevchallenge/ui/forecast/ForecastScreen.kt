@@ -56,6 +56,7 @@ import dev.chrisbanes.accompanist.insets.systemBarsPadding
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 @Composable
@@ -71,7 +72,7 @@ fun ForecastScreen(forecast: Forecast) {
 
         MainInformation(
             timezone = indexForecast.location.timezone,
-            weather = currentDay.weather,
+            weatherId = currentDay.weatherId,
             hourForecast = selectedHour,
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
@@ -134,7 +135,7 @@ fun HourNavigation(
 @Composable
 fun MainInformation(
     timezone: String,
-    weather: String,
+    weatherId: Int,
     minTemperature: Float,
     maxTemperature: Float,
     hourForecast: HourForecast,
@@ -176,7 +177,7 @@ fun MainInformation(
         )
         Text(
             modifier = Modifier.padding(top = 16.dp),
-            text = weather,
+            text = LocalDataFormatter.current.weather.getWeatherFullText(weatherId),
             style = MaterialTheme.typography.h5
         )
         Row(
@@ -206,29 +207,21 @@ fun MainInformation(
 
 @Composable
 fun Precipitation(hourForecast: HourForecast, modifier: Modifier = Modifier) {
-
     Column(modifier = modifier) {
-        if (hourForecast.rain < hourForecast.snow) {
-            val type = stringResource(R.string.snow)
-            Text(
-                text = LocalDataFormatter.current.precipitation.getIntensity(
+        Text(
+            text = LocalDataFormatter.current.precipitation.getIntensity(
+                hourForecast.weatherId,
+                hourForecast.pop
+            )
+        )
+        Text(
+            text = LocalDataFormatter.current.precipitation.getVolume(
+                max(
                     hourForecast.snow,
-                    hourForecast.pop,
-                    type
+                    hourForecast.rain
                 )
             )
-            Text(text = LocalDataFormatter.current.precipitation.getVolume(hourForecast.snow))
-        } else {
-            val type = stringResource(R.string.rain)
-            Text(
-                text = LocalDataFormatter.current.precipitation.getIntensity(
-                    hourForecast.rain,
-                    hourForecast.pop,
-                    type
-                )
-            )
-            Text(text = LocalDataFormatter.current.precipitation.getVolume(hourForecast.rain))
-        }
+        )
     }
 }
 

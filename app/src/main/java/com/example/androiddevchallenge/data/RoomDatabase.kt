@@ -24,6 +24,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +44,7 @@ data class HourForecastEntity(
     val visibility: Long,
     val windSpeed: Float,
     val windDegrees: Float,
-    val weather: String,
+    val weatherId: Int,
     val pop: Float,
     val rain: Float,
     val snow: Float,
@@ -66,7 +67,7 @@ data class DayForecastEntity(
     val maxTemperature: Float,
     val rain: Float = 0f,
     val snow: Float = 0f,
-    val weather: String,
+    val weatherId: Int,
     val latitude: Double,
     val longitude: Double
 )
@@ -122,7 +123,7 @@ fun DayForecastEntity.toDayForecast() = DayForecast(
     maxTemperature = this.maxTemperature,
     rain = this.rain,
     snow = this.snow,
-    weather = this.weather
+    weatherId = this.weatherId
 )
 
 fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayForecastEntity(
@@ -136,7 +137,7 @@ fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayFo
     maxTemperature = this.maxTemperature,
     rain = this.rain,
     snow = this.snow,
-    weather = this.weather,
+    weatherId = this.weatherId,
     latitude = latitude,
     longitude = longitude
 )
@@ -152,7 +153,7 @@ fun HourForecastEntity.toHourForecast() = HourForecast(
     visibility = this.visibility,
     windSpeed = this.windSpeed,
     windDegrees = this.windDegrees,
-    weather = this.weather,
+    weatherId = this.weatherId,
     pop = this.pop,
     rain = this.rain,
     snow = this.snow
@@ -169,7 +170,7 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
     visibility = this.visibility,
     windSpeed = this.windSpeed,
     windDegrees = this.windDegrees,
-    weather = this.weather,
+    weatherId = this.weatherId,
     pop = this.pop,
     rain = this.rain,
     snow = this.snow,

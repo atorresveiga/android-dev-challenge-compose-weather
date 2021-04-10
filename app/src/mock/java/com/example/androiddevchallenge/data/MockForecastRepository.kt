@@ -26,7 +26,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
 
     private val _forecast: MutableStateFlow<Forecast?> = MutableStateFlow(null)
     private val _location: MutableStateFlow<Location> =
-        MutableStateFlow(MockDataUtil.getRandomLocation())
+        MutableStateFlow(MockDataGenerator.getRandomLocation())
 
     override fun getForecast(): Flow<Result<Forecast?>> = _forecast.map { Result.Success(it) }
 
@@ -43,14 +43,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override suspend fun clearOldData(olderTime: Long) {}
 
     override suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast> {
-
-        val currentDatetime = Clock.System.now().epochSeconds
-        val forecast = Forecast(
-            location = _location.value,
-            hourly = MockDataUtil.createHourlyForecast(currentDatetime),
-            daily = MockDataUtil.createDailyForecast(currentDatetime),
-            lastUpdated = Clock.System.now().epochSeconds
-        )
+        val forecast = MockDataGenerator.createForecast(_location.value)
         return Result.Success(forecast)
     }
 }

@@ -17,6 +17,7 @@ package com.example.androiddevchallenge.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 import kotlinx.datetime.Clock
@@ -125,21 +126,74 @@ class WindFormatter {
     }
 }
 
-class PrecipitationFormatter {
+class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
 
     @Composable
-    fun getIntensity(volume: Float, pop: Float, type: String): String {
-        val resId = when (volume) {
-            in 0.0f..0.15f -> if (pop > 0.25f) R.string.chance_precipitation else R.string.no_precipitation
-            in 0.15f..2.5f -> R.string.light
-            in 2.5f..7.6f -> R.string.moderate
-            in 7.6f..50f -> R.string.heavy
-            else -> R.string.violent
+    fun getIntensity(weatherId: Int, pop: Float): String {
+        return when {
+            weatherFormatter.isPrecipitation(weatherId) -> {
+                weatherFormatter.getWeatherWithScale(weatherId)
+            }
+            pop > 0.25f -> stringResource(R.string.chance_precipitation)
+            else -> stringResource(R.string.no_precipitation)
         }
-        return stringResource(resId, type)
     }
 
     fun getVolume(volume: Float) = volume.toString().plus(" mm")
+}
+
+class ScaleFormatter {
+    private val scales: HashMap<Int, Array<String>> = hashMapOf()
+
+    private fun getResId(id: Int): Int? {
+        return when (id) {
+            1 -> R.array.cloud_scale
+            2 -> R.array.precipitation_scale
+            else -> null
+        }
+    }
+    @Composable
+    fun getScale(id: Int, pos: Int): String {
+        if (!scales.containsKey(id)) {
+            val resId = getResId(id) ?: return ""
+            scales[id] = stringArrayResource(resId)
+        }
+        return scales[id]?.getOrElse(pos) { "" } ?: ""
+    }
+}
+
+class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
+
+    private lateinit var weather: Array<String>
+
+    fun isPrecipitation(weatherId: Int) = weatherId % 100 in 2..7
+
+    @Composable
+    fun getWeatherWithScale(weatherId: Int): String {
+        if (!this::weather.isInitialized) {
+            weather = stringArrayResource(R.array.weather)
+        }
+        val weatherPos = weatherId % 100
+        val scaleId = (weatherId % 10000 - weatherId % 1000) / 1000
+        val scalePos = (weatherId % 1000 - weatherId % 100) / 100
+        // Scale position in weatherId is encode form 1..n, 0 is without scale
+        val scale = scaleFormatter.getScale(scaleId, scalePos)
+        return if (scale.isEmpty()) weather[weatherPos] else "$scale ${weather[weatherPos]}"
+    }
+
+    @Composable
+    fun getWeatherFullText(weatherId: Int): String {
+        val isShowerHasThunder = (weatherId % 100000 - weatherId % 10000) / 10000
+        val builder = StringBuilder()
+        builder.append(getWeatherWithScale(weatherId))
+        if (isShowerHasThunder and 2 > 0) {
+            builder.append(" " + stringResource(R.string.showers) + " ")
+        }
+        if (isShowerHasThunder and 1 > 0) {
+            builder.append(" " + stringResource(R.string.with_thunder))
+        }
+        return builder.toString()
+    }
 }
 
 class TimeZoneFormatter {
@@ -150,24 +204,38 @@ class TimeZoneFormatter {
 }
 
 class UVFormatter {
+    private lateinit var uvScale: Array<String>
+
+    @Composable
     fun getValue(uvi: Float): String {
-        return when (uvi) {
-            in 0f..2.99f -> "Low"
-            in 2.99f..4.99f -> "Moderate"
-            in 4.99f..7.99f -> "High"
-            in 7.99f..10.99f -> "Very High"
-            else -> "Extreme"
+        if (!this::uvScale.isInitialized) {
+            uvScale = stringArrayResource(R.array.uv_scale)
         }
+        val pos = when (uvi) {
+            in 0f..2.99f -> 0
+            in 2.99f..4.99f -> 1
+            in 4.99f..7.99f -> 2
+            else -> 3
+        }
+        return uvScale[pos]
     }
 }
 
 class DataFormatter(
-    var temperature: TemperatureFormatter = TemperatureFormatter(),
+    val temperature: TemperatureFormatter = TemperatureFormatter(),
     val date: DateFormatter = DateFormatter(),
     val wind: WindFormatter = WindFormatter(),
     val timezone: TimeZoneFormatter = TimeZoneFormatter(),
-    val precipitation: PrecipitationFormatter = PrecipitationFormatter(),
     val uvi: UVFormatter = UVFormatter()
-)
+) {
+    val precipitation: PrecipitationFormatter
+    val weather: WeatherFormatter
+
+    init {
+        val scaleFormatter = ScaleFormatter()
+        weather = WeatherFormatter(scaleFormatter)
+        precipitation = PrecipitationFormatter(weather)
+    }
+}
 
 val LocalDataFormatter = compositionLocalOf<DataFormatter> { error("No data formatter found!") }

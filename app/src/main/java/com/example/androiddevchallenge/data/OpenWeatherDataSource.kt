@@ -20,7 +20,6 @@ import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import javax.inject.Inject
 
 interface NetworkForecastDataSource {
@@ -41,6 +40,63 @@ fun LocationForecast.transformToForecast(): Forecast {
 
 class OpenWeatherTransformation {
     companion object {
+        private fun encodeWeatherId(weather: Weather): Int {
+            return when (weather.id) {
+                800 -> 0
+                801 -> 1001
+                802 -> 1101
+                803 -> 1201
+                804 -> 1301
+                741 -> 8
+                701 -> 9
+                711 -> 10
+                721 -> 11
+                731 -> 12
+                751 -> 13
+                761 -> 14
+                762 -> 15
+                771 -> 16
+                781 -> 17
+                300, 310 -> 2102 // Drizzle
+                301, 311 -> 2
+                302, 312 -> 2202
+                313, 321 -> 10002
+                314 -> 12202
+                230 -> 22102
+                231 -> 20002
+                232 -> 22202
+                500 -> 2103 // Rain
+                501 -> 3
+                502 -> 2203
+                503 -> 2303
+                504 -> 2403
+                520 -> 12103
+                521 -> 10003
+                522 -> 12203
+                531 -> 12003
+                200 -> 22103
+                201 -> 20003
+                202 -> 22203
+                511 -> 4 // Freezing Rain
+                611 -> 5 // Sleet
+                612 -> 12105
+                613 -> 10005
+                600 -> 2106 // Snow
+                601 -> 6
+                602 -> 2206
+                620 -> 12106
+                621 -> 10006
+                622 -> 12206
+                615 -> 2107 // Rain and snow
+                616 -> 7
+                210 -> 2119 // Thunderstorm
+                211 -> 19
+                212 -> 2219
+                221 -> 2019
+                else -> throw IllegalArgumentException("WeatherId not found")
+            }
+        }
+
         fun transformToForecast(locationForecast: LocationForecast): Forecast {
             val hours = mutableListOf<HourForecast>()
             val days = mutableListOf<DayForecast>()
@@ -56,7 +112,7 @@ class OpenWeatherTransformation {
                     visibility = hour.visibility,
                     windSpeed = hour.windSpeed,
                     windDegrees = hour.windDegrees,
-                    weather = hour.weather.joinToString { it.description },
+                    weatherId = encodeWeatherId(hour.weather.first()),
                     pop = hour.pop,
                     rain = hour.rain.lastHour,
                     snow = hour.snow.lastHour
@@ -76,7 +132,7 @@ class OpenWeatherTransformation {
                     maxTemperature = day.temperature.max,
                     rain = day.rain,
                     snow = day.snow,
-                    weather = day.weather.joinToString { it.description }
+                    weatherId = encodeWeatherId(day.weather.first())
                 )
                 days.add(dayForecast)
             }
@@ -96,8 +152,3 @@ class OpenWeatherTransformation {
         }
     }
 }
-
-/**
- * A util function to get date string representation from a Unix datetime.
- */
-fun Long.getStringDate() = Instant.fromEpochMilliseconds(this).toString().take(10)
