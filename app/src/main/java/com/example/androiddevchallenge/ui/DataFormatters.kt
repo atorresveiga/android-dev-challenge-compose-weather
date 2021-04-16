@@ -128,10 +128,12 @@ class WindFormatter {
 
 class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
 
+    fun isPrecipitation(weatherId: Int) = weatherId % 100 in 2..7
+
     @Composable
-    fun getIntensity(weatherId: Int, pop: Float): String {
+    fun getIntensityString(weatherId: Int, pop: Float): String {
         return when {
-            weatherFormatter.isPrecipitation(weatherId) -> {
+            isPrecipitation(weatherId) -> {
                 weatherFormatter.getWeatherWithScale(weatherId)
             }
             pop > 0.25f -> stringResource(R.string.chance_precipitation)
@@ -139,8 +141,32 @@ class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
         }
     }
 
+    fun getIntensity(weatherId: Int): Float {
+        val scaleId = (weatherId % 10000 - weatherId % 1000) / 1000
+        val scalePos = (weatherId % 1000 - weatherId % 100) / 100
+        return when {
+            !isPrecipitation(weatherId) -> 0f
+            scaleId == 0 -> .5f
+            scalePos == 0 -> .1f
+            scalePos == 1 -> .3f
+            scalePos == 2 -> .8f
+            else -> 1f
+        }
+    }
+
+    fun getForm(weatherId: Int): PrecipitationForm {
+        if (!isPrecipitation(weatherId)) throw IllegalArgumentException("$weatherId is not a precipitation id")
+        return when (weatherId % 100) {
+            6 -> PrecipitationForm.Snow
+            7 -> PrecipitationForm.RainAndSnow
+            else -> PrecipitationForm.Rain
+        }
+    }
+
     fun getVolume(volume: Float) = volume.toString().plus(" mm")
 }
+
+enum class PrecipitationForm { Rain, Snow, RainAndSnow }
 
 class ScaleFormatter {
     private val scales: HashMap<Int, Array<String>> = hashMapOf()
@@ -152,6 +178,7 @@ class ScaleFormatter {
             else -> null
         }
     }
+
     @Composable
     fun getScale(id: Int, pos: Int): String {
         if (!scales.containsKey(id)) {
@@ -166,8 +193,6 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
 
     private lateinit var weather: Array<String>
 
-    fun isPrecipitation(weatherId: Int) = weatherId % 100 in 2..7
-
     @Composable
     fun getWeatherWithScale(weatherId: Int): String {
         if (!this::weather.isInitialized) {
@@ -176,7 +201,7 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
         val weatherPos = weatherId % 100
         val scaleId = (weatherId % 10000 - weatherId % 1000) / 1000
         val scalePos = (weatherId % 1000 - weatherId % 100) / 100
-        // Scale position in weatherId is encode form 1..n, 0 is without scale
+        // Scale Id in weatherId is encode form 1..n, 0 is without scale
         val scale = scaleFormatter.getScale(scaleId, scalePos)
         return if (scale.isEmpty()) weather[weatherPos] else "$scale ${weather[weatherPos]}"
     }

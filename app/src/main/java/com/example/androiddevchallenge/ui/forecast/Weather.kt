@@ -23,9 +23,7 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,7 +36,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
 
 @Composable
 fun Sun(modifier: Modifier = Modifier, color: Color) {
@@ -284,106 +281,4 @@ fun MoonPreview() {
             modifier = Modifier.size(80.dp)
         )
     }
-}
-
-@Composable
-fun RainDrop(xStart: Int, color: Color) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val x = xStart / 100f
-    val z = Random.nextInt(1, 20)
-    val length = 5 * z / 20
-    val duration = Random.nextInt(1000, 1500)
-    val initial = Random.nextInt(2, 5)
-    val y by infiniteTransition.animateFloat(
-        initialValue = initial / -10f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            keyframes {
-                durationMillis = duration
-                .55f at (duration * .65f).toInt()
-            },
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawLine(
-            color = color,
-            start = Offset(x = size.width * x, y = size.height * y),
-            end = Offset(x = size.width * x, y = size.height * y + length)
-        )
-    }
-}
-
-@Composable
-fun SnowFlare(xStart: Int, color: Color) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val xPX = xStart / 100f
-    val z = Random.nextInt(1, 20)
-    val length = 5 * z / 20f
-    val duration = Random.nextInt(2000, 3000)
-    val direction = if (Random.nextBoolean()) -1 else 1
-
-    val x by infiniteTransition.animateFloat(
-        initialValue = xPX,
-        targetValue = xPX + direction / 10f,
-        animationSpec = infiniteRepeatable(
-            keyframes {
-                durationMillis = duration
-            },
-            repeatMode = RepeatMode.Restart
-        )
-    )
-    val y by infiniteTransition.animateFloat(
-        initialValue = -.2f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = duration,
-                easing = FastOutLinearInEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawCircle(
-            color = color,
-            center = Offset(x = size.width * x, y = size.height * y),
-            radius = length
-        )
-    }
-}
-
-@Composable
-fun Precipitation(
-    modifier: Modifier = Modifier,
-    color: Color,
-    volume: Float,
-    isSnow: Boolean = false
-) {
-
-    val amount = when (volume) {
-        in 0f..2f -> 10
-        in 2f..4f -> 20
-        in 4f..7f -> 100
-        in 7f..50f -> 500
-        else -> 800
-    }
-
-    Box(modifier = modifier) {
-        for (i in 0..amount) {
-            if (isSnow) {
-                SnowFlare(Random.nextInt(0, 100), color)
-            } else {
-                RainDrop(Random.nextInt(0, 100), color)
-            }
-        }
-    }
-}
-
-@Preview(widthDp = 100, heightDp = 100, backgroundColor = 0xFF000000, showBackground = true)
-@Composable
-fun PrecipitationPreview() {
-    Precipitation(color = Color.White, volume = 145f, modifier = Modifier.fillMaxSize(), isSnow = true)
 }

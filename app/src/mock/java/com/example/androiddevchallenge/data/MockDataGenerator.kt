@@ -117,7 +117,7 @@ object MockDataGenerator {
 
         for (day in 1..days) {
 
-            var weatherId = 3
+            var weatherId = Random.nextInt(5, 7)
             val rain = when (weatherId) {
                 in 2..5, 7 -> Random.nextInt(0, 1000) / 100f
                 else -> 0f
@@ -177,11 +177,11 @@ object MockDataGenerator {
             val hourWeatherId = when (weatherId) {
                 1 -> {
                     val pos = Random.nextInt(-1, 3)
-                    if (pos >= 0) 2 * 1000 + pos * 100 + weatherId else weatherId
+                    if (pos >= 0) 1 * 1000 + pos * 100 + weatherId else weatherId
                 }
                 in 2..7 -> {
                     val pos = Random.nextInt(-1, 4)
-                    val temp = if (pos >= 0) 1 * 1000 + pos * 100 + weatherId else weatherId
+                    val temp = if (pos >= 0) 2 * 1000 + pos * 100 + weatherId else weatherId
                     temp + Random.nextInt(0, 3) * 10000
                 }
                 else -> weatherId

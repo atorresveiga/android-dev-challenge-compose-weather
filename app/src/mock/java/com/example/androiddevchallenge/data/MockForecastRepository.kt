@@ -20,7 +20,6 @@ import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 
 class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
 
