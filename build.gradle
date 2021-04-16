@@ -16,7 +16,7 @@
 
 buildscript {
     ext.kotlin_version = '1.4.32'
-    ext.compose_version = '1.0.0-beta03'
+    ext.compose_version = '1.0.0-beta04'
     ext.coroutines_version = '1.4.2'
     ext.hilt_version = '2.33-beta'
     ext.room_version = '2.2.6'
@@ -24,11 +24,11 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha12'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha14'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
@@ -42,7 +42,7 @@ plugins {
 subprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     apply plugin: 'com.diffplug.spotless'
