@@ -40,16 +40,20 @@ import com.example.androiddevchallenge.ui.PrecipitationForm
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
+/**
+ * This composable is the representation of a raindrop
+ * @param precipitationOffset the position of this raindrop in the screen
+ */
 @Composable
-fun RainDrop(precipitation: Precipitation) {
+fun RainDrop(precipitationOffset: PrecipitationOffset) {
     val infiniteTransition = rememberInfiniteTransition()
 
-    val length = if (precipitation.z > 2) .015f else .01f
-    val color = if (precipitation.z > 1) Color(0x88FFFFFF) else Color(0x88000000)
+    val length = if (precipitationOffset.z > 2) .015f else .01f
+    val color = if (precipitationOffset.z > 1) Color(0x88FFFFFF) else Color(0x88000000)
     val duration = Random.nextInt(1000, 2500)
 
     val y by infiniteTransition.animateFloat(
-        initialValue = precipitation.y * -1f,
+        initialValue = precipitationOffset.y * -1f,
         targetValue = 1.5f,
         animationSpec = infiniteRepeatable(
             keyframes {
@@ -63,26 +67,30 @@ fun RainDrop(precipitation: Precipitation) {
         drawLine(
             strokeWidth = 2f,
             color = color,
-            start = Offset(x = size.width * precipitation.x, y = size.height * y),
+            start = Offset(x = size.width * precipitationOffset.x, y = size.height * y),
             end = Offset(
-                x = size.width * precipitation.x,
+                x = size.width * precipitationOffset.x,
                 y = size.height * y + size.height * length
             )
         )
     }
 }
 
+/**
+ * This composable is the representation of a snowflake
+ * @param precipitationOffset the position of this raindrop in the screen
+ */
 @Composable
-fun SnowFlare(precipitation: Precipitation) {
+fun SnowFlake(precipitationOffset: PrecipitationOffset) {
     val infiniteTransition = rememberInfiniteTransition()
     val duration = Random.nextInt(2000, 4000)
     val direction = if (Random.nextBoolean()) -1 else 1
-    val length = if (precipitation.z > 2) .004f else .002f
+    val length = if (precipitationOffset.z > 2) .004f else .002f
     val color = Color(0x88FFFFFF)
 
     val x by infiniteTransition.animateFloat(
-        initialValue = precipitation.x,
-        targetValue = precipitation.x + direction / 10f,
+        initialValue = precipitationOffset.x,
+        targetValue = precipitationOffset.x + direction / 10f,
         animationSpec = infiniteRepeatable(
             keyframes {
                 durationMillis = duration
@@ -91,7 +99,7 @@ fun SnowFlare(precipitation: Precipitation) {
         )
     )
     val y by infiniteTransition.animateFloat(
-        initialValue = precipitation.y * -1f,
+        initialValue = precipitationOffset.y * -1f,
         targetValue = 1.5f,
         animationSpec = infiniteRepeatable(
             animation = tween(
@@ -111,6 +119,13 @@ fun SnowFlare(precipitation: Precipitation) {
     }
 }
 
+/**
+ * This composable is the representation of a precipitation (rain,snow,etc)
+ * @param weatherId encoded value containing precipitation form and intensity. Full description in Forecast.kt
+ * @param windDegrees wind direction, degrees (meteorological)
+ * @param windSpeed wind speed.
+ * @param modifier Modifier
+ */
 @Composable
 fun Precipitation(
     weatherId: Int,
@@ -136,13 +151,13 @@ fun Precipitation(
         val precipitationToDisplay = precipitation.take(amount)
         precipitationToDisplay.forEachIndexed { index, p ->
             when (form) {
-                PrecipitationForm.Snow -> SnowFlare(p)
+                PrecipitationForm.Snow -> SnowFlake(p)
                 PrecipitationForm.Rain -> RainDrop(p)
                 PrecipitationForm.RainAndSnow -> {
                     if (index < precipitationToDisplay.size / 2) {
                         RainDrop(p)
                     } else {
-                        SnowFlare(p)
+                        SnowFlake(p)
                     }
                 }
             }
@@ -150,13 +165,22 @@ fun Precipitation(
     }
 }
 
-data class Precipitation(val x: Float, val y: Float, val z: Int)
+/**
+ * A data class that holds the precipitation offset data.
+ * @param x coordinate x where this precipitation start (percent)
+ * @param y coordinate y where this precipitation should start (percent)
+ * @param z a coordinate that represents deep relative to the screen, where 1 is the far and 4 near
+ */
+data class PrecipitationOffset(val x: Float, val y: Float, val z: Int)
 
-private fun generateRandomPrecipitation(): List<Precipitation> {
-    val result: MutableList<Precipitation> = mutableListOf()
+/**
+ * Utils function to generate random precipitation offset data
+ */
+private fun generateRandomPrecipitation(): List<PrecipitationOffset> {
+    val result: MutableList<PrecipitationOffset> = mutableListOf()
     for (i in 0..250) {
         result.add(
-            Precipitation(
+            PrecipitationOffset(
                 x = Random.nextFloat(),
                 y = Random.nextFloat(),
                 z = Random.nextInt(1, 4)
@@ -171,6 +195,6 @@ private fun generateRandomPrecipitation(): List<Precipitation> {
 fun PrecipitationPreview() {
     val precipitation = generateRandomPrecipitation()
     for (i in precipitation) {
-        SnowFlare(precipitation = i)
+        SnowFlake(precipitationOffset = i)
     }
 }
