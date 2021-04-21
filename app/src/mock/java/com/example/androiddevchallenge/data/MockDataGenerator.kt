@@ -221,7 +221,7 @@ object MockDataGenerator {
                 pressure = Random.nextInt(1000, 3000),
                 humidity = Random.nextInt(40),
                 uvi = Random.nextInt(12).toFloat(),
-                clouds = Random.nextInt(40),
+                clouds = Random.nextInt(100),
                 visibility = Random.nextLong(1000000),
                 windSpeed = Random.nextInt(10).toFloat(),
                 windDegrees = Random.nextInt(360).toFloat(),

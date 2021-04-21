@@ -219,6 +219,10 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
         }
         return builder.toString()
     }
+
+    fun hasThunders(weatherId: Int): Boolean {
+        return (weatherId % 100000 - weatherId % 10000) / 10000 and 1 > 0
+    }
 }
 
 class TimeZoneFormatter {

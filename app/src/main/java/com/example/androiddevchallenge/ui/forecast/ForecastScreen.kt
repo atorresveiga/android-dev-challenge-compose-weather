@@ -54,12 +54,14 @@ fun ForecastScreen(forecast: Forecast) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
-        HourNavigation(indexForecast.hourly, index, onIndexChange)
+        val (direction, onDirectionChange) = remember { mutableStateOf(Direction.FORWARD) }
+
+        HourNavigation(indexForecast.hourly, index, onIndexChange, onDirectionChange)
 
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
 
-        Sky(currentDay = currentDay, currentHour = selectedHour)
+        Sky(currentDay = currentDay, currentHour = selectedHour, direction = direction)
 
         MainInformation(
             timezone = indexForecast.location.timezone,
@@ -92,7 +94,8 @@ fun ForecastScreen(forecast: Forecast) {
 fun HourNavigation(
     hourlyForecast: List<HourForecast>,
     selected: Int,
-    onSelectedChange: (index: Int) -> Unit
+    onSelectedChange: (index: Int) -> Unit,
+    onDirectionChange: (direction: Direction) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -113,15 +116,19 @@ fun HourNavigation(
                 // Scrollable state: describes how to consume
                 // scrolling delta and update offset (max offset to screenWidthPx)
                 state = rememberScrollableState { delta ->
-                    offset = (delta / 2 + offset).coerceIn(-1 * screenWidthPx, 0f)
+                    offset = (delta / 8 + offset).coerceIn(-1 * screenWidthPx, 0f)
                     val index =
                         (-1 * (hourlyForecast.size - 1) * offset / screenWidthPx).roundToInt()
                     onSelectedChange(index)
-                    delta / 2
+                    val direction = if (delta < 0) Direction.FORWARD else Direction.BACKWARD
+                    onDirectionChange(direction)
+                    delta / 8
                 }
             )
     )
 }
+
+enum class Direction { FORWARD, BACKWARD }
 
 @Composable
 fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Modifier) {

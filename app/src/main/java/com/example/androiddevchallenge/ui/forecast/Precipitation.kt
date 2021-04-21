@@ -42,18 +42,18 @@ import kotlin.random.Random
 
 /**
  * This composable is the representation of a raindrop
- * @param precipitationOffset the position of this raindrop in the screen
+ * @param weatherOffset the position of this raindrop in the screen
  */
 @Composable
-fun RainDrop(precipitationOffset: PrecipitationOffset) {
+fun RainDrop(weatherOffset: WeatherOffset) {
     val infiniteTransition = rememberInfiniteTransition()
 
-    val length = if (precipitationOffset.z > 2) .015f else .01f
-    val color = if (precipitationOffset.z > 1) Color(0x88FFFFFF) else Color(0x88000000)
+    val length = if (weatherOffset.z > 2) .015f else .01f
+    val color = if (weatherOffset.z > 1) Color(0x88FFFFFF) else Color(0x88000000)
     val duration = Random.nextInt(1000, 2500)
 
     val y by infiniteTransition.animateFloat(
-        initialValue = precipitationOffset.y * -1f,
+        initialValue = weatherOffset.y * -1f,
         targetValue = 1.5f,
         animationSpec = infiniteRepeatable(
             keyframes {
@@ -67,9 +67,9 @@ fun RainDrop(precipitationOffset: PrecipitationOffset) {
         drawLine(
             strokeWidth = 2f,
             color = color,
-            start = Offset(x = size.width * precipitationOffset.x, y = size.height * y),
+            start = Offset(x = size.width * weatherOffset.x, y = size.height * y),
             end = Offset(
-                x = size.width * precipitationOffset.x,
+                x = size.width * weatherOffset.x,
                 y = size.height * y + size.height * length
             )
         )
@@ -78,19 +78,19 @@ fun RainDrop(precipitationOffset: PrecipitationOffset) {
 
 /**
  * This composable is the representation of a snowflake
- * @param precipitationOffset the position of this raindrop in the screen
+ * @param weatherOffset the position of this raindrop in the screen
  */
 @Composable
-fun SnowFlake(precipitationOffset: PrecipitationOffset) {
+fun SnowFlake(weatherOffset: WeatherOffset) {
     val infiniteTransition = rememberInfiniteTransition()
     val duration = Random.nextInt(2000, 4000)
     val direction = if (Random.nextBoolean()) -1 else 1
-    val length = if (precipitationOffset.z > 2) .004f else .002f
+    val length = if (weatherOffset.z > 2) .004f else .002f
     val color = Color(0x88FFFFFF)
 
     val x by infiniteTransition.animateFloat(
-        initialValue = precipitationOffset.x,
-        targetValue = precipitationOffset.x + direction / 10f,
+        initialValue = weatherOffset.x,
+        targetValue = weatherOffset.x + direction / 10f,
         animationSpec = infiniteRepeatable(
             keyframes {
                 durationMillis = duration
@@ -99,7 +99,7 @@ fun SnowFlake(precipitationOffset: PrecipitationOffset) {
         )
     )
     val y by infiniteTransition.animateFloat(
-        initialValue = precipitationOffset.y * -1f,
+        initialValue = weatherOffset.y * -1f,
         targetValue = 1.5f,
         animationSpec = infiniteRepeatable(
             animation = tween(
@@ -133,7 +133,7 @@ fun Precipitation(
     windDegrees: Float,
     modifier: Modifier = Modifier
 ) {
-    val precipitation by remember { mutableStateOf(generateRandomPrecipitation()) }
+    val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(250)) }
     val amount =
         (precipitation.size * LocalDataFormatter.current.precipitation.getIntensity(weatherId)).roundToInt()
     val form = LocalDataFormatter.current.precipitation.getForm(weatherId)
@@ -165,36 +165,11 @@ fun Precipitation(
     }
 }
 
-/**
- * A data class that holds the precipitation offset data.
- * @param x coordinate x where this precipitation start (percent)
- * @param y coordinate y where this precipitation should start (percent)
- * @param z a coordinate that represents deep relative to the screen, where 1 is the far and 4 near
- */
-data class PrecipitationOffset(val x: Float, val y: Float, val z: Int)
-
-/**
- * Utils function to generate random precipitation offset data
- */
-private fun generateRandomPrecipitation(): List<PrecipitationOffset> {
-    val result: MutableList<PrecipitationOffset> = mutableListOf()
-    for (i in 0..250) {
-        result.add(
-            PrecipitationOffset(
-                x = Random.nextFloat(),
-                y = Random.nextFloat(),
-                z = Random.nextInt(1, 4)
-            )
-        )
-    }
-    return result
-}
-
 @Preview(widthDp = 100, heightDp = 100, backgroundColor = 0xFF000000, showBackground = true)
 @Composable
 fun PrecipitationPreview() {
-    val precipitation = generateRandomPrecipitation()
+    val precipitation = generateRandomWeatherOffsets(100)
     for (i in precipitation) {
-        SnowFlake(precipitationOffset = i)
+        SnowFlake(weatherOffset = i)
     }
 }

@@ -16,6 +16,7 @@
 package com.example.androiddevchallenge.ui.forecast
 
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.LocalDataFormatter
@@ -31,7 +35,8 @@ import com.example.androiddevchallenge.ui.LocalDataFormatter
 @Composable
 fun Sky(
     currentDay: DayForecast,
-    currentHour: HourForecast
+    currentHour: HourForecast,
+    direction: Direction
 ) {
     val daylight = currentHour.datetime in currentDay.sunrise..currentDay.sunset
     val transition = updateTransition(targetState = daylight, label = "sky transition")
@@ -47,6 +52,12 @@ fun Sky(
             .fillMaxSize()
             .background(background)
     ) {
+        Clouds(
+            cloudiness = currentHour.clouds,
+            weatherId = currentHour.weatherId,
+            direction = direction
+        )
+        SkyOverlay(weatherId = currentHour.weatherId)
         if (LocalDataFormatter.current.precipitation.isPrecipitation(currentHour.weatherId)) {
             Precipitation(
                 weatherId = currentHour.weatherId,
@@ -56,4 +67,33 @@ fun Sky(
             )
         }
     }
+}
+
+@Composable
+fun SkyOverlay(weatherId: Int) {
+    val precipitation = LocalDataFormatter.current.precipitation
+    val isPrecipitation = precipitation.isPrecipitation(weatherId)
+
+    val alpha by animateFloatAsState(
+        targetValue = when {
+            isPrecipitation && precipitation.getIntensity(weatherId) in .5f..1.1f -> .8f
+            else -> .5f
+        }
+    )
+
+    Box(
+        modifier = Modifier
+            .alpha(alpha)
+            .background(
+                brush = Brush
+                    .verticalGradient(
+                        .0f to Color.Black,
+                        .3f to Color(0xCC000000),
+                        .9f to Color.Black,
+                        startY = 0f,
+                        endY = Float.POSITIVE_INFINITY
+                    )
+            )
+            .fillMaxSize()
+    )
 }
