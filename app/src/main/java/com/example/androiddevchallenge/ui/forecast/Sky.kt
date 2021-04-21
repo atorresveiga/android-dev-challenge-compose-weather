@@ -77,7 +77,7 @@ fun SkyOverlay(weatherId: Int) {
 
     val alpha by animateFloatAsState(
         targetValue = when {
-            isPrecipitation && precipitation.getIntensity(weatherId) in .5f..1.1f -> .8f
+            isPrecipitation && precipitation.getIntensity(weatherId) >= .5f -> .8f
             else -> .5f
         }
     )
