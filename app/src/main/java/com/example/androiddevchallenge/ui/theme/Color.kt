@@ -22,5 +22,10 @@ val blue900 = Color(0xFF0D47A1)
 val deepPurple700 = Color(0xFF512DA8)
 val deepPurple900 = Color(0xFF311B92)
 
-val amber50 = Color(0xFFF8E1)
-val white = Color(0xFFFFFF)
+val amber50 = Color(0xFFFFF8E1)
+val white = Color(0xFFFFFFFF)
+
+val cloudColor = white
+val stormCloudColor = Color(0xFFEEEEEE)
+val lightningColor = Color.Yellow
+val overlay = Color(0xCC000000)

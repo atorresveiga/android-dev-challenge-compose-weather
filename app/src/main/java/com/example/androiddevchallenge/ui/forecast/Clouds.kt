@@ -51,6 +51,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.theme.cloudColor
+import com.example.androiddevchallenge.ui.theme.lightningColor
+import com.example.androiddevchallenge.ui.theme.stormCloudColor
 
 /**
  * Clouds representation in the sky
@@ -132,15 +135,15 @@ fun Clouds(
                 when {
                     hasLightning -> {
                         StormCloudWithLightning(
-                            color = Color(0xFFEEEEEE),
-                            lightningColor = Color.Yellow,
+                            color = stormCloudColor,
+                            lightningColor = lightningColor,
                             lightningDuration = 8000 / cloudOffset.z,
                             modifier = cloudModifier
                         )
                     }
                     else -> {
                         Cloud(
-                            color = Color.White,
+                            color = cloudColor,
                             modifier = cloudModifier
                         )
                     }

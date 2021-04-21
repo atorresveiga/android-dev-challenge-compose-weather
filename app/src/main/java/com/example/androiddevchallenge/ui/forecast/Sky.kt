@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.theme.overlay
 
 @Composable
 fun Sky(
@@ -88,7 +89,7 @@ fun SkyOverlay(weatherId: Int) {
                 brush = Brush
                     .verticalGradient(
                         .0f to Color.Black,
-                        .3f to Color(0xCC000000),
+                        .3f to overlay,
                         .9f to Color.Black,
                         startY = 0f,
                         endY = Float.POSITIVE_INFINITY
