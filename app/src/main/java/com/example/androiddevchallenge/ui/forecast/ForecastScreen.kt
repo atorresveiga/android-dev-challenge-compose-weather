@@ -152,7 +152,7 @@ fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Mo
 
 @Composable
 fun EmptyForecast(onRefreshData: () -> Unit) {
-    Button(onClick = { onRefreshData() }) {
+    Button(onClick = { onRefreshData() }, modifier = Modifier.systemBarsPadding()) {
         Text(text = "Refresh data")
     }
 }

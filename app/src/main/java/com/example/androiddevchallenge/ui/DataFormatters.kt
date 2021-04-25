@@ -38,10 +38,9 @@ class TemperatureFormatter {
 
 class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
 
+    val timeZone = TimeZone.currentSystemDefault()
     @Composable
     fun getDateHour(datetime: Long): String {
-
-        val timeZone = TimeZone.currentSystemDefault()
         val localDateTime =
             Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone)
         val today = Clock.System.now().toLocalDateTime(timeZone)
@@ -54,13 +53,13 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
             )
         }
 
-        val hour = getHour(localDateTime.hour)
+        val hour = getReadableHour(localDateTime.hour)
 
         return "$day $hour"
     }
 
     @Composable
-    private fun getHour(hour: Int): String {
+    private fun getReadableHour(hour: Int): String {
         return when (system) {
             HourSystem.Twelve -> {
                 val endString = when (hour) {
@@ -76,6 +75,8 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
             }
         }
     }
+
+    fun getHour(datetime: Long): Int = Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
 
     enum class HourSystem {
         Twelve,

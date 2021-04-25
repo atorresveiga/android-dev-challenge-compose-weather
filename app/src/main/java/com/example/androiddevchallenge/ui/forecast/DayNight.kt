@@ -15,15 +15,28 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,9 +44,139 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
+import androidx.compose.ui.unit.min
+import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.theme.moonColor
+import com.example.androiddevchallenge.ui.theme.sunColor
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun DayNight(datetime: Long, sunrise: Long, sunset: Long) {
+
+    val dateFormatter = LocalDataFormatter.current.date
+    val currentHour = dateFormatter.getHour(datetime)
+    val sunriseHour = dateFormatter.getHour(sunrise)
+    val sunsetHour = dateFormatter.getHour(sunset)
+
+    val density = LocalDensity.current
+
+    val state = when (currentHour) {
+        sunriseHour -> DayNightState.Sunrise
+        sunsetHour -> DayNightState.Sunset
+        in sunriseHour..sunsetHour -> DayNightState.Day
+        else -> DayNightState.Night
+    }
+
+    val background by animateColorAsState(
+        targetValue = when (state) {
+            DayNightState.Day -> {
+                MaterialTheme.colors.primary
+            }
+            DayNightState.Night -> {
+                MaterialTheme.colors.secondary
+            }
+            else -> {
+                MaterialTheme.colors.secondaryVariant
+            }
+        }
+    )
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = background)
+    ) {
+        val smallSide = min(maxWidth, maxHeight)
+
+        AnimatedVisibility(
+            visible = state == DayNightState.Night,
+            enter = slideInVertically(
+                initialOffsetY = { with(density) { (maxWidth * 1.5f).toPx().toInt() } },
+                animationSpec = tween(
+                    durationMillis = 200,
+                    delayMillis = 100,
+                    easing = FastOutSlowInEasing
+                )
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { with(density) { (maxWidth * 1.5f).toPx().toInt() } },
+                animationSpec = tween(
+                    durationMillis = 100,
+                    easing = FastOutSlowInEasing
+                )
+            )
+
+        ) {
+            val size = smallSide * .5f
+            val xOffset = maxWidth * .7f - size / 2
+            val y by animateFloatAsState(
+                targetValue =
+                if (currentHour < sunriseHour) {
+                    1f * currentHour / sunriseHour
+                } else {
+                    1f - 1f * (currentHour - sunsetHour) / (23 - sunsetHour)
+                }
+            )
+
+            Moon(
+                color = MaterialTheme.colors.moonColor,
+                phase = MoonPhase.WaxingCrescent,
+                modifier = Modifier
+                    .size(size)
+                    .offset(x = xOffset, y = (maxHeight * y).coerceAtMost(maxHeight - size))
+
+            )
+        }
+
+        AnimatedVisibility(
+            visible = state != DayNightState.Night,
+            enter = slideInVertically(
+                initialOffsetY = { with(density) { (maxHeight * 1.5f).toPx().toInt() } },
+                animationSpec = tween(
+                    durationMillis = 200,
+                    delayMillis = 100,
+                    easing = FastOutSlowInEasing
+                )
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { with(density) { (maxHeight * 3f).toPx().toInt() } },
+                animationSpec = tween(
+                    durationMillis = 100,
+                    easing = LinearEasing
+                )
+            )
+
+        ) {
+            val size = smallSide * .8f
+            val xOffset = maxWidth * .5f - size / 2
+            val zenith = (sunsetHour - sunriseHour) / 2 + sunriseHour
+            val y by animateFloatAsState(
+                targetValue =
+                if (currentHour <= zenith) {
+                    1f - 1f * (currentHour - sunriseHour) / (zenith - sunriseHour)
+                } else {
+                    1f * (currentHour - zenith) / (sunsetHour - zenith)
+                }
+            )
+            val yOffset = (maxHeight * y - size / 2).coerceAtLeast(size / 5)
+
+            Sun(
+                color = MaterialTheme.colors.sunColor,
+                modifier = Modifier
+                    .size(size)
+                    .offset(
+                        x = xOffset,
+                        y = yOffset
+                    )
+            )
+        }
+    }
+}
+
+enum class DayNightState { Day, Night, Sunrise, Sunset }
 
 @Composable
 fun Sun(modifier: Modifier = Modifier, color: Color) {
@@ -155,29 +298,4 @@ fun MoonPreview() {
             modifier = Modifier.size(80.dp)
         )
     }
-}
-
-/**
- * A data class that holds the weather offset data.
- * @param x coordinate x where this precipitation start (percent)
- * @param y coordinate y where this precipitation should start (percent)
- * @param z a coordinate that represents deep relative to the screen, where 1 is the far and 4 near
- */
-data class WeatherOffset(val x: Float, val y: Float, val z: Int)
-
-/**
- * Utils function to generate random precipitation offset data
- */
-fun generateRandomWeatherOffsets(size: Int): List<WeatherOffset> {
-    val result: MutableList<WeatherOffset> = mutableListOf()
-    for (i in 1..size) {
-        result.add(
-            WeatherOffset(
-                x = Random.nextFloat(),
-                y = Random.nextFloat(),
-                z = Random.nextInt(1, 5)
-            )
-        )
-    }
-    return result
 }

@@ -15,9 +15,7 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,20 +37,12 @@ fun Sky(
     currentHour: HourForecast,
     direction: Direction
 ) {
-    val daylight = currentHour.datetime in currentDay.sunrise..currentDay.sunset
-    val transition = updateTransition(targetState = daylight, label = "sky transition")
-    val background by transition.animateColor(label = "daylight") {
-        if (it) {
-            MaterialTheme.colors.primary
-        } else {
-            MaterialTheme.colors.secondary
-        }
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(background)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        DayNight(
+            datetime = currentHour.datetime,
+            sunrise = currentDay.sunrise,
+            sunset = currentDay.sunset
+        )
         Clouds(
             cloudiness = currentHour.clouds,
             weatherId = currentHour.weatherId,
