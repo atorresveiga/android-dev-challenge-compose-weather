@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -135,15 +136,15 @@ fun Clouds(
                 when {
                     hasLightning -> {
                         StormCloudWithLightning(
-                            color = stormCloudColor,
-                            lightningColor = lightningColor,
+                            color = MaterialTheme.colors.stormCloudColor,
+                            lightningColor = MaterialTheme.colors.lightningColor,
                             lightningDuration = 8000 / cloudOffset.z,
                             modifier = cloudModifier
                         )
                     }
                     else -> {
                         Cloud(
-                            color = cloudColor,
+                            color = MaterialTheme.colors.cloudColor,
                             modifier = cloudModifier
                         )
                     }

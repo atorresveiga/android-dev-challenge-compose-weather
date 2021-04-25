@@ -16,6 +16,7 @@
 package com.example.androiddevchallenge.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
@@ -27,7 +28,8 @@ private val DarkColorPalette = darkColors(
     secondary = deepPurple900,
     surface = blue900,
     onSurface = amber50,
-    onPrimary = amber50
+    onPrimary = amber50,
+    secondaryVariant = indigo900
 )
 
 private val LightColorPalette = lightColors(
@@ -35,8 +37,30 @@ private val LightColorPalette = lightColors(
     secondary = deepPurple700,
     surface = blue500,
     onPrimary = Color.White,
-    onSurface = Color.White
+    onSurface = Color.White,
+    secondaryVariant = indigo500
 )
+
+val Colors.cloudColor: Color
+    get() = if (isLight) white else amber50
+
+val Colors.sunColor: Color
+    get() = if (isLight) yellow500 else yellow500
+
+val Colors.moonColor: Color
+    get() = if (isLight) white else amber50
+
+@Suppress("UNUSED")
+val Colors.stormCloudColor: Color
+    get() = gray
+
+@Suppress("UNUSED")
+val Colors.lightningColor: Color
+    get() = yellow500
+
+@Suppress("UNUSED")
+val Colors.overlay: Color
+    get() = alphaBlack
 
 @Composable
 fun MyTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
