@@ -19,6 +19,7 @@ import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.model.MoonPhase
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -151,6 +152,7 @@ object MockDataGenerator {
                 maxTemperature = minTemperature + Random.nextInt(2, 4),
                 sunrise = datetime + 3600 * sunrise,
                 sunset = datetime + 3600 * sunset,
+                moonPhase = MoonPhase.fromPhase(getMoonPhase(date.date))
             )
 
             datetime += 86400

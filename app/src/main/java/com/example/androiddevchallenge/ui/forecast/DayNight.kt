@@ -44,17 +44,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
+import com.example.androiddevchallenge.model.MoonPhase
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.moonColor
 import com.example.androiddevchallenge.ui.theme.sunColor
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun DayNight(datetime: Long, sunrise: Long, sunset: Long) {
+fun DayNight(datetime: Long, sunrise: Long, sunset: Long, moonPhase: MoonPhase, isSouthernHemisphere: Boolean) {
 
     val dateFormatter = LocalDataFormatter.current.date
     val currentHour = dateFormatter.getHour(datetime)
@@ -123,10 +125,13 @@ fun DayNight(datetime: Long, sunrise: Long, sunset: Long) {
 
             Moon(
                 color = MaterialTheme.colors.moonColor,
-                phase = MoonPhase.WaxingCrescent,
+                phase = moonPhase,
                 modifier = Modifier
                     .size(size)
                     .offset(x = xOffset, y = (maxHeight * y).coerceAtMost(maxHeight - size))
+                    .graphicsLayer {
+                        rotationY = if (isSouthernHemisphere) 180f else 0f
+                    }
 
             )
         }
@@ -271,10 +276,6 @@ fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPha
             radius = w35
         )
     }
-}
-
-enum class MoonPhase {
-    NewMoon, WaxingCrescent, FirstQuarter, WaxingGibbous, FullMoon, WaningGibbous, ThirdQuarter, WaningCrescent
 }
 
 @Preview(widthDp = 640, heightDp = 80)

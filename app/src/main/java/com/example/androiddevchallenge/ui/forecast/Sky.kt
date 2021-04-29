@@ -35,13 +35,16 @@ import com.example.androiddevchallenge.ui.theme.overlay
 fun Sky(
     currentDay: DayForecast,
     currentHour: HourForecast,
-    direction: Direction
+    direction: Direction,
+    isSouthernHemisphere: Boolean
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         DayNight(
             datetime = currentHour.datetime,
             sunrise = currentDay.sunrise,
-            sunset = currentDay.sunset
+            sunset = currentDay.sunset,
+            moonPhase = currentDay.moonPhase,
+            isSouthernHemisphere = isSouthernHemisphere
         )
         Clouds(
             cloudiness = currentHour.clouds,

@@ -27,6 +27,7 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
+import com.example.androiddevchallenge.model.MoonPhase
 import kotlinx.coroutines.flow.Flow
 
 @Entity(
@@ -68,6 +69,7 @@ data class DayForecastEntity(
     val rain: Float = 0f,
     val snow: Float = 0f,
     val weatherId: Int,
+    val moonPhaseId: Int,
     val latitude: Double,
     val longitude: Double
 )
@@ -132,7 +134,8 @@ fun DayForecastEntity.toDayForecast() = DayForecast(
     maxTemperature = this.maxTemperature,
     rain = this.rain,
     snow = this.snow,
-    weatherId = this.weatherId
+    weatherId = this.weatherId,
+    moonPhase = MoonPhase.fromIndex(this.moonPhaseId)
 )
 
 fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayForecastEntity(
@@ -147,6 +150,7 @@ fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayFo
     rain = this.rain,
     snow = this.snow,
     weatherId = this.weatherId,
+    moonPhaseId = this.moonPhase.ordinal,
     latitude = latitude,
     longitude = longitude
 )

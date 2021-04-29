@@ -61,7 +61,12 @@ fun ForecastScreen(forecast: Forecast) {
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
 
-        Sky(currentDay = currentDay, currentHour = selectedHour, direction = direction)
+        Sky(
+            currentDay = currentDay,
+            currentHour = selectedHour,
+            direction = direction,
+            isSouthernHemisphere = indexForecast.location.latitude < 0
+        )
 
         MainInformation(
             timezone = indexForecast.location.timezone,
