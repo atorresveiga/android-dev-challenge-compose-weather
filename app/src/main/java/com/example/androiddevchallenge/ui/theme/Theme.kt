@@ -45,7 +45,7 @@ val Colors.cloudColor: Color
     get() = if (isLight) white else amber50
 
 val Colors.sunColor: Color
-    get() = if (isLight) yellow500 else yellow500
+    get() = if (isLight) yellow500 else yellow200
 
 val Colors.moonColor: Color
     get() = if (isLight) white else amber50

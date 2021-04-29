@@ -216,55 +216,66 @@ fun SunPreview() {
 fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPhase.FullMoon) {
     Canvas(modifier = modifier) {
 
+        val h70 = size.height * .7f
+        val h55 = size.height * .55f
         val h50 = size.height * .5f
+        val h40 = size.height * .4f
+        val h35 = size.height * .35f
 
+        val w75 = size.width * .75f
         val w65 = size.width * .65f
         val w60 = size.width * .60f
         val w55 = size.width * .55f
         val w50 = size.width * .5f
+        val w40 = size.width * .4f
         val w35 = size.width * .35f
+        val w8 = size.width * .08f
+        val w4 = size.width * .04f
+        val w2 = size.width * .02f
+
+        val shadow = Color(0x22000000)
 
         val brush = when (phase) {
             MoonPhase.NewMoon -> {
                 Brush.radialGradient(
-                    .65f to Color(0x22000000),
+                    .65f to shadow,
                     .66f to color,
                     center = Offset(w50, h50)
                 )
             }
             MoonPhase.WaxingCrescent -> Brush.radialGradient(
-                .6f to Color(0x22000000),
+                .6f to shadow,
                 .61f to color,
                 radius = w50,
                 center = Offset(w35, h50)
             )
             MoonPhase.FirstQuarter -> Brush.horizontalGradient(
-                .5f to Color(0x22000000),
+                .5f to shadow,
                 .51f to color,
                 startX = 0f,
                 endX = Float.POSITIVE_INFINITY
             )
             MoonPhase.WaxingGibbous -> Brush.radialGradient(
                 .6f to color,
-                .61f to Color(0x22000000),
+                .61f to shadow,
                 radius = w55,
                 center = Offset(w65, h50)
             )
             MoonPhase.FullMoon -> SolidColor(color)
             MoonPhase.WaningGibbous -> Brush.radialGradient(
                 .6f to color,
-                .61f to Color(0x22000000),
+                .61f to shadow,
                 radius = w60,
                 center = Offset(w35, h50)
             )
             MoonPhase.ThirdQuarter -> Brush.horizontalGradient(
                 .49f to color,
-                .5f to Color(0x22000000),
+                .5f to shadow,
                 startX = 0f,
                 endX = Float.POSITIVE_INFINITY
             )
             MoonPhase.WaningCrescent -> Brush.radialGradient(
-                .6f to Color(0x22000000),
+                .6f to shadow,
                 .61f to color,
                 radius = w55,
                 center = Offset(w65, h50)
@@ -274,6 +285,42 @@ fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPha
         drawCircle(
             brush = brush,
             radius = w35
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w8,
+            center = Offset(x = w55, y = h35)
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w4,
+            center = Offset(x = w35, y = h40)
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w2,
+            center = Offset(x = w55, y = h55)
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w8,
+            center = Offset(x = w40, y = h70)
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w4,
+            center = Offset(x = w65, y = h70)
+        )
+
+        drawCircle(
+            color = shadow,
+            radius = w2,
+            center = Offset(x = w75, y = h40)
         )
     }
 }
