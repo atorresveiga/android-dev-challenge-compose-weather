@@ -23,7 +23,6 @@ import com.example.androiddevchallenge.fake.FakeLocalForecastRepository
 import com.example.androiddevchallenge.fake.FakeLocationDataSource
 import com.example.androiddevchallenge.model.Location
 import com.google.common.truth.Truth.assertThat
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import org.junit.Before
 import org.junit.Rule
@@ -68,7 +67,6 @@ class FindLocationUseCaseTest {
             // WHEN found user location
             val location = Location(
                 timezone = TimeZone.currentSystemDefault().id,
-                lastUpdated = Clock.System.now().epochSeconds,
                 latitude = 100.0,
                 longitude = 100.0
             )
