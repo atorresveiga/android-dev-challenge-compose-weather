@@ -83,7 +83,7 @@ fun Clouds(
 
         clouds.forEachIndexed { index, cloudOffset ->
 
-            val hasLightning = index % 5 == 0 && hasThunders
+            val hasLightning = index > total - 5 && hasThunders
             val isReverse = index % 3 == 0
 
             val (width, height, alpha) = getCloudModifiers(
