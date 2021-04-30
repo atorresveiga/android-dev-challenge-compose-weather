@@ -94,7 +94,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.3.0-rc01'
     implementation 'com.google.android.material:material:1.3.0'
-    implementation "androidx.activity:activity-compose:1.3.0-alpha06"
+    implementation "androidx.activity:activity-compose:1.3.0-alpha07"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
@@ -109,11 +109,11 @@ dependencies {
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
-    implementation 'androidx.room:room-runtime:2.2.6'
+    implementation 'androidx.room:room-runtime:2.3.0'
 
     implementation 'com.google.android.gms:play-services-location:18.0.0'
 
-    annotationProcessor 'androidx.room:room-compiler:2.2.6'
+    annotationProcessor 'androidx.room:room-compiler:2.3.0'
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     // Kotlin Serialization
@@ -130,7 +130,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
 
     // Datastore
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha08"
+    implementation "androidx.datastore:datastore-preferences:1.0.0-beta01"
 
     // Work Manager
     implementation "androidx.work:work-runtime-ktx:$work_version"
