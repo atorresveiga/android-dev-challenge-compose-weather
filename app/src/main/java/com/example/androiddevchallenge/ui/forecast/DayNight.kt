@@ -128,7 +128,7 @@ fun DayNight(datetime: Long, sunrise: Long, sunset: Long, moonPhase: MoonPhase, 
                 phase = moonPhase,
                 modifier = Modifier
                     .size(size)
-                    .offset(x = xOffset, y = (maxHeight * y).coerceAtMost(maxHeight - size))
+                    .offset(x = xOffset, y = maxHeight * y)
                     .graphicsLayer {
                         rotationY = if (isSouthernHemisphere) 180f else 0f
                     }
