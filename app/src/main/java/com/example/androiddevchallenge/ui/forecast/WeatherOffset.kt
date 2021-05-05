@@ -19,8 +19,8 @@ import kotlin.random.Random
 
 /**
  * A data class that holds the weather offset data.
- * @param x coordinate x where this precipitation start (percent)
- * @param y coordinate y where this precipitation should start (percent)
+ * @param x coordinate x where this (rain,cloud,etc) start (percent)
+ * @param y coordinate y where this (rain,cloud,etc) should start (percent)
  * @param z a coordinate that represents deep relative to the screen, where 1 is the far and 4 near
  */
 data class WeatherOffset(val x: Float, val y: Float, val z: Int)
