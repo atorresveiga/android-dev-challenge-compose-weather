@@ -105,4 +105,6 @@
     <string name="showers">showers</string>
     <string name="with_thunder">with thunder</string>
 
+    <string name="select_location">"Where would you like to know the weather from?"</string>
+
 </resources>

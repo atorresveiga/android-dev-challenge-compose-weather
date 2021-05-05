@@ -15,76 +15,46 @@
  */
 package com.example.androiddevchallenge.ui.main
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
-import com.example.androiddevchallenge.ui.BlueCloudApp
-import com.example.androiddevchallenge.ui.EventObserver
+import com.example.androiddevchallenge.ui.DataFormatter
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.NavGraph
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 
-const val REQUEST_LOCATION_PERMISSION = 167
-val REQUIRED_LOCATION_PERMISSIONS =
-    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel by viewModels<MainViewModel>()
+    // private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        viewModel.isLocationAccessGranted = isLocationPermissionGranted()
-
-        viewModel.requestLocationAccess.observe(
-            this,
-            EventObserver {
-                requestPermissions(REQUIRED_LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSION)
-            }
-        )
 
         setContent {
             MyTheme {
-                CompositionLocalProvider(LocalDataFormatter provides viewModel.dataFormatter) {
-                    ProvideWindowInsets {
-                        BlueCloudApp(
-                            state = viewModel.state,
-                            forecast = viewModel.forecast,
-                            onRefreshData = viewModel::onRefreshData,
-                            onRequestPermission = viewModel::requestLocationAccess
-                        )
+                ProvideWindowInsets {
+                    CompositionLocalProvider(LocalDataFormatter provides DataFormatter()) {
+                        BlueCloudApp()
                     }
                 }
             }
         }
     }
+}
 
-    private fun isLocationPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                viewModel.onLocationAccessGranted()
-            }
-        }
+@Composable
+fun BlueCloudApp() {
+    Surface {
+        NavGraph()
     }
 }

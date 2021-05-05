@@ -27,6 +27,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,17 +37,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
+import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.max
-import kotlin.math.roundToInt
+
+@Composable
+fun ForecastScreen(
+    viewModel: ForecastViewModel,
+    navController: NavController
+) {
+    val state by viewModel.uiState.collectAsState()
+    when (state) {
+        CheckCurrentLocation -> {
+        }
+        NoLocationFound -> {
+            Box(modifier = Modifier.systemBarsPadding()){
+                Column{
+                    Text(text = "Ups no location found")
+                    Button(onClick = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }) {
+                        Text(text = "Select a location")
+                    }
+                }
+            }
+        }
+        LoadingForecast -> { Text(text = "Loading") }
+        is DisplayForecast -> {
+            ForecastScreen(forecast = (state as DisplayForecast).forecast)
+        }
+    }
+}
 
 @Composable
 fun ForecastScreen(forecast: Forecast) {
