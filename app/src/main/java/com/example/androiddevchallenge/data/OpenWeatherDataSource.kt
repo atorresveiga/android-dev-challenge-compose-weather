@@ -27,14 +27,14 @@ import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 interface NetworkForecastDataSource {
-    suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast>
+    suspend fun getForecast(latitude: Double, longitude: Double): Forecast
 }
 
 class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI) :
     NetworkForecastDataSource {
-    override suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast> {
+    override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
         val apiLocationForecast = api.oneCall(latitude, longitude)
-        return Result.Success(apiLocationForecast.transformToForecast())
+        return apiLocationForecast.transformToForecast()
     }
 }
 

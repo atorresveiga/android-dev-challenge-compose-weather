@@ -16,13 +16,10 @@
 package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
-import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.di.DefaultDispatcher
-import com.example.androiddevchallenge.model.Location
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * Get user's location saved in local datastore.
@@ -30,8 +27,7 @@ import javax.inject.Inject
 class GetCurrentLocationUseCase @Inject constructor(
     @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
     private val localForecastRepository: LocalForecastRepository
-) : FlowUseCase<Unit, Location?>(defaultDispatcher) {
-    override fun execute(parameters: Unit): Flow<Result<Location?>> {
-        return localForecastRepository.getCurrentLocation().map { Result.Success(it) }
-    }
+) {
+    fun execute() = localForecastRepository.getCurrentLocation()
+        .flowOn(defaultDispatcher)
 }

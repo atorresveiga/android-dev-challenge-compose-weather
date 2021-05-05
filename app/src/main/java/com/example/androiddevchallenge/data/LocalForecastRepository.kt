@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 interface LocalForecastRepository {
-    fun getForecast(): Flow<Result<Forecast?>>
+    fun getForecast(): Flow<Forecast?>
     fun getCurrentLocation(): Flow<Location?>
     suspend fun saveCurrentLocation(location: Location)
     suspend fun saveForecast(forecast: Forecast)
@@ -39,7 +39,7 @@ class LocalForecastRepositoryDefault(
 
     private val forecastDAO = appDatabase.forecastDAO()
 
-    override fun getForecast(): Flow<Result<Forecast?>> {
+    override fun getForecast(): Flow<Forecast?> {
 
         return dataStoreManager.currentLocation
             .combine(dataStoreManager.lastUpdated) { currentLocation, lastUpdated ->
@@ -47,8 +47,8 @@ class LocalForecastRepositoryDefault(
             }
             .flatMapLatest { pair ->
                 val currentLocation =
-                    pair.first ?: return@flatMapLatest flow { Result.Success(null) }
-                val lastUpdated = pair.second ?: return@flatMapLatest flow { Result.Success(null) }
+                    pair.first ?: return@flatMapLatest flow { emit(null) }
+                val lastUpdated = pair.second ?: return@flatMapLatest flow { emit(null) }
 
                 forecastDAO.getHourlyForecastFrom(
                     currentLocation.latitude,
@@ -60,14 +60,14 @@ class LocalForecastRepositoryDefault(
                             currentLocation.longitude
                         )
                     ) { hourly, daily ->
-                        Result.Success(
-                            Forecast(
-                                location = currentLocation,
-                                hourly = hourly.map { it.toHourForecast() },
-                                daily = daily.map { it.toDayForecast() },
-                                lastUpdated = lastUpdated
-                            )
+
+                        Forecast(
+                            location = currentLocation,
+                            hourly = hourly.map { it.toHourForecast() },
+                            daily = daily.map { it.toDayForecast() },
+                            lastUpdated = lastUpdated
                         )
+
                     }
             }
     }

@@ -17,14 +17,17 @@ package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.di.IoDispatcher
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 class ClearOldDataUseCase @Inject constructor(
-    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val localForecastRepository: LocalForecastRepository
-) : SuspendUseCase<Long, Unit>(ioDispatcher) {
-    override suspend fun execute(parameters: Long) {
-        localForecastRepository.clearOldData(parameters)
+) {
+    suspend fun execute(olderTime: Long) {
+        withContext(ioDispatcher) {
+            localForecastRepository.clearOldData(olderTime)
+        }
     }
 }

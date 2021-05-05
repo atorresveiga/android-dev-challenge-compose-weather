@@ -23,6 +23,7 @@ import com.example.androiddevchallenge.domain.ClearOldDataUseCase
 import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.lang.Exception
 import kotlinx.datetime.Clock
 
 @HiltWorker
@@ -38,15 +39,13 @@ class SyncWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        var result = refreshDataUseCase.invoke(Unit)
-        if (result is com.example.androiddevchallenge.data.Result.Error) {
-            return Result.failure()
+        return try {
+            refreshDataUseCase.execute()
+            val currentDataTime = Clock.System.now().epochSeconds
+            clearOldDataUseCase.execute(currentDataTime - 3600)
+            Result.success()
+        }catch (e:Exception){
+            Result.failure()
         }
-        val currentDataTime = Clock.System.now().epochSeconds
-        result = clearOldDataUseCase.invoke(currentDataTime - 3600)
-        if (result is com.example.androiddevchallenge.data.Result.Error) {
-            return Result.failure()
-        }
-        return Result.success()
     }
 }
