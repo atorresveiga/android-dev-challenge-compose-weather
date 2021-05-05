@@ -19,15 +19,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.example.androiddevchallenge.model.Location
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.TimeZone
-import javax.inject.Inject
-import kotlin.coroutines.resumeWithException
 
 interface LocationDataSource {
     suspend fun getLocation(): Location?
@@ -40,7 +42,13 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
 
     @SuppressLint("MissingPermission")
     override suspend fun getLocation(): Location? {
-        val fusedLocation = fusedLocationClient.lastLocation.await()
+
+        val fusedLocation =
+            fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_LOW_POWER,
+                CancellationTokenSource().token
+            ).await()
+
         return fusedLocation?.let { location ->
             val timezone = TimeZone.currentSystemDefault().id
             return@let Location(
@@ -49,6 +57,7 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
                 longitude = location.longitude
             )
         }
+
     }
 }
 
