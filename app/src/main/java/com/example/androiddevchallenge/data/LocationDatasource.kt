@@ -42,12 +42,12 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
 
     @SuppressLint("MissingPermission")
     override suspend fun getLocation(): Location? {
-
+        val cancellationTokenSource = CancellationTokenSource()
         val fusedLocation =
             fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
                 LocationRequest.PRIORITY_LOW_POWER,
-                CancellationTokenSource().token
-            ).await()
+                cancellationTokenSource.token
+            ).await { cancellationTokenSource.cancel() }
 
         return fusedLocation?.let { location ->
             val timezone = TimeZone.currentSystemDefault().id
@@ -65,7 +65,7 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
  * Util function to transform Task callbacks to suspend function
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-suspend fun <T> Task<T>.await(): T {
+suspend fun <T> Task<T>.await(onCancellation: () -> Unit = {}): T {
     // fast path
     if (isComplete) {
         val e = exception
@@ -83,6 +83,7 @@ suspend fun <T> Task<T>.await(): T {
     }
 
     return suspendCancellableCoroutine { cont ->
+        cont.invokeOnCancellation { onCancellation() }
         addOnCompleteListener {
             val e = exception
             if (e == null) {
