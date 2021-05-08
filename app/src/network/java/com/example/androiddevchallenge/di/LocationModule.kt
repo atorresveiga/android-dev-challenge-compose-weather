@@ -26,7 +26,7 @@ import dagger.hilt.android.components.ViewModelComponent
 @InstallIn(ViewModelComponent::class)
 abstract class LocationModule {
     @Binds
-    abstract fun bindAnalyticsService(
+    abstract fun bindLocationService(
         locationDataSource: GMSLocationDataSource
     ): LocationDataSource
 }

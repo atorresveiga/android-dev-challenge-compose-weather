@@ -24,6 +24,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -46,16 +47,21 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -71,15 +77,14 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.model.MoonPhase
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.collectEventAsState
 import com.example.androiddevchallenge.ui.forecast.Cloud
 import com.example.androiddevchallenge.ui.forecast.Moon
+import com.example.androiddevchallenge.ui.theme.cloudColor
+import com.example.androiddevchallenge.ui.theme.overlay
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import kotlinx.coroutines.launch
 
-fun checkLocationAccess(context: Context): Boolean =
-    ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
 
 @Composable
 fun LocationScreen(
@@ -93,46 +98,56 @@ fun LocationScreen(
         contentAlignment = Alignment.TopCenter
     ) {
 
-        val context = LocalContext.current
-        viewModel.updateLocationAccess(checkLocationAccess(context))
-
-        val launcher = rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                viewModel.run {
-                    updateLocationAccess(true)
-                    findUserLocation()
-                }
-            } else {
-                // Permission Denied: Do something
-                viewModel.updateLocationAccess(false)
-            }
-        }
-
         val state by viewModel.uiState.collectAsState()
+        val error by viewModel.error.collectEventAsState()
 
+        val findUserLocationWithPermission =
+            wrapFindLocationWithPermission(viewModel::findUserLocation)
         when (state) {
             LocationState.SelectLocation -> {
                 //MoonBackground()
                 SelectLocation(
                     lastSelectedLocations = viewModel.lastSelectedLocations,
-                    findUserLocation = viewModel::findUserLocation,
-                    onSelectLocation = viewModel::selectLocation
+                    findUserLocation = findUserLocationWithPermission,
+                    onSelectLocation = viewModel::selectLocation,
+                    errorResId = error
                 )
             }
-            LocationState.NeedLocationAccess -> {
-                Button(onClick = { launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION) }) {
-                    Text("I understand")
-                }
-            }
             LocationState.FindingLocation -> {
-                Text("Finding Location")
+                FindingLocation()
             }
             LocationState.LocationSelected -> navController.popBackStack()
         }
     }
 }
+
+
+fun checkLocationAccess(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
+
+@Composable
+fun wrapFindLocationWithPermission(findUserLocation: () -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            findUserLocation()
+        }
+    }
+    return {
+        if (checkLocationAccess(context)) {
+            findUserLocation()
+        } else {
+            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+}
+
 
 @Composable
 fun MoonBackground() {
@@ -199,68 +214,141 @@ fun MoonBackground() {
 }
 
 @Composable
-fun SelectLocation(
-    lastSelectedLocations: List<Location>,
-    onSelectLocation: (location:Location) -> Unit,
-    findUserLocation: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
+fun FindingLocation(modifier: Modifier = Modifier) {
+
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val x by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            keyframes {
+                durationMillis = 10000
+                -1f at 2500
+                -1f at 5000
+                1f at 7500
+            },
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    val y by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            keyframes {
+                durationMillis = 10000
+                1f at 2500
+                -1f at 5000
+                -1f at 7500
+            },
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    BoxWithConstraints(
         modifier = modifier
-            .padding(top = 100.dp, start = 16.dp, end = 16.dp, bottom = 24.dp)
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp)
             .widthIn(max = 600.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .fillMaxSize()
     ) {
 
+
         Text(
-            text = stringResource(id = R.string.select_location),
-            style = MaterialTheme.typography.h3,
-            textAlign = TextAlign.Center
+            text = stringResource(id = R.string.finding_location),
+            style = MaterialTheme.typography.subtitle1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(y = 220.dp)
         )
 
-        val textState = remember { mutableStateOf("") }
+        Cloud(
+            color = MaterialTheme.colors.overlay,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(350.dp, 240.dp)
+                .alpha(.4f)
 
-        TextField(
-            value = textState.value,
-            onValueChange = { textState.value = it },
-            leadingIcon = {
+        )
+
+        Cloud(
+            color = MaterialTheme.colors.cloudColor,
+            modifier = Modifier
+                .offset(x = 80.dp * x, y = 60.dp * y)
+                .align(Alignment.Center)
+                .size(350.dp, 240.dp)
+
+        )
+    }
+}
+
+@Composable
+fun SelectLocation(
+    lastSelectedLocations: List<Location>,
+    onSelectLocation: (location: Location) -> Unit,
+    findUserLocation: () -> Unit,
+    modifier: Modifier = Modifier,
+    errorResId: Int? = null
+) {
+    val state = rememberScaffoldState()
+
+    Scaffold(
+        scaffoldState = state,
+        backgroundColor = MaterialTheme.colors.surface,
+        snackbarHost = { hostState ->
+            SnackbarHost(hostState = hostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    backgroundColor = MaterialTheme.colors.error,
+                    contentColor = MaterialTheme.colors.onError
+                )
+            }
+        },
+        modifier = modifier
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp)
+            .widthIn(max = 600.dp)
+            .fillMaxWidth()
+    ) {
+
+        val scope = rememberCoroutineScope()
+
+        errorResId?.let {
+            val error = stringResource(id = it)
+            scope.launch {
+                state.snackbarHostState.showSnackbar(error)
+            }
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text(
+                text = stringResource(id = R.string.select_location),
+                style = MaterialTheme.typography.h3,
+                textAlign = TextAlign.Center
+            )
+
+            SearchLocation()
+
+            BlueCloudButton(
+                onClick = { findUserLocation() },
+                modifier = Modifier.padding(top = 48.dp)
+
+            ) {
                 Icon(
-                    imageVector = Icons.Rounded.Search,
+                    imageVector = Icons.Rounded.Place,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp)
                 )
-            },
-            trailingIcon = {
-                BlueCloudButton(
-                    onClick = { findUserLocation() }
-                ) {
-                    Text("Map")
-                }
-            },
-            modifier = Modifier
-                .padding(top = 48.dp)
-                .fillMaxWidth()
-        )
+                Text("Your current location")
+            }
 
-        BlueCloudButton(
-            onClick = { findUserLocation() },
-            modifier = Modifier.padding(top = 48.dp)
-
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Place,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
+            LastSelectedLocation(
+                lastSelectedLocations = lastSelectedLocations,
+                onSelectLocation = onSelectLocation,
+                modifier = Modifier.fillMaxWidth()
             )
-            Text("Your current location")
         }
-
-        LastSelectedLocation(
-            lastSelectedLocations = lastSelectedLocations,
-            onSelectLocation = onSelectLocation,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
@@ -268,7 +356,7 @@ fun SelectLocation(
 @Composable
 fun LastSelectedLocation(
     lastSelectedLocations: List<Location>,
-    onSelectLocation: (location:Location) -> Unit,
+    onSelectLocation: (location: Location) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(top = 48.dp)) {
@@ -306,6 +394,25 @@ fun LastSelectedLocation(
             }
         }
     }
+}
+
+@Composable
+fun SearchLocation(modifier: Modifier = Modifier) {
+    val textState = remember { mutableStateOf("") }
+    TextField(
+        value = textState.value,
+        onValueChange = { textState.value = it },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Rounded.Search,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        },
+        modifier = Modifier
+            .padding(top = 48.dp)
+            .fillMaxWidth()
+    )
 }
 
 @Composable

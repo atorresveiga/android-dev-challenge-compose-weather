@@ -19,15 +19,13 @@ import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 
 class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
 
     private val _forecast: MutableStateFlow<Forecast?> = MutableStateFlow(null)
-    private val _location: MutableStateFlow<Location> =
-        MutableStateFlow(MockDataGenerator.getRandomLocation())
+    private val _location: MutableStateFlow<Location?> = MutableStateFlow(null)
 
-    override fun getForecast(): Flow<Result<Forecast?>> = _forecast.map { Result.Success(it) }
+    override fun getForecast(): Flow<Forecast?> = _forecast
 
     override fun getCurrentLocation(): Flow<Location?> = _location
 
@@ -41,8 +39,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
 
     override suspend fun clearOldData(olderTime: Long) {}
 
-    override suspend fun getForecast(latitude: Double, longitude: Double): Result<Forecast> {
-        val forecast = MockDataGenerator.createForecast(_location.value)
-        return Result.Success(forecast)
+    override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
+        return  MockDataGenerator.createForecast(_location.value!!)
     }
 }

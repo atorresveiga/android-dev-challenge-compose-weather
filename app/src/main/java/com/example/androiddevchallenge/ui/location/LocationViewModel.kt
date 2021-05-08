@@ -2,11 +2,14 @@ package com.example.androiddevchallenge.ui.location
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.domain.FindLocationUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.ui.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,7 +22,8 @@ class LocationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LocationState.SelectLocation)
     val uiState: StateFlow<LocationState> = _uiState
 
-    private val _hasLocationAccess = MutableStateFlow(false)
+    private val _error: MutableStateFlow<Event<Int?>> = MutableStateFlow(Event(null))
+    val error: StateFlow<Event<Int?>> = _error
 
     val lastSelectedLocations = listOf(
         Location(
@@ -39,30 +43,24 @@ class LocationViewModel @Inject constructor(
         )
     )
 
-    fun updateLocationAccess(isGranted: Boolean) {
-        _hasLocationAccess.value = isGranted
-    }
-
     fun findUserLocation() {
-        if (_hasLocationAccess.value) {
-            _uiState.value = LocationState.FindingLocation
-            viewModelScope.launch {
-                try {
-                    findLocationUseCase.execute()
-                    _uiState.value = LocationState.LocationSelected
-                } catch (e: LocationNotFoundException) {
-                    _uiState.value = LocationState.SelectLocation
-                }
+        _uiState.value = LocationState.FindingLocation
+        viewModelScope.launch {
+            try {
+                findLocationUseCase.execute()
+                _uiState.value = LocationState.LocationSelected
+            } catch (e: LocationNotFoundException) {
+                _uiState.value = LocationState.SelectLocation
+                _error.value = Event(R.string.location_not_found )
             }
-        } else {
-            _uiState.value = LocationState.NeedLocationAccess
         }
     }
 
-    fun selectLocation(location: Location){
+
+    fun selectLocation(location: Location) {
         //TODO update current location
     }
 
 }
 
-enum class LocationState { SelectLocation, NeedLocationAccess, FindingLocation, LocationSelected }
+enum class LocationState { SelectLocation, FindingLocation, LocationSelected }
