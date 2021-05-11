@@ -24,12 +24,12 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.TimeZone
+import javax.inject.Inject
+import kotlin.coroutines.resumeWithException
 
 interface LocationDataSource {
     suspend fun getLocation(): Location?
@@ -57,7 +57,6 @@ class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: 
                 longitude = location.longitude
             )
         }
-
     }
 }
 

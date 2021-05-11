@@ -17,9 +17,9 @@ package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.di.DefaultDispatcher
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
 class GetForecastUseCase @Inject constructor(
     @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,

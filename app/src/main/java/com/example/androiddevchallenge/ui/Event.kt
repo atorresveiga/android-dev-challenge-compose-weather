@@ -15,16 +15,6 @@
  */
 package com.example.androiddevchallenge.ui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.produceState
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.withContext
-
 /**
  * Used as a wrapper for data that is exposed via a LiveData that represents an event.
  */
@@ -48,21 +38,4 @@ open class Event<out T>(private val content: T) {
      * Returns the content, even if it's already been handled.
      */
     fun peekContent(): T = content
-}
-
-@Composable
-fun <T> StateFlow<Event<T>>.collectEventAsState(
-    context: CoroutineContext = EmptyCoroutineContext
-): State<T?> = collectEventAsState(value.getContentIfNotHandled(), context)
-
-@Composable
-fun <T : R, R> Flow<Event<T>>.collectEventAsState(
-    initial: R,
-    context: CoroutineContext = EmptyCoroutineContext
-): State<R> = produceState(initial, this, context) {
-    if (context == EmptyCoroutineContext) {
-        collect { event -> event.getContentIfNotHandled()?.let { value = it } }
-    } else withContext(context) {
-        collect { event -> event.getContentIfNotHandled()?.let { value = it } }
-    }
 }

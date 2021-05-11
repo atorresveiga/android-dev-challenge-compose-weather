@@ -18,10 +18,10 @@ package com.example.androiddevchallenge.domain
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.NetworkForecastDataSource
 import com.example.androiddevchallenge.di.IoDispatcher
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class RefreshDataUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,

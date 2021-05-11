@@ -67,7 +67,6 @@ class LocalForecastRepositoryDefault(
                             daily = daily.map { it.toDayForecast() },
                             lastUpdated = lastUpdated
                         )
-
                     }
             }
     }

@@ -19,8 +19,8 @@ import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.LocationDataSource
 import com.example.androiddevchallenge.di.DefaultDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
-import javax.inject.Inject
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * Find user's location save it in local datastore.
@@ -30,13 +30,13 @@ class FindLocationUseCase @Inject constructor(
     private val locationDataSource: LocationDataSource,
     private val localForecastRepository: LocalForecastRepository
 ) {
-     suspend fun execute() {
-         withContext(defaultDispatcher) {
-             val location = locationDataSource.getLocation()
-                 ?: throw LocationNotFoundException("User location is null")
+    suspend fun execute() {
+        withContext(defaultDispatcher) {
+            val location = locationDataSource.getLocation()
+                ?: throw LocationNotFoundException("User location is null")
 
-             localForecastRepository.saveCurrentLocation(location)
-         }
+            localForecastRepository.saveCurrentLocation(location)
+        }
     }
 }
 

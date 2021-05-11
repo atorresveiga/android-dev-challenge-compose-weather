@@ -40,6 +40,6 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override suspend fun clearOldData(olderTime: Long) {}
 
     override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
-        return  MockDataGenerator.createForecast(_location.value!!)
+        return MockDataGenerator.createForecast(_location.value!!)
     }
 }

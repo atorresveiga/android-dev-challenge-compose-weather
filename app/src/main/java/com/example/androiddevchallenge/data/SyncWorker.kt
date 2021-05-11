@@ -23,8 +23,8 @@ import com.example.androiddevchallenge.domain.ClearOldDataUseCase
 import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import java.lang.Exception
 import kotlinx.datetime.Clock
+import java.lang.Exception
 
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
@@ -44,7 +44,7 @@ class SyncWorker @AssistedInject constructor(
             val currentDataTime = Clock.System.now().epochSeconds
             clearOldDataUseCase.execute(currentDataTime - 3600)
             Result.success()
-        }catch (e:Exception){
+        } catch (e: Exception) {
             Result.failure()
         }
     }

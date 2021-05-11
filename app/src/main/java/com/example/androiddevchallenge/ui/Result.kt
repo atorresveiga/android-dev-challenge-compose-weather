@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge.domain
-
-import com.example.androiddevchallenge.data.LocalForecastRepository
-import com.example.androiddevchallenge.di.DefaultDispatcher
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
+package com.example.androiddevchallenge.ui
 
 /**
- * Get user's location saved in local datastore.
+ * A generic class that holds a value with its loading status.
+ * @param <T>
  */
-class GetCurrentLocationUseCase @Inject constructor(
-    @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
-    private val localForecastRepository: LocalForecastRepository
-) {
-    fun execute() = localForecastRepository.getCurrentLocation()
-        .flowOn(defaultDispatcher)
+sealed class Result<out R> {
+
+    data class Success<out T>(val data: T) : Result<T>()
+    data class Error(val exception: Exception) : Result<Nothing>()
+    object Loading : Result<Nothing>()
+
+    override fun toString(): String {
+        return when (this) {
+            is Success<*> -> "Success[data=$data]"
+            is Error -> "Error[exception=$exception]"
+            Loading -> "Loading"
+        }
+    }
 }

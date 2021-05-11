@@ -29,7 +29,6 @@ import com.example.androiddevchallenge.ui.theme.MyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 

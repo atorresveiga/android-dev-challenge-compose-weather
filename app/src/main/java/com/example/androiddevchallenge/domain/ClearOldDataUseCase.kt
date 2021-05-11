@@ -17,9 +17,9 @@ package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.di.IoDispatcher
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class ClearOldDataUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,

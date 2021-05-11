@@ -46,11 +46,11 @@ import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
-import kotlin.math.max
-import kotlin.math.roundToInt
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 @Composable
 fun ForecastScreen(
@@ -62,8 +62,8 @@ fun ForecastScreen(
         CheckCurrentLocation -> {
         }
         NoLocationFound -> {
-            Box(modifier = Modifier.systemBarsPadding()){
-                Column{
+            Box(modifier = Modifier.systemBarsPadding()) {
+                Column {
                     Text(text = "Ups no location found")
                     Button(onClick = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }) {
                         Text(text = "Select a location")
