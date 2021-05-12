@@ -17,18 +17,14 @@ package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.di.DefaultDispatcher
-import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class UpdateCurrentLocationUseCase @Inject constructor(
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+class GetLastSelectedLocationsUseCase @Inject constructor(
+    @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
     private val localForecastRepository: LocalForecastRepository
 ) {
-    suspend fun execute(location: Location) {
-        withContext(defaultDispatcher) {
-            localForecastRepository.saveCurrentLocation(location)
-        }
-    }
+    fun execute() = localForecastRepository.getLastSelectedLocations()
+        .flowOn(defaultDispatcher)
 }

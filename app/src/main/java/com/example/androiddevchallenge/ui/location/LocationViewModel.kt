@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.domain.FindLocationUseCase
+import com.example.androiddevchallenge.domain.GetLastSelectedLocationsUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.domain.UpdateCurrentLocationUseCase
 import com.example.androiddevchallenge.model.Location
@@ -29,6 +30,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
@@ -38,7 +40,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LocationViewModel @Inject constructor(
     private val findLocationUseCase: FindLocationUseCase,
-    private val updateCurrentLocationUseCase: UpdateCurrentLocationUseCase
+    private val updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
+    private val getLastSelectedLocationsUseCase: GetLastSelectedLocationsUseCase
 ) : ViewModel() {
 
     private val mutableUiState: MutableStateFlow<LocationState> =
@@ -87,23 +90,11 @@ class LocationViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
 
-        mutableLastSelectedLocations.value = listOf(
-            Location(
-                timezone = "Americas/Argentina/Buenos_Aires",
-                latitude = -34.5477769,
-                longitude = -58.4515826,
-            ),
-            Location(
-                timezone = "America/Chicago",
-                latitude = -22.955536,
-                longitude = -43.1847027
-            ),
-            Location(
-                timezone = "Americas/Cuba/La_Habana",
-                latitude = 23.1206009,
-                longitude = -82.4065344
-            )
-        )
+        viewModelScope.launch {
+            getLastSelectedLocationsUseCase.execute().collect { selectedLocations ->
+                mutableLastSelectedLocations.value = selectedLocations
+            }
+        }
     }
 
     fun findUserLocation() {

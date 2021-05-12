@@ -22,24 +22,32 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
 
-    private val _forecast: MutableStateFlow<Forecast?> = MutableStateFlow(null)
-    private val _location: MutableStateFlow<Location?> = MutableStateFlow(null)
+    private val mutableForecast: MutableStateFlow<Forecast?> = MutableStateFlow(null)
+    private val mutableLocation: MutableStateFlow<Location?> = MutableStateFlow(null)
+    private val mutableLocations: MutableStateFlow<MutableList<Location>> =
+        MutableStateFlow(mutableListOf())
 
-    override fun getForecast(): Flow<Forecast?> = _forecast
+    override fun getForecast(): Flow<Forecast?> = mutableForecast
 
-    override fun getCurrentLocation(): Flow<Location?> = _location
+    override fun getCurrentLocation(): Flow<Location?> = mutableLocation
 
     override suspend fun saveCurrentLocation(location: Location) {
-        _location.value = location
+        mutableLocation.value = location
+        val locations = mutableLocations.value
+        if (locations.contains(location)) {
+            locations.remove(location)
+        }
+        locations.add(0, location)
     }
 
     override suspend fun saveForecast(forecast: Forecast) {
-        _forecast.value = forecast
+        mutableForecast.value = forecast
     }
 
     override suspend fun clearOldData(olderTime: Long) {}
+    override fun getLastSelectedLocations(): Flow<List<Location>> = mutableLocations
 
     override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
-        return MockDataGenerator.createForecast(_location.value!!)
+        return MockDataGenerator.createForecast(mutableLocation.value!!)
     }
 }

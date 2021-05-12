@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,11 +46,14 @@ fun MainInformation(
     minTemperature: Float,
     maxTemperature: Float,
     hourForecast: HourForecast,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSelectLocation: () -> Unit = {}
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier
+                .clickable { onSelectLocation() }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {

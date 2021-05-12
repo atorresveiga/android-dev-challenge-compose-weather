@@ -21,6 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.ForecastDAO
+import com.example.androiddevchallenge.data.LocationEntity
 import com.example.androiddevchallenge.data.MockDataGenerator
 import com.example.androiddevchallenge.data.toDayForecast
 import com.example.androiddevchallenge.data.toDayForecastEntity
@@ -94,8 +95,8 @@ class AppDatabaseTest {
 
         forecastDAO.saveDailyForecast(locationForecast)
 
-        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0).first()
-        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0).first()
+        val wrongLocation = forecastDAO.getDailyForecastFrom(100.0, 100.0).first()
+        val rightLocation = forecastDAO.getDailyForecastFrom(0.0, 0.0).first()
 
         assertThat(wrongLocation).isEmpty()
         assertThat(rightLocation).isEqualTo(locationForecast)
@@ -162,5 +163,44 @@ class AppDatabaseTest {
             forecastDAO.getDailyForecastFrom(location.latitude, location.longitude).first()
 
         assertThat(currentDailyForecast.map { it.toDayForecast() }).isEqualTo(newForecast.daily)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun getSelectedLocations() = runBlocking {
+        val datetime = 1616407200L
+        for (i in 0..7) {
+            forecastDAO.saveLocation(
+                LocationEntity(
+                    timezone = "$i timezone",
+                    latitude = i.toDouble(),
+                    longitude = i.toDouble(),
+                    datetime = datetime + 100 * i
+                )
+            )
+        }
+        val selectedLocations = forecastDAO.getLocations().first()
+        assertThat(selectedLocations.size).isEqualTo(5)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun clearSelectedLocations() = runBlocking {
+        val datetime = 1616407200L
+        val locations = mutableListOf<LocationEntity>()
+        for (i in 0..7) {
+            val entity = LocationEntity(
+                timezone = "$i timezone",
+                latitude = i.toDouble(),
+                longitude = i.toDouble(),
+                datetime = datetime + 100 * i
+            )
+            forecastDAO.saveLocation(entity)
+            locations.add(entity)
+        }
+
+        forecastDAO.clearOlderThan(datetime)
+        val selectedLocations = forecastDAO.getLocations().first()
+        assertThat(selectedLocations).containsNoneIn(locations.take(3))
     }
 }

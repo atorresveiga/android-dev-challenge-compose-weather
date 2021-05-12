@@ -58,6 +58,7 @@ fun ForecastScreen(
     navController: NavController
 ) {
     val state by viewModel.uiState.collectAsState()
+    val onSelectLocation = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }
     when (state) {
         CheckCurrentLocation -> {
         }
@@ -65,21 +66,26 @@ fun ForecastScreen(
             Box(modifier = Modifier.systemBarsPadding()) {
                 Column {
                     Text(text = "Ups no location found")
-                    Button(onClick = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }) {
+                    Button(onClick = { onSelectLocation() }) {
                         Text(text = "Select a location")
                     }
                 }
             }
         }
-        LoadingForecast -> { Text(text = "Loading") }
+        LoadingForecast -> {
+            Text(text = "Loading")
+        }
         is DisplayForecast -> {
-            ForecastScreen(forecast = (state as DisplayForecast).forecast)
+            ForecastScreen(
+                forecast = (state as DisplayForecast).forecast,
+                onSelectLocation = onSelectLocation
+            )
         }
     }
 }
 
 @Composable
-fun ForecastScreen(forecast: Forecast) {
+fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
     val indexForecast = IndexForecast(forecast)
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -104,7 +110,8 @@ fun ForecastScreen(forecast: Forecast) {
             hourForecast = selectedHour,
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center),
+            onSelectLocation = onSelectLocation
         )
         PrecipitationInformation(
             selectedHour,

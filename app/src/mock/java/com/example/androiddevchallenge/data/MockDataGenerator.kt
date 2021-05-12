@@ -29,24 +29,25 @@ import kotlin.random.Random
 
 object MockDataGenerator {
 
-    fun getRandomLocation(): Location {
-        val locations = arrayOf(
-            Location(
-                timezone = "Americas/Argentina/Buenos_Aires",
-                latitude = -34.5477769,
-                longitude = -58.4515826,
-            ),
-            Location(
-                timezone = "America/Chicago",
-                latitude = -22.955536,
-                longitude = -43.1847027
-            ),
-            Location(
-                timezone = "Americas/Cuba/La_Habana",
-                latitude = 23.1206009,
-                longitude = -82.4065344
-            )
+    val locations = arrayOf(
+        Location(
+            timezone = "Americas/Argentina/Buenos_Aires",
+            latitude = -34.5477769,
+            longitude = -58.4515826,
+        ),
+        Location(
+            timezone = "America/Chicago",
+            latitude = -22.955536,
+            longitude = -43.1847027
+        ),
+        Location(
+            timezone = "Americas/Cuba/La_Habana",
+            latitude = 23.1206009,
+            longitude = -82.4065344
         )
+    )
+
+    private fun getRandomLocation(): Location {
         return locations[Random.nextInt(0, 2)]
     }
 

@@ -268,7 +268,6 @@ fun SelectLocation(
             updateSearchQuery = updateSearchQuery
         )
 
-
         if (lastSelectedLocations.isNotEmpty()) {
             LastSelectedLocation(
                 lastSelectedLocations = lastSelectedLocations,

@@ -27,8 +27,10 @@ import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
+import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.model.MoonPhase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 
 @Entity(
     tableName = "hour_forecast_table",
@@ -74,6 +76,17 @@ data class DayForecastEntity(
     val longitude: Double
 )
 
+@Entity(
+    tableName = "location_table",
+    primaryKeys = ["timezone"]
+)
+data class LocationEntity(
+    val timezone: String,
+    val latitude: Double,
+    val longitude: Double,
+    val datetime: Long
+)
+
 @Dao
 interface ForecastDAO {
     @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
@@ -82,11 +95,17 @@ interface ForecastDAO {
     @Query("SELECT * from day_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
     fun getDailyForecastFrom(latitude: Double, longitude: Double): Flow<List<DayForecastEntity>>
 
+    @Query("SELECT * from location_table ORDER BY datetime DESC LIMIT 5")
+    fun getLocations(): Flow<List<LocationEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveHourlyForecast(hourly: List<HourForecastEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveDailyForecast(daily: List<DayForecastEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveLocation(location: LocationEntity)
 
     @Query("DELETE FROM hour_forecast_table WHERE datetime < :datetime")
     suspend fun clearHourlyForecastOlderThan(datetime: Long)
@@ -94,10 +113,14 @@ interface ForecastDAO {
     @Query("DELETE FROM day_forecast_table WHERE datetime < :datetime")
     suspend fun clearDailyForecastOlderThan(datetime: Long)
 
+    @Query("DELETE FROM location_table WHERE timezone NOT IN (SELECT timezone from location_table ORDER BY datetime DESC LIMIT 5)")
+    suspend fun clearSelectedLocations()
+
     @Transaction
     suspend fun clearOlderThan(datetime: Long) {
         clearDailyForecastOlderThan(datetime)
         clearHourlyForecastOlderThan(datetime)
+        clearSelectedLocations()
     }
 }
 
@@ -105,7 +128,7 @@ interface ForecastDAO {
  * The [Room] database for this app.
  */
 @Database(
-    entities = [HourForecastEntity::class, DayForecastEntity::class],
+    entities = [HourForecastEntity::class, DayForecastEntity::class, LocationEntity::class],
     version = 1,
     exportSchema = false
 )
@@ -190,3 +213,18 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
     latitude = latitude,
     longitude = longitude
 )
+
+fun Location.toLocationEntity() =
+    LocationEntity(
+        timezone = timezone,
+        latitude = latitude,
+        longitude = longitude,
+        datetime = Clock.System.now().epochSeconds
+    )
+
+fun LocationEntity.toLocation() =
+    Location(
+        timezone = timezone,
+        latitude = latitude,
+        longitude = longitude
+    )

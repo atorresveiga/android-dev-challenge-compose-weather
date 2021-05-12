@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 interface LocalForecastRepository {
     fun getForecast(): Flow<Forecast?>
@@ -29,6 +30,7 @@ interface LocalForecastRepository {
     suspend fun saveCurrentLocation(location: Location)
     suspend fun saveForecast(forecast: Forecast)
     suspend fun clearOldData(olderTime: Long)
+    fun getLastSelectedLocations(): Flow<List<Location>>
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -73,8 +75,10 @@ class LocalForecastRepositoryDefault(
 
     override fun getCurrentLocation() = dataStoreManager.currentLocation
 
-    override suspend fun saveCurrentLocation(location: Location) =
+    override suspend fun saveCurrentLocation(location: Location) {
+        forecastDAO.saveLocation(location.toLocationEntity())
         dataStoreManager.setCurrentLocation(location)
+    }
 
     override suspend fun saveForecast(forecast: Forecast) {
         dataStoreManager.run {
@@ -100,4 +104,6 @@ class LocalForecastRepositoryDefault(
     }
 
     override suspend fun clearOldData(olderTime: Long) = forecastDAO.clearOlderThan(olderTime)
+    override fun getLastSelectedLocations(): Flow<List<Location>> =
+        forecastDAO.getLocations().map { list -> list.map { entity -> entity.toLocation() } }
 }
