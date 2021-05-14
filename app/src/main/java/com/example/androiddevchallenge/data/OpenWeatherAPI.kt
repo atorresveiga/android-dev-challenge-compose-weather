@@ -27,11 +27,11 @@ interface OpenWeatherAPI {
         @Query("lon") longitude: Double,
         @Query("exclude") exclude: String = "minutely,current,alerts",
         @Query("units") units: String = "metric"
-    ): LocationForecast
+    ): OpenWeatherForecast
 }
 
 @Serializable
-data class LocationForecast(
+data class OpenWeatherForecast(
     @SerialName("lat")
     val latitude: Double,
     @SerialName("lon")

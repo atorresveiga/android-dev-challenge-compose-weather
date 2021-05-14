@@ -16,19 +16,19 @@
 package com.example.androiddevchallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.androiddevchallenge.data.Result
-import com.example.androiddevchallenge.domain.FindLocationUseCase
+import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.fake.FakeLocalForecastRepository
-import com.example.androiddevchallenge.fake.FakeLocationDataSource
+import com.example.androiddevchallenge.fake.FakeUserLocationDataSource
 import com.example.androiddevchallenge.model.Location
 import com.google.common.truth.Truth.assertThat
 import kotlinx.datetime.TimeZone
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.lang.Exception
 
-class FindLocationUseCaseTest {
+class FindUserLocationUseCaseTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -36,15 +36,15 @@ class FindLocationUseCaseTest {
     @get:Rule
     var coroutineRule = MainCoroutineRule()
 
-    private lateinit var useCase: FindLocationUseCase
-    private val locationDataSource = FakeLocationDataSource()
+    private lateinit var useCase: FindUserLocationUseCase
+    private val locationDataSource = FakeUserLocationDataSource()
     private val localRepository = FakeLocalForecastRepository()
 
     @Before
     fun setup() {
-        useCase = FindLocationUseCase(
+        useCase = FindUserLocationUseCase(
             defaultDispatcher = coroutineRule.testDispatcher,
-            locationDataSource = locationDataSource,
+            userLocationDataSource = locationDataSource,
             localForecastRepository = localRepository
         )
     }
@@ -54,11 +54,12 @@ class FindLocationUseCaseTest {
         coroutineRule.runBlockingTest {
             // WHEN location datasource can't access user location
             locationDataSource.location = null
-            val result = useCase.invoke(Unit)
-            // THEN throw a LocationNotFoundException
-            assert(result is Result.Error)
-            val exception = (result as Result.Error).exception
-            assert(exception is LocationNotFoundException)
+            try {
+                useCase.execute()
+            } catch (exception: Exception) {
+                // THEN throw a LocationNotFoundException
+                assert(exception is LocationNotFoundException)
+            }
         }
 
     @Test
@@ -71,9 +72,8 @@ class FindLocationUseCaseTest {
                 longitude = 100.0
             )
             locationDataSource.location = location
-            val result = useCase.invoke(Unit)
+            useCase.execute()
             // THEN saved it locally
-            assert(result is Result.Success)
             assertThat(localRepository.currentLocation).isEqualTo(location)
         }
 }

@@ -18,9 +18,10 @@ package com.example.androiddevchallenge.ui.location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.R
-import com.example.androiddevchallenge.domain.FindLocationUseCase
+import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.GetLastSelectedLocationsUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
+import com.example.androiddevchallenge.domain.SearchLocationUseCase
 import com.example.androiddevchallenge.domain.UpdateCurrentLocationUseCase
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.Event
@@ -39,9 +40,10 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class LocationViewModel @Inject constructor(
-    private val findLocationUseCase: FindLocationUseCase,
+    private val findUserLocationUseCase: FindUserLocationUseCase,
     private val updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
-    private val getLastSelectedLocationsUseCase: GetLastSelectedLocationsUseCase
+    private val getLastSelectedLocationsUseCase: GetLastSelectedLocationsUseCase,
+    private val searchLocationUseCase: SearchLocationUseCase
 ) : ViewModel() {
 
     private val mutableUiState: MutableStateFlow<LocationState> =
@@ -67,26 +69,15 @@ class LocationViewModel @Inject constructor(
                 foundLocations.value = Result.Success(emptyList())
             } else {
                 foundLocations.value = Result.Loading
-                delay(1000)
-                foundLocations.value = Result.Success(
-                    listOf(
-                        Location(
-                            timezone = "Americas/Argentina/Buenos_Aires",
-                            latitude = -34.5477769,
-                            longitude = -58.4515826,
-                        ),
-                        Location(
-                            timezone = "America/Chicago",
-                            latitude = -22.955536,
-                            longitude = -43.1847027
-                        ),
-                        Location(
-                            timezone = "Americas/Cuba/La_Habana",
-                            latitude = 23.1206009,
-                            longitude = -82.4065344
-                        )
-                    )
-                )
+                // Delay the search until the user stops typing for 2 second
+                delay(2000)
+                try {
+                    foundLocations.value =
+                        Result.Success(searchLocationUseCase.execute(searchQuery))
+                } catch (exception: Exception) {
+                    // We don't care about exception, we must recover with a new query
+                    foundLocations.value = Result.Success(emptyList())
+                }
             }
         }.launchIn(viewModelScope)
 
@@ -101,7 +92,7 @@ class LocationViewModel @Inject constructor(
         mutableUiState.value = LocationState.FindingUserLocation
         viewModelScope.launch {
             try {
-                findLocationUseCase.execute()
+                findUserLocationUseCase.execute()
                 mutableUiState.value = LocationState.LocationSelected
             } catch (e: LocationNotFoundException) {
                 mutableUiState.value = LocationState.SelectLocation

@@ -38,7 +38,7 @@ class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI)
     }
 }
 
-fun LocationForecast.transformToForecast(): Forecast {
+fun OpenWeatherForecast.transformToForecast(): Forecast {
     return OpenWeatherTransformation.transformToForecast(this)
 }
 
@@ -101,10 +101,10 @@ class OpenWeatherTransformation {
             }
         }
 
-        fun transformToForecast(locationForecast: LocationForecast): Forecast {
+        fun transformToForecast(openWeatherForecast: OpenWeatherForecast): Forecast {
             val hours = mutableListOf<HourForecast>()
             val days = mutableListOf<DayForecast>()
-            for (hour in locationForecast.hourly) {
+            for (hour in openWeatherForecast.hourly) {
                 val hourForecast = HourForecast(
                     datetime = hour.datetime, // local representation of datetime
                     temperature = hour.temperature,
@@ -125,7 +125,7 @@ class OpenWeatherTransformation {
             }
 
             val timezone = TimeZone.currentSystemDefault()
-            for (day in locationForecast.daily) {
+            for (day in openWeatherForecast.daily) {
                 val date = Instant.fromEpochSeconds(day.datetime).toLocalDateTime(timezone).date
                 val dayForecast = DayForecast(
                     datetime = day.datetime,
@@ -145,9 +145,9 @@ class OpenWeatherTransformation {
             }
 
             val location = Location(
-                timezone = locationForecast.timezone,
-                latitude = locationForecast.latitude,
-                longitude = locationForecast.longitude
+                timezone = openWeatherForecast.timezone,
+                latitude = openWeatherForecast.latitude,
+                longitude = openWeatherForecast.longitude
             )
 
             return Forecast(

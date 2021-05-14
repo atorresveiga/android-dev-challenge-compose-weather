@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge.fake
+package com.example.androiddevchallenge.data
 
-import com.example.androiddevchallenge.data.LocationDataSource
 import com.example.androiddevchallenge.model.Location
+import javax.inject.Inject
 
-class FakeLocationDataSource() : LocationDataSource {
-    var location: Location? = null
-    var fail: Exception? = null
-    override suspend fun getLocation(): Location? {
-        fail?.let { throw it }
-        return location
+interface SearchLocationDataSource {
+    suspend fun searchLocation(query: String): List<Location>
+}
+
+class GeoNamesDataSource @Inject constructor(private val api: GeoNamesAPI) :
+    SearchLocationDataSource {
+    override suspend fun searchLocation(query: String): List<Location> {
+        return api.search(query = query).result.map { it.toLocation() }
     }
+}
+
+fun GeoNamesLocation.toLocation(): Location {
+    return Location(latitude = latitude, longitude = longitude, timezone = "$name, $state, $country")
 }

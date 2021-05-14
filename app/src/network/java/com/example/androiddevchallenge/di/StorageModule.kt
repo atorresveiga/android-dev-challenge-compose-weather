@@ -20,6 +20,7 @@ import androidx.room.Room
 import com.example.androiddevchallenge.BuildConfig
 import com.example.androiddevchallenge.data.AppDatabase
 import com.example.androiddevchallenge.data.DataStoreManager
+import com.example.androiddevchallenge.data.GeoNamesAPI
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.LocalForecastRepositoryDefault
 import com.example.androiddevchallenge.data.NetworkForecastDataSource
@@ -66,6 +67,33 @@ object StorageModule {
             .build()
 
         return retrofit.create(OpenWeatherAPI::class.java)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Provides
+    fun providesGeoNamesAPI(): GeoNamesAPI {
+
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val original = chain.request()
+            val originalHttpUrl = original.url()
+            val url = originalHttpUrl.newBuilder()
+                .addQueryParameter("username", BuildConfig.GeoNamesUser)
+                .build()
+            val requestBuilder = original.newBuilder().url(url)
+            val newRequest = requestBuilder.build()
+            chain.proceed(newRequest)
+        }.build()
+
+        val contentType = MediaType.get("application/json")
+        val format = Json { ignoreUnknownKeys = true }
+
+        val retrofit = Retrofit.Builder()
+            .client(client)
+            .baseUrl(BuildConfig.GeoNamesBaseURL)
+            .addConverterFactory(format.asConverterFactory(contentType))
+            .build()
+
+        return retrofit.create(GeoNamesAPI::class.java)
     }
 
     @Provides

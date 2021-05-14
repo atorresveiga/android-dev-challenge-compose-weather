@@ -31,12 +31,12 @@ import kotlinx.datetime.TimeZone
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
 
-interface LocationDataSource {
+interface UserLocationDataSource {
     suspend fun getLocation(): Location?
 }
 
-class GMSLocationDataSource @Inject constructor(@ApplicationContext appContext: Context) :
-    LocationDataSource {
+class GMSUserLocationDataSource @Inject constructor(@ApplicationContext appContext: Context) :
+    UserLocationDataSource {
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(appContext)
 

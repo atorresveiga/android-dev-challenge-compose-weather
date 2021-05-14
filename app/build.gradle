@@ -17,6 +17,8 @@ android {
         versionName "1.0"
         buildConfigField('String', 'OpenWeatherSecAPIKey', OpenWeatherAPIKey)
         buildConfigField('String', 'OpenWeatherBaseURL', "\"https://api.openweathermap.org/data/2.5/\"")
+        buildConfigField('String', 'GeoNamesUser', GeoNamesUser)
+        buildConfigField('String', 'GeoNamesBaseURL', "\"http://api.geonames.org/\"")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

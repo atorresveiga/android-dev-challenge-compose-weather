@@ -15,8 +15,10 @@
  */
 package com.example.androiddevchallenge.di
 
-import com.example.androiddevchallenge.data.GMSLocationDataSource
-import com.example.androiddevchallenge.data.LocationDataSource
+import com.example.androiddevchallenge.data.GMSUserLocationDataSource
+import com.example.androiddevchallenge.data.GeoNamesDataSource
+import com.example.androiddevchallenge.data.SearchLocationDataSource
+import com.example.androiddevchallenge.data.UserLocationDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -27,6 +29,11 @@ import dagger.hilt.android.components.ViewModelComponent
 abstract class LocationModule {
     @Binds
     abstract fun bindLocationService(
-        locationDataSource: GMSLocationDataSource
-    ): LocationDataSource
+        locationDataSource: GMSUserLocationDataSource
+    ): UserLocationDataSource
+
+    @Binds
+    abstract fun bindSearchLocationService(
+        searchLocationDataSource: GeoNamesDataSource
+    ): SearchLocationDataSource
 }

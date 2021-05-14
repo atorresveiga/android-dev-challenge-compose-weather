@@ -17,7 +17,6 @@ package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.MockDataGenerator
-import com.example.androiddevchallenge.data.Result
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
@@ -27,16 +26,14 @@ class FakeLocalForecastRepository : LocalForecastRepository {
 
     var fail: Exception? = null
     var currentLocation: Location? = null
+    private var lastSelectedLocations = emptyList<Location>()
 
-    override fun getForecast(): Flow<Result<Forecast?>> = flow {
-        fail?.let {
-            emit(Result.Error(it))
-            return@flow
-        }
+    override fun getForecast(): Flow<Forecast?> = flow {
+        fail?.let { throw it }
         currentLocation?.let {
             val forecast = MockDataGenerator.createForecast(it)
-            emit(Result.Success(forecast))
-        } ?: emit(Result.Success(null))
+            emit(forecast)
+        } ?: emit(null)
     }
 
     override fun getCurrentLocation(): Flow<Location?> = flow {
@@ -50,4 +47,8 @@ class FakeLocalForecastRepository : LocalForecastRepository {
     override suspend fun saveForecast(forecast: Forecast) {}
 
     override suspend fun clearOldData(olderTime: Long) {}
+
+    override fun getLastSelectedLocations(): Flow<List<Location>> = flow {
+        emit(lastSelectedLocations)
+    }
 }
