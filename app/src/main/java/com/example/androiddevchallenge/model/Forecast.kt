@@ -31,12 +31,12 @@ data class Forecast(
 
 /**
  * A data class that holds a location's forecast data.
- * @param timezone timezone name
+ * @param name name
  * @param latitude location's latitude
  * @param longitude location's longitude
  */
 data class Location(
-    val timezone: String,
+    val name: String,
     val latitude: Double,
     val longitude: Double
 )

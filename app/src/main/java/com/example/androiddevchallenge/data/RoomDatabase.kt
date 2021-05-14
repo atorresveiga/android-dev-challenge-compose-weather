@@ -78,10 +78,10 @@ data class DayForecastEntity(
 
 @Entity(
     tableName = "location_table",
-    primaryKeys = ["timezone"]
+    primaryKeys = ["name"]
 )
 data class LocationEntity(
-    val timezone: String,
+    val name: String,
     val latitude: Double,
     val longitude: Double,
     val datetime: Long
@@ -113,7 +113,7 @@ interface ForecastDAO {
     @Query("DELETE FROM day_forecast_table WHERE datetime < :datetime")
     suspend fun clearDailyForecastOlderThan(datetime: Long)
 
-    @Query("DELETE FROM location_table WHERE timezone NOT IN (SELECT timezone from location_table ORDER BY datetime DESC LIMIT 5)")
+    @Query("DELETE FROM location_table WHERE name NOT IN (SELECT name from location_table ORDER BY datetime DESC LIMIT 5)")
     suspend fun clearSelectedLocations()
 
     @Transaction
@@ -216,7 +216,7 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
 
 fun Location.toLocationEntity() =
     LocationEntity(
-        timezone = timezone,
+        name = name,
         latitude = latitude,
         longitude = longitude,
         datetime = Clock.System.now().epochSeconds
@@ -224,7 +224,7 @@ fun Location.toLocationEntity() =
 
 fun LocationEntity.toLocation() =
     Location(
-        timezone = timezone,
+        name = name,
         latitude = latitude,
         longitude = longitude
     )

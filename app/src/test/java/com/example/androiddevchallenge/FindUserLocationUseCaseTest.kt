@@ -67,7 +67,7 @@ class FindUserLocationUseCaseTest {
         coroutineRule.runBlockingTest {
             // WHEN found user location
             val location = Location(
-                timezone = TimeZone.currentSystemDefault().id,
+                name = TimeZone.currentSystemDefault().id,
                 latitude = 100.0,
                 longitude = 100.0
             )

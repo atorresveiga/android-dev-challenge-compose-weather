@@ -41,7 +41,7 @@ import java.util.Locale
 
 @Composable
 fun MainInformation(
-    timezone: String,
+    name: String,
     weatherId: Int,
     minTemperature: Float,
     maxTemperature: Float,
@@ -63,7 +63,7 @@ fun MainInformation(
                 modifier = Modifier.padding(end = 8.dp)
             )
             Text(
-                text = LocalDataFormatter.current.timezone.getValue(timezone),
+                text = LocalDataFormatter.current.location.getShortValue(name),
                 style = MaterialTheme.typography.h5
             )
         }

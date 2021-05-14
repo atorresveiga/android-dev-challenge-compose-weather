@@ -47,7 +47,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override suspend fun clearOldData(olderTime: Long) {}
     override fun getLastSelectedLocations(): Flow<List<Location>> = mutableLocations
 
-    override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
+    override suspend fun getForecast(location: Location): Forecast {
         return MockDataGenerator.createForecast(mutableLocation.value!!)
     }
 }

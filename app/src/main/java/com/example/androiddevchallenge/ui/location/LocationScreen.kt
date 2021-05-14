@@ -80,7 +80,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.Result
 import com.example.androiddevchallenge.ui.forecast.Cloud
 import com.example.androiddevchallenge.ui.theme.cloudColor
@@ -332,7 +331,7 @@ fun LastSelectedLocation(
             )
         ) {
             itemsIndexed(lastSelectedLocations) { index, location ->
-                key(location.timezone) {
+                key(location.name) {
                     if (index != 0) {
                         Divider()
                     }
@@ -415,7 +414,7 @@ fun SearchLocation(
                 )
             ) {
                 itemsIndexed(foundLocations.data) { index, location ->
-                    key(location.timezone) {
+                    key(location.name) {
                         if (index != 0) {
                             Divider()
                         }
@@ -441,7 +440,7 @@ fun LocationListItem(location: Location, onClickLocation: (location: Location) -
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                LocalDataFormatter.current.timezone.getValue(location.timezone),
+                location.name,
                 modifier = Modifier.padding(top = 8.dp),
                 style = MaterialTheme.typography.subtitle1
             )

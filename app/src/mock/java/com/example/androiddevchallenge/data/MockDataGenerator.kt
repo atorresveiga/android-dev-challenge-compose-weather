@@ -31,17 +31,17 @@ object MockDataGenerator {
 
     val locations = arrayOf(
         Location(
-            timezone = "Americas/Argentina/Buenos_Aires",
+            name = "Buenos Aires,Argentina",
             latitude = -34.5477769,
             longitude = -58.4515826,
         ),
         Location(
-            timezone = "America/Chicago",
+            name = "Chicago, USA",
             latitude = -22.955536,
             longitude = -43.1847027
         ),
         Location(
-            timezone = "Americas/Cuba/La_Habana",
+            name = "Nuevo Vedado, La Habana, Cuba",
             latitude = 23.1206009,
             longitude = -82.4065344
         )

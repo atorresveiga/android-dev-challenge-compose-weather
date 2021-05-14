@@ -39,6 +39,7 @@ class TemperatureFormatter {
 class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
 
     val timeZone = TimeZone.currentSystemDefault()
+
     @Composable
     fun getDateHour(datetime: Long): String {
         val localDateTime =
@@ -76,7 +77,8 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
         }
     }
 
-    fun getHour(datetime: Long): Int = Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
+    fun getHour(datetime: Long): Int =
+        Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
 
     enum class HourSystem {
         Twelve,
@@ -226,10 +228,10 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
     }
 }
 
-class TimeZoneFormatter {
-    fun getValue(timezone: String): String {
-        val sections = timezone.split("/")
-        return sections.getOrElse(sections.size - 1) { timezone }.replace("_", " ")
+class LocationFormatter {
+    fun getShortValue(name: String): String {
+        val sections = name.split(",")
+        return sections.first()
     }
 }
 
@@ -255,7 +257,7 @@ class DataFormatter(
     val temperature: TemperatureFormatter = TemperatureFormatter(),
     val date: DateFormatter = DateFormatter(),
     val wind: WindFormatter = WindFormatter(),
-    val timezone: TimeZoneFormatter = TimeZoneFormatter(),
+    val location: LocationFormatter = LocationFormatter(),
     val uvi: UVFormatter = UVFormatter()
 ) {
     val precipitation: PrecipitationFormatter

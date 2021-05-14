@@ -105,7 +105,7 @@ fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
         )
 
         MainInformation(
-            timezone = indexForecast.location.timezone,
+            name = indexForecast.location.name,
             weatherId = currentDay.weatherId,
             hourForecast = selectedHour,
             minTemperature = currentDay.minTemperature,

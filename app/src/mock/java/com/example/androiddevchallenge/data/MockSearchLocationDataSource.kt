@@ -24,7 +24,7 @@ class MockSearchLocationDataSource @Inject constructor() : SearchLocationDataSou
     override suspend fun searchLocation(query: String): List<Location> {
         delay(1000)
         return MockDataGenerator.locations.filter {
-            it.timezone.toLowerCase(Locale.getDefault())
+            it.name.toLowerCase(Locale.getDefault())
                 .replace("_", "")
                 .contains(query.toLowerCase(Locale.getDefault()).trim())
         }

@@ -42,7 +42,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
 
     suspend fun setCurrentLocation(location: Location) {
         _dataStore.edit { preferences ->
-            preferences[_timezone] = location.timezone
+            preferences[_timezone] = location.name
             preferences[_latitude] = location.latitude
             preferences[_longitude] = location.longitude
         }
@@ -62,7 +62,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
         val latitudeValue = preferences[_latitude] ?: return@map null
         val longitudeValue = preferences[_longitude] ?: return@map null
         Location(
-            timezone = timezoneValue,
+            name = timezoneValue,
             latitude = latitudeValue,
             longitude = longitudeValue
         )

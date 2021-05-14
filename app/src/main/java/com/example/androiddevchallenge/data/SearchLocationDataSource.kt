@@ -42,6 +42,6 @@ fun GeoNamesLocation.toLocation(): Location {
     return Location(
         latitude = latitude,
         longitude = longitude,
-        timezone = if (state.isNotEmpty()) "$name, $state, $country" else "$name, $country"
+        name = if (state.isNotEmpty()) "$name, $state, $country" else "$name, $country"
     )
 }
