@@ -16,9 +16,9 @@
 
 buildscript {
     ext.kotlin_version = '1.4.32'
-    ext.compose_version = '1.0.0-beta05'
+    ext.compose_version = '1.0.0-beta06'
     ext.coroutines_version = '1.4.2'
-    ext.hilt_version = '2.33-beta'
+    ext.hilt_version = '2.35'
     ext.room_version = '2.3.0'
     ext.work_version = '2.6.0-alpha02'
 
