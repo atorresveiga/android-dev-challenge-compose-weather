@@ -61,10 +61,10 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -82,6 +82,7 @@ import com.example.androiddevchallenge.ui.forecast.Cloud
 import com.example.androiddevchallenge.ui.theme.cloudColor
 import com.example.androiddevchallenge.ui.theme.overlay
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import kotlinx.coroutines.launch
 
 @Composable
 fun LocationScreen(
@@ -89,20 +90,22 @@ fun LocationScreen(
     navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val error = viewModel.error.collectAsState().value?.getContentIfNotHandled()
+    val error = viewModel.error.collectAsState()
     val lastSelectedLocations by viewModel.lastSelectedLocations.collectAsState()
     val foundLocations by viewModel.foundLocations.collectAsState()
     val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
     val searchQuery by viewModel.query.collectAsState()
     val findUserLocationWithPermission =
         wrapFindLocationWithPermission(viewModel::findUserLocation)
 
-    if (error != null) {
-        val errorString = stringResource(id = error)
-        LaunchedEffect(scaffoldState.snackbarHostState) {
+    error.value?.getContentIfNotHandled()?.let { resId ->
+        val errorString = stringResource(id = resId)
+        coroutineScope.launch {
             scaffoldState.snackbarHostState.showSnackbar(errorString)
         }
     }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
