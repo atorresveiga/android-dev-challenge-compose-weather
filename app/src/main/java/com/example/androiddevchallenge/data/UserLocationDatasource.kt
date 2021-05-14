@@ -17,7 +17,7 @@ package com.example.androiddevchallenge.data
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.example.androiddevchallenge.model.Location
+import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -27,7 +27,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.datetime.TimeZone
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
 
@@ -43,20 +42,10 @@ class GMSUserLocationDataSource @Inject constructor(@ApplicationContext appConte
     @SuppressLint("MissingPermission")
     override suspend fun getLocation(): Location? {
         val cancellationTokenSource = CancellationTokenSource()
-        val fusedLocation =
-            fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
-                LocationRequest.PRIORITY_LOW_POWER,
-                cancellationTokenSource.token
-            ).await { cancellationTokenSource.cancel() }
-
-        return fusedLocation?.let { location ->
-            val timezone = TimeZone.currentSystemDefault().id
-            return@let Location(
-                timezone = timezone,
-                latitude = location.latitude,
-                longitude = location.longitude
-            )
-        }
+        return fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
+            LocationRequest.PRIORITY_LOW_POWER,
+            cancellationTokenSource.token
+        ).await { cancellationTokenSource.cancel() }
     }
 }
 

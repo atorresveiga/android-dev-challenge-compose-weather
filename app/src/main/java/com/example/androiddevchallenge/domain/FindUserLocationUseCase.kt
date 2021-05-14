@@ -16,6 +16,7 @@
 package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
+import com.example.androiddevchallenge.data.SearchLocationDataSource
 import com.example.androiddevchallenge.data.UserLocationDataSource
 import com.example.androiddevchallenge.di.DefaultDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,12 +29,18 @@ import javax.inject.Inject
 class FindUserLocationUseCase @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     private val userLocationDataSource: UserLocationDataSource,
+    private val searchLocationDataSource: SearchLocationDataSource,
     private val localForecastRepository: LocalForecastRepository
 ) {
     suspend fun execute() {
         withContext(defaultDispatcher) {
-            val location = userLocationDataSource.getLocation()
+            val userLocation = userLocationDataSource.getLocation()
                 ?: throw LocationNotFoundException("User location is null")
+
+            val location = searchLocationDataSource.findNearby(
+                latitude = userLocation.latitude,
+                longitude = userLocation.longitude
+            )
 
             localForecastRepository.saveCurrentLocation(location)
         }

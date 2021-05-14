@@ -28,13 +28,19 @@ interface GeoNamesAPI {
         @Query("type") type: String = "json",
         @Query("featureClass") featureClass: String = "P",
         @Query("maxRows") max: Int = 8
-    ): GeoNamesSearchResponse
+    ): GeoNamesResponse
+
+    @GET("findNearbyJSON")
+    suspend fun findNearBy(
+        @Query("lat") latitude: Double,
+        @Query("lng") longitude: Double,
+        @Query("featureClass") featureClass: String = "P",
+        @Query("maxRows") max: Int = 8
+    ): GeoNamesResponse
 }
 
 @Serializable
-data class GeoNamesSearchResponse(
-    @SerialName("totalResultsCount")
-    val total: Int,
+data class GeoNamesResponse(
     @SerialName("geonames")
     val result: List<GeoNamesLocation>
 )

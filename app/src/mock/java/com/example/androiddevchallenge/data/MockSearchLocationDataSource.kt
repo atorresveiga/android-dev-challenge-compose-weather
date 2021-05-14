@@ -29,4 +29,8 @@ class MockSearchLocationDataSource @Inject constructor() : SearchLocationDataSou
                 .contains(query.toLowerCase(Locale.getDefault()).trim())
         }
     }
+
+    override suspend fun findNearby(latitude: Double, longitude: Double): Location {
+        return MockDataGenerator.locations.first()
+    }
 }

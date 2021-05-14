@@ -20,15 +20,28 @@ import javax.inject.Inject
 
 interface SearchLocationDataSource {
     suspend fun searchLocation(query: String): List<Location>
+    suspend fun findNearby(latitude: Double, longitude: Double): Location
 }
 
 class GeoNamesDataSource @Inject constructor(private val api: GeoNamesAPI) :
     SearchLocationDataSource {
+
     override suspend fun searchLocation(query: String): List<Location> {
         return api.search(query = query).result.map { it.toLocation() }
+    }
+
+    override suspend fun findNearby(latitude: Double, longitude: Double): Location {
+        return api.findNearBy(
+            latitude = latitude,
+            longitude = longitude
+        ).result.first().toLocation()
     }
 }
 
 fun GeoNamesLocation.toLocation(): Location {
-    return Location(latitude = latitude, longitude = longitude, timezone = "$name, $state, $country")
+    return Location(
+        latitude = latitude,
+        longitude = longitude,
+        timezone = if (state.isNotEmpty()) "$name, $state, $country" else "$name, $country"
+    )
 }

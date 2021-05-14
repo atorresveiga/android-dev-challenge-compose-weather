@@ -33,10 +33,7 @@ class RefreshDataUseCase @Inject constructor(
             val location = localForecastRepository.getCurrentLocation().first()
             location?.let { currentLocation ->
                 // Get updated forecast from the network
-                networkForecastDataSource.getForecast(
-                    latitude = currentLocation.latitude,
-                    longitude = currentLocation.longitude
-                ).also { forecast ->
+                networkForecastDataSource.getForecast(currentLocation).also { forecast ->
                     localForecastRepository.saveForecast(forecast)
                 }
             }

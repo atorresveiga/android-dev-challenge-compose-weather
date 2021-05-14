@@ -27,19 +27,18 @@ import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 interface NetworkForecastDataSource {
-    suspend fun getForecast(latitude: Double, longitude: Double): Forecast
+    suspend fun getForecast(location: Location): Forecast
 }
 
 class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI) :
     NetworkForecastDataSource {
-    override suspend fun getForecast(latitude: Double, longitude: Double): Forecast {
-        val apiLocationForecast = api.oneCall(latitude, longitude)
-        return apiLocationForecast.transformToForecast()
+    override suspend fun getForecast(location: Location): Forecast {
+        val apiLocationForecast = api.oneCall(location.latitude, location.longitude)
+        return OpenWeatherTransformation.transformToForecast(
+            openWeatherForecast = apiLocationForecast,
+            location = location
+        )
     }
-}
-
-fun OpenWeatherForecast.transformToForecast(): Forecast {
-    return OpenWeatherTransformation.transformToForecast(this)
 }
 
 class OpenWeatherTransformation {
@@ -101,7 +100,10 @@ class OpenWeatherTransformation {
             }
         }
 
-        fun transformToForecast(openWeatherForecast: OpenWeatherForecast): Forecast {
+        fun transformToForecast(
+            openWeatherForecast: OpenWeatherForecast,
+            location: Location
+        ): Forecast {
             val hours = mutableListOf<HourForecast>()
             val days = mutableListOf<DayForecast>()
             for (hour in openWeatherForecast.hourly) {
@@ -143,12 +145,6 @@ class OpenWeatherTransformation {
                 )
                 days.add(dayForecast)
             }
-
-            val location = Location(
-                timezone = openWeatherForecast.timezone,
-                latitude = openWeatherForecast.latitude,
-                longitude = openWeatherForecast.longitude
-            )
 
             return Forecast(
                 location = location,

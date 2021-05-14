@@ -81,10 +81,6 @@ class LocalForecastRepositoryDefault(
     }
 
     override suspend fun saveForecast(forecast: Forecast) {
-        dataStoreManager.run {
-            setCurrentLocation(forecast.location)
-            setLastUpdated(forecast.lastUpdated)
-        }
         forecastDAO.saveHourlyForecast(
             forecast.hourly.map {
                 it.toHourForecastEntity(
@@ -101,6 +97,7 @@ class LocalForecastRepositoryDefault(
                 )
             }
         )
+        dataStoreManager.setLastUpdated(forecast.lastUpdated)
     }
 
     override suspend fun clearOldData(olderTime: Long) = forecastDAO.clearOlderThan(olderTime)
