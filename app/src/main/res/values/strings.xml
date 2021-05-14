@@ -108,5 +108,7 @@
     <string name="select_location">"Where would you like to know the weather from?"</string>
     <string name="finding_location">"Finding your location"</string>
     <string name="location_not_found">"Location not found"</string>
+    <string name="find_your_location">Your location</string>
+    <string name="last_selected_locations">Last selected locations</string>
 
 </resources>

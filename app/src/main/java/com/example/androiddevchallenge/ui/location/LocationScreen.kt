@@ -20,11 +20,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -241,6 +245,7 @@ fun FindingLocation(modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SelectLocation(
     lastSelectedLocations: List<Location>,
@@ -271,25 +276,37 @@ fun SelectLocation(
             updateSearchQuery = updateSearchQuery
         )
 
-        if (lastSelectedLocations.isNotEmpty()) {
-            LastSelectedLocation(
-                lastSelectedLocations = lastSelectedLocations,
-                onSelectLocation = onSelectLocation,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        BlueCloudButton(
-            onClick = { findUserLocation() },
-            modifier = Modifier.padding(top = 48.dp)
-
+        AnimatedVisibility(
+            visible = searchQuery.isEmpty(),
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Place,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Text("Your current location")
+
+            Column {
+
+                BlueCloudButton(
+                    onClick = { findUserLocation() },
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .align(Alignment.End)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Place,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(stringResource(R.string.find_your_location))
+                }
+
+                if (lastSelectedLocations.isNotEmpty()) {
+                    LastSelectedLocation(
+                        lastSelectedLocations = lastSelectedLocations,
+                        onSelectLocation = onSelectLocation,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }
@@ -303,7 +320,7 @@ fun LastSelectedLocation(
 ) {
     Column(modifier = modifier.padding(top = 48.dp)) {
         Text(
-            "Last selected locations",
+            stringResource(R.string.last_selected_locations),
             modifier = Modifier.padding(bottom = 16.dp),
             style = MaterialTheme.typography.subtitle1
         )
