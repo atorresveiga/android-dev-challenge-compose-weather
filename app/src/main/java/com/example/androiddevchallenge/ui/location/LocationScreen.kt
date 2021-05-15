@@ -281,7 +281,7 @@ fun SelectLocation(
             exit = fadeOut()
         ) {
 
-            Column {
+            Column( modifier = Modifier.fillMaxWidth()) {
 
                 BlueCloudButton(
                     onClick = { findUserLocation() },
