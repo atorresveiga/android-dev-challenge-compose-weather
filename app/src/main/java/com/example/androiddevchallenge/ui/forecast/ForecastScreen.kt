@@ -19,13 +19,22 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Place
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,16 +43,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.location.BlueCloudButton
+import com.example.androiddevchallenge.ui.theme.cloudColor
+import com.example.androiddevchallenge.ui.theme.sunColor
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
 import kotlinx.datetime.Instant
@@ -63,11 +79,57 @@ fun ForecastScreen(
         CheckCurrentLocation -> {
         }
         NoLocationFound -> {
-            Box(modifier = Modifier.systemBarsPadding()) {
-                Column {
-                    Text(text = "Ups no location found")
-                    Button(onClick = { onSelectLocation() }) {
-                        Text(text = "Select a location")
+            Column(
+                modifier = Modifier
+                    .systemBarsPadding()
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(.6f)
+                ) {
+                    Sun(
+                        color = MaterialTheme.colors.sunColor,
+                        modifier = Modifier
+                            .padding(48.dp)
+                            .fillMaxSize()
+                    )
+
+                    Cloud(
+                        color = MaterialTheme.colors.cloudColor,
+                        modifier = Modifier
+                            .size(width = 250.dp, height = 160.dp)
+                            .offset(x = maxWidth * .2f, y = maxHeight * .5f)
+                            .alpha(.98f)
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 16.dp),
+                        text = stringResource(id = R.string.without_location),
+                        style = MaterialTheme.typography.h4,
+                        textAlign = TextAlign.Center
+                    )
+                    BlueCloudButton(
+                        onClick = { onSelectLocation() },
+                        modifier = Modifier
+                            .padding(top = 24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Place,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(text = stringResource(id = R.string.select_location_action))
                     }
                 }
             }

@@ -9,7 +9,8 @@
       or implied. See the License for the specific language governing permissions and limitations under
       the License.
       -->
-    <string name="app_name">AndroidDevChallenge</string>
+    <string name="app_name">BlueCloud</string>
+
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="midnight">Midnight</string>
@@ -105,7 +106,9 @@
     <string name="showers">showers</string>
     <string name="with_thunder">with thunder</string>
 
-    <string name="select_location">"Where would you like to know the weather from?"</string>
+    <string name="select_location">"Where would you like to know\nthe weather from?"</string>
+    <string name="without_location">"Start by selecting a location\nto check the weather"</string>
+    <string name="select_location_action">"Select location"</string>
     <string name="finding_location">"Finding your location"</string>
     <string name="location_not_found">"Location not found"</string>
     <string name="find_your_location">Your location</string>

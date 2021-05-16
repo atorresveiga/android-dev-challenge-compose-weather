@@ -209,7 +209,7 @@ fun Sun(modifier: Modifier = Modifier, color: Color) {
 @Preview(widthDp = 100, heightDp = 100)
 @Composable
 fun SunPreview() {
-    Sun(modifier = Modifier.size(70.dp), Color.Yellow)
+    Sun(modifier = Modifier.size(70.dp), color = Color.Yellow)
 }
 
 @Composable

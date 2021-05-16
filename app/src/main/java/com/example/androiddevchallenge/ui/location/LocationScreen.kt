@@ -264,7 +264,7 @@ fun SelectLocation(
 
         Text(
             text = stringResource(id = R.string.select_location),
-            style = MaterialTheme.typography.h3,
+            style = MaterialTheme.typography.h4,
             textAlign = TextAlign.Center
         )
 
@@ -281,7 +281,7 @@ fun SelectLocation(
             exit = fadeOut()
         ) {
 
-            Column( modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth()) {
 
                 BlueCloudButton(
                     onClick = { findUserLocation() },
@@ -352,7 +352,7 @@ fun BlueCloudButton(
         onClick = { onClick() },
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.background,
+            backgroundColor = MaterialTheme.colors.onPrimary,
             contentColor = MaterialTheme.colors.primary
         ),
         content = content
