@@ -22,23 +22,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -65,13 +58,12 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,12 +72,9 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.Result
-import com.example.androiddevchallenge.ui.forecast.Cloud
-import com.example.androiddevchallenge.ui.theme.cloudColor
-import com.example.androiddevchallenge.ui.theme.overlay
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
-import kotlinx.coroutines.launch
 
 @Composable
 fun LocationScreen(
@@ -93,45 +82,45 @@ fun LocationScreen(
     navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val error = viewModel.error.collectAsState()
-    val lastSelectedLocations by viewModel.lastSelectedLocations.collectAsState()
-    val foundLocations by viewModel.foundLocations.collectAsState()
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
-    val searchQuery by viewModel.query.collectAsState()
-    val findUserLocationWithPermission =
-        wrapFindLocationWithPermission(viewModel::findUserLocation)
 
-    error.value?.getContentIfNotHandled()?.let { resId ->
-        val errorString = stringResource(id = resId)
-        coroutineScope.launch {
-            scaffoldState.snackbarHostState.showSnackbar(errorString)
-        }
-    }
+    when (uiState) {
+        LocationState.SelectLocation -> {
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Scaffold(
-            scaffoldState = scaffoldState,
-            backgroundColor = MaterialTheme.colors.surface,
-            snackbarHost = { hostState ->
-                SnackbarHost(hostState = hostState) { data ->
-                    Snackbar(
-                        snackbarData = data,
-                        backgroundColor = MaterialTheme.colors.error,
-                        contentColor = MaterialTheme.colors.onError
-                    )
+            val error = viewModel.error.collectAsState()
+            val scaffoldState = rememberScaffoldState()
+            val lastSelectedLocations by viewModel.lastSelectedLocations.collectAsState()
+            val foundLocations by viewModel.foundLocations.collectAsState()
+            val searchQuery by viewModel.query.collectAsState()
+            val findUserLocationWithPermission =
+                wrapFindLocationWithPermission(viewModel::findUserLocation)
+
+            error.value?.getContentIfNotHandled()?.let { resId ->
+                val errorString = stringResource(id = resId)
+                LaunchedEffect(resId) {
+                    scaffoldState.snackbarHostState.showSnackbar(errorString)
                 }
-            },
-            modifier = Modifier
-                .widthIn(max = 600.dp)
-                .systemBarsPadding()
-        ) {
+            }
 
-            when (uiState) {
-                LocationState.SelectLocation -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    backgroundColor = MaterialTheme.colors.surface,
+                    snackbarHost = { hostState ->
+                        SnackbarHost(hostState = hostState) { data ->
+                            Snackbar(
+                                snackbarData = data,
+                                backgroundColor = MaterialTheme.colors.error,
+                                contentColor = MaterialTheme.colors.onError
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .widthIn(max = 600.dp)
+                        .systemBarsPadding()
+                ) {
                     SelectLocation(
                         lastSelectedLocations = lastSelectedLocations,
                         foundLocations = foundLocations,
@@ -141,12 +130,20 @@ fun LocationScreen(
                         onSelectLocation = viewModel::selectLocation,
                     )
                 }
-                LocationState.FindingUserLocation -> {
-                    FindingLocation()
-                }
-                LocationState.LocationSelected -> navController.popBackStack()
             }
         }
+        LocationState.FindingUserLocation -> {
+            Information {
+                Text(
+                    modifier = Modifier
+                        .padding(top = 16.dp),
+                    text = stringResource(id = R.string.finding_location),
+                    style = MaterialTheme.typography.h4,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        LocationState.LocationSelected -> navController.popBackStack()
     }
 }
 
@@ -172,75 +169,6 @@ fun wrapFindLocationWithPermission(findUserLocation: () -> Unit): () -> Unit {
         } else {
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-    }
-}
-
-@Composable
-fun FindingLocation(modifier: Modifier = Modifier) {
-
-    val infiniteTransition = rememberInfiniteTransition()
-
-    val x by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            keyframes {
-                durationMillis = 10000
-                -1f at 2500
-                -1f at 5000
-                1f at 7500
-            },
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
-    val y by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            keyframes {
-                durationMillis = 10000
-                1f at 2500
-                -1f at 5000
-                -1f at 7500
-            },
-            repeatMode = RepeatMode.Restart
-        )
-    )
-
-    BoxWithConstraints(
-        modifier = modifier
-            .padding(top = 48.dp, start = 16.dp, end = 16.dp)
-            .widthIn(max = 600.dp)
-            .fillMaxSize()
-    ) {
-
-        Text(
-            text = stringResource(id = R.string.finding_location),
-            style = MaterialTheme.typography.subtitle1,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = 220.dp)
-        )
-
-        Cloud(
-            color = MaterialTheme.colors.overlay,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(350.dp, 240.dp)
-                .alpha(.4f)
-
-        )
-
-        Cloud(
-            color = MaterialTheme.colors.cloudColor,
-            modifier = Modifier
-                .offset(x = 80.dp * x, y = 60.dp * y)
-                .align(Alignment.Center)
-                .size(350.dp, 240.dp)
-
-        )
     }
 }
 

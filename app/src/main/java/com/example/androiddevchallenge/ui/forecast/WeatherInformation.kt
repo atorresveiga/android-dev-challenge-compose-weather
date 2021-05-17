@@ -40,7 +40,7 @@ import com.example.androiddevchallenge.ui.LocalDataFormatter
 import java.util.Locale
 
 @Composable
-fun MainInformation(
+fun WeatherInformation(
     name: String,
     weatherId: Int,
     minTemperature: Float,

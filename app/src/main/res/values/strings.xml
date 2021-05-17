@@ -113,5 +113,7 @@
     <string name="location_not_found">"Location not found"</string>
     <string name="find_your_location">Your location</string>
     <string name="last_selected_locations">Last selected locations</string>
+    <string name="loading_forecast">Loading the forecast\nfor your location</string>
+    <string name="initializing">Initializing</string>
 
 </resources>

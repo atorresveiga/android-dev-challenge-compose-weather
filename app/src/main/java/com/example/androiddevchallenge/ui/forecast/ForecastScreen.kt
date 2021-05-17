@@ -15,21 +15,19 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -56,10 +54,13 @@ import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
+import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.Result
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
-import com.example.androiddevchallenge.ui.theme.cloudColor
-import com.example.androiddevchallenge.ui.theme.sunColor
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dev.chrisbanes.accompanist.insets.navigationBarsPadding
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
 import kotlinx.datetime.Instant
@@ -68,88 +69,110 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ForecastScreen(
     viewModel: ForecastViewModel,
     navController: NavController
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state = viewModel.uiState.collectAsState().value
     val onSelectLocation = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }
     when (state) {
-        CheckCurrentLocation -> {
-        }
-        NoLocationFound -> {
-            Column(
-                modifier = Modifier
-                    .systemBarsPadding()
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(.6f)
-                ) {
-                    Sun(
-                        color = MaterialTheme.colors.sunColor,
-                        modifier = Modifier
-                            .padding(48.dp)
-                            .fillMaxSize()
-                    )
+        is DisplayForecast -> {
+            val isRefreshing = state.forecast is Result.Loading
+            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+            val refreshTriggerDistance = 80.dp
+            val alpha =
+                swipeRefreshState.indicatorOffset / with(LocalDensity.current) { refreshTriggerDistance.toPx() }
 
-                    Cloud(
-                        color = MaterialTheme.colors.cloudColor,
-                        modifier = Modifier
-                            .size(width = 250.dp, height = 160.dp)
-                            .offset(x = maxWidth * .2f, y = maxHeight * .5f)
-                            .alpha(.98f)
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { viewModel.onRefreshData() },
+                modifier = Modifier.fillMaxSize(),
+                refreshTriggerDistance = refreshTriggerDistance,
+                indicator = { s, trigger ->
+                    SwipeRefreshIndicator(
+                        state = s,
+                        refreshTriggerDistance = trigger,
+                        refreshingOffset = 32.dp
+                    )
+                }
+            ) {
+                if (state.forecast is Result.Success) {
+                    ForecastScreen(
+                        forecast = state.forecast.data,
+                        onSelectLocation = onSelectLocation,
+                        modifier = Modifier.alpha(1f - alpha)
                     )
                 }
 
-                Column(
+                Information(
                     modifier = Modifier
-                        .widthIn(max = 600.dp)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .alpha(if (swipeRefreshState.isRefreshing) 1f else alpha)
                 ) {
                     Text(
                         modifier = Modifier
                             .padding(top = 16.dp),
-                        text = stringResource(id = R.string.without_location),
+                        text = stringResource(id = R.string.loading_forecast),
                         style = MaterialTheme.typography.h4,
                         textAlign = TextAlign.Center
                     )
-                    BlueCloudButton(
-                        onClick = { onSelectLocation() },
-                        modifier = Modifier
-                            .padding(top = 24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Place,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(text = stringResource(id = R.string.select_location_action))
-                    }
                 }
             }
         }
-        LoadingForecast -> {
-            Text(text = "Loading")
-        }
-        is DisplayForecast -> {
-            ForecastScreen(
-                forecast = (state as DisplayForecast).forecast,
-                onSelectLocation = onSelectLocation
-            )
+        else -> {
+            Information {
+                if (state == NoLocationFound) {
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 600.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 16.dp),
+                            text = stringResource(id = R.string.without_location),
+                            style = MaterialTheme.typography.h4,
+                            textAlign = TextAlign.Center
+                        )
+                        BlueCloudButton(
+                            onClick = { onSelectLocation() },
+                            modifier = Modifier
+                                .padding(top = 24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Place,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(text = stringResource(id = R.string.select_location_action))
+                        }
+                    }
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 16.dp),
+                        text = stringResource(id = R.string.initializing),
+                        style = MaterialTheme.typography.h4,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
+fun ForecastScreen(
+    forecast: Forecast,
+    modifier: Modifier = Modifier,
+    onSelectLocation: () -> Unit = {}
+) {
     val indexForecast = IndexForecast(forecast)
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
         val (direction, onDirectionChange) = remember { mutableStateOf(Direction.FORWARD) }
@@ -166,7 +189,7 @@ fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
             isSouthernHemisphere = indexForecast.location.latitude < 0
         )
 
-        MainInformation(
+        WeatherInformation(
             name = indexForecast.location.name,
             weatherId = currentDay.weatherId,
             hourForecast = selectedHour,
@@ -175,6 +198,7 @@ fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
             modifier = Modifier.align(Alignment.Center),
             onSelectLocation = onSelectLocation
         )
+
         PrecipitationInformation(
             selectedHour,
             modifier = Modifier
@@ -182,6 +206,7 @@ fun ForecastScreen(forecast: Forecast, onSelectLocation: () -> Unit = {}) {
                 .navigationBarsPadding()
                 .padding(start = 16.dp, bottom = 16.dp)
         )
+
         WindIndicator(
             selectedHour.windDegrees,
             selectedHour.windSpeed,
@@ -229,6 +254,7 @@ fun HourNavigation(
                     delta / 8
                 }
             )
+            .verticalScroll(state = rememberScrollState())
     )
 }
 
@@ -251,13 +277,6 @@ fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Mo
                 )
             )
         )
-    }
-}
-
-@Composable
-fun EmptyForecast(onRefreshData: () -> Unit) {
-    Button(onClick = { onRefreshData() }, modifier = Modifier.systemBarsPadding()) {
-        Text(text = "Refresh data")
     }
 }
 

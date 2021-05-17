@@ -147,6 +147,9 @@ dependencies {
     // https://github.com/Kotlin/kotlinx.collections.immutable/issues/96 needed to remove jcenter until compose update the dependency
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4"
 
+    // Swipe refresh
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.9.1"
+
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3"
