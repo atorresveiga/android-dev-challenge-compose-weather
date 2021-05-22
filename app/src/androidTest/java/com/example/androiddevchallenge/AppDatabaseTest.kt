@@ -172,7 +172,7 @@ class AppDatabaseTest {
         for (i in 0..7) {
             forecastDAO.saveLocation(
                 LocationEntity(
-                    timezone = "$i timezone",
+                    name = "$i timezone",
                     latitude = i.toDouble(),
                     longitude = i.toDouble(),
                     datetime = datetime + 100 * i
@@ -190,7 +190,7 @@ class AppDatabaseTest {
         val locations = mutableListOf<LocationEntity>()
         for (i in 0..7) {
             val entity = LocationEntity(
-                timezone = "$i timezone",
+                name = "$i timezone",
                 latitude = i.toDouble(),
                 longitude = i.toDouble(),
                 datetime = datetime + 100 * i
