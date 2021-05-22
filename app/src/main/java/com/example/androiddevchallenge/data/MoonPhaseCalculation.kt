@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.data
 
+import com.example.androiddevchallenge.ui.MoonPhase
 import kotlinx.datetime.LocalDate
 import kotlin.math.PI
 import kotlin.math.abs
@@ -84,8 +85,9 @@ fun kepler(m: Double, ecc: Double): Double {
 /**
  * Calculate moon phase based on
  * http://bazaar.launchpad.net/~keturn/py-moon-phase/trunk/annotate/head:/moon.py
+ * The result is the moon phase position in MoonPhase enum
  */
-fun getMoonPhase(date: LocalDate): Double {
+fun getMoonPhase(date: LocalDate): Int {
     val day = date.toJDN() - EPOCH
     val n = fixAngle((360 / 365.2422) * day)
     val m = fixAngle(n + ECLIPTIC_LONGITUDE_EPOCH - ECLIPTIC_LONGITUDE_PERIGEE)
@@ -114,5 +116,18 @@ fun getMoonPhase(date: LocalDate): Double {
     val lpp = lp + variation
 
     val moonAge = lpp - lambdaSun
-    return fixAngle(moonAge) / 360.0
+    return fromPhase(fixAngle(moonAge) / 360.0).ordinal
+}
+
+fun fromPhase(phase: Double): MoonPhase {
+    return when (phase) {
+        in 0.0625..0.1876 -> MoonPhase.WaxingCrescent
+        in 0.1876..0.3126 -> MoonPhase.FirstQuarter
+        in 0.3126..0.4376 -> MoonPhase.WaxingGibbous
+        in 0.4376..0.5626 -> MoonPhase.FullMoon
+        in 0.5626..0.6876 -> MoonPhase.WaningGibbous
+        in 0.6876..0.8126 -> MoonPhase.ThirdQuarter
+        in 0.8126..0.9376 -> MoonPhase.WaningCrescent
+        else -> MoonPhase.NewMoon
+    }
 }

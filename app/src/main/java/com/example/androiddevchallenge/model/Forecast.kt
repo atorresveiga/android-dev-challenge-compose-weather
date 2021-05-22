@@ -108,7 +108,7 @@ data class HourForecast(
  * [second digit] 2 the scale id 1 (clouds scale), 2 (precipitations scale), 0 weather without scale
  * [third digit] 1 the scale is light (position 1 in array precipitations scale)
  * [four and five digit] 05 drizzle position 5 in string array weather
- * @param moonPhase position in [MoonPhase] enum
+ * @param moonPhase encoded moonPhaseId (position in moon phase enum)
  */
 data class DayForecast(
     val datetime: Long,
@@ -122,30 +122,5 @@ data class DayForecast(
     val rain: Float = 0f,
     val snow: Float = 0f,
     val weatherId: Int,
-    val moonPhase: MoonPhase
+    val moonPhase: Int
 )
-
-enum class MoonPhase {
-    NewMoon, WaxingCrescent, FirstQuarter, WaxingGibbous, FullMoon, WaningGibbous, ThirdQuarter, WaningCrescent;
-
-    companion object {
-
-        // We will use the position of the enum as the moon phase id, because this enum must not change (there are not new moon phases)
-        fun fromIndex(i: Int): MoonPhase {
-            return values()[i]
-        }
-
-        fun fromPhase(phase: Double): MoonPhase {
-            return when (phase) {
-                in 0.0625..0.1876 -> WaxingCrescent
-                in 0.1876..0.3126 -> FirstQuarter
-                in 0.3126..0.4376 -> WaxingGibbous
-                in 0.4376..0.5626 -> FullMoon
-                in 0.5626..0.6876 -> WaningGibbous
-                in 0.6876..0.8126 -> ThirdQuarter
-                in 0.8126..0.9376 -> WaningCrescent
-                else -> NewMoon
-            }
-        }
-    }
-}

@@ -49,14 +49,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import com.example.androiddevchallenge.model.MoonPhase
 import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.MoonPhase
 import com.example.androiddevchallenge.ui.theme.moonColor
 import com.example.androiddevchallenge.ui.theme.sunColor
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun DayNight(datetime: Long, sunrise: Long, sunset: Long, moonPhase: MoonPhase, isSouthernHemisphere: Boolean) {
+fun DayNight(
+    datetime: Long,
+    sunrise: Long,
+    sunset: Long,
+    moonPhaseId: Int,
+    isSouthernHemisphere: Boolean
+) {
 
     val dateFormatter = LocalDataFormatter.current.date
     val currentHour = dateFormatter.getHour(datetime)
@@ -125,7 +131,10 @@ fun DayNight(datetime: Long, sunrise: Long, sunset: Long, moonPhase: MoonPhase, 
 
             Moon(
                 color = MaterialTheme.colors.moonColor,
-                phase = moonPhase,
+                phase = LocalDataFormatter.current.moonPhase.decode(
+                    moonPhaseId = moonPhaseId,
+                    isBeforeSunrise = currentHour < sunriseHour
+                ),
                 modifier = Modifier
                     .size(size)
                     .offset(x = xOffset, y = maxHeight * y)

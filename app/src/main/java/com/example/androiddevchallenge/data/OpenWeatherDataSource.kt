@@ -19,7 +19,7 @@ import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.model.MoonPhase
+import com.example.androiddevchallenge.ui.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -127,8 +127,10 @@ class OpenWeatherTransformation {
             }
 
             val timezone = TimeZone.currentSystemDefault()
+            var previousPhase = -1
             for (day in openWeatherForecast.daily) {
                 val date = Instant.fromEpochSeconds(day.datetime).toLocalDateTime(timezone).date
+                val moonPhase = getMoonPhase(date)
                 val dayForecast = DayForecast(
                     datetime = day.datetime,
                     pressure = day.pressure,
@@ -141,9 +143,10 @@ class OpenWeatherTransformation {
                     rain = day.rain,
                     snow = day.snow,
                     weatherId = encodeWeatherId(day.weather.first()),
-                    moonPhase = MoonPhase.fromPhase(getMoonPhase(date))
+                    moonPhase = MoonPhaseFormatter.encode(moonPhase, previousPhase)
                 )
                 days.add(dayForecast)
+                previousPhase = moonPhase
             }
 
             return Forecast(

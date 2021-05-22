@@ -19,7 +19,7 @@ import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.model.MoonPhase
+import com.example.androiddevchallenge.ui.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -104,19 +104,7 @@ object MockDataGenerator {
         val result = mutableListOf<DayForecast>()
         var datetime = startEpoch
 
-        val date = Instant.fromEpochSeconds(startEpoch)
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-
-        val sunrise: Int
-        val sunset: Int
-        if (date.hour > 12) {
-            sunrise = -8
-            sunset = 5
-        } else {
-            sunrise = -5
-            sunset = 8
-        }
-
+        var previousPhase = -1
         for (day in 1..days) {
 
             var weatherId = Random.nextInt(5, 7)
@@ -141,6 +129,11 @@ object MockDataGenerator {
 
             val minTemperature = if (weatherId in 4..7) -20f else 22f
 
+            val date = Instant.fromEpochSeconds(datetime)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+
+            val moonPhase = getMoonPhase(date.date)
+
             val dayForecast = DayForecast(
                 datetime = datetime,
                 pressure = Random.nextInt(1000, 3000),
@@ -151,11 +144,12 @@ object MockDataGenerator {
                 snow = snow,
                 minTemperature = minTemperature,
                 maxTemperature = minTemperature + Random.nextInt(2, 4),
-                sunrise = datetime + 3600 * sunrise,
-                sunset = datetime + 3600 * sunset,
-                moonPhase = MoonPhase.fromPhase(getMoonPhase(date.date))
+                sunrise = datetime + 3600 * -8,
+                sunset = datetime + 3600 * 5,
+                moonPhase = MoonPhaseFormatter.encode(moonPhase, previousPhase)
             )
 
+            previousPhase = moonPhase
             datetime += 86400
             result.add(dayForecast)
         }

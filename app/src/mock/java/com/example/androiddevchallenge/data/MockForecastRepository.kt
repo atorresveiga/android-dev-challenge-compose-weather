@@ -48,6 +48,9 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override fun getLastSelectedLocations(): Flow<List<Location>> = mutableLocations
 
     override suspend fun getForecast(location: Location): Forecast {
-        return MockDataGenerator.createForecast(mutableLocation.value!!)
+        return MockDataGenerator.createForecast(
+            location = mutableLocation.value!!,
+            startEpoch = 1621609658L
+        )
     }
 }

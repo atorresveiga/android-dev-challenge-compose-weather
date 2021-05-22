@@ -38,7 +38,7 @@ class TemperatureFormatter {
 
 class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
 
-    val timeZone = TimeZone.currentSystemDefault()
+    private val timeZone = TimeZone.currentSystemDefault()
 
     @Composable
     fun getDateHour(datetime: Long): String {
@@ -235,7 +235,7 @@ class LocationFormatter {
     }
 }
 
-class UVFormatter {
+object UVFormatter {
     private lateinit var uvScale: Array<String>
 
     @Composable
@@ -253,12 +253,39 @@ class UVFormatter {
     }
 }
 
+object MoonPhaseFormatter {
+
+    private fun fromIndex(i: Int): MoonPhase {
+        return MoonPhase.values()[i]
+    }
+
+    fun decode(moonPhaseId: Int, isBeforeSunrise: Boolean): MoonPhase {
+        return when {
+            moonPhaseId < 8 -> fromIndex(moonPhaseId)
+            isBeforeSunrise -> fromIndex(moonPhaseId / 10)
+            else -> fromIndex(moonPhaseId % 10)
+        }
+    }
+
+    fun encode(phaseId: Int, previousDayPhase: Int = -1): Int {
+        return when {
+            phaseId != previousDayPhase && previousDayPhase != -1 -> previousDayPhase * 10 + phaseId
+            else -> phaseId
+        }
+    }
+}
+
+enum class MoonPhase {
+    NewMoon, WaxingCrescent, FirstQuarter, WaxingGibbous, FullMoon, WaningGibbous, ThirdQuarter, WaningCrescent;
+}
+
 class DataFormatter(
     val temperature: TemperatureFormatter = TemperatureFormatter(),
     val date: DateFormatter = DateFormatter(),
     val wind: WindFormatter = WindFormatter(),
     val location: LocationFormatter = LocationFormatter(),
-    val uvi: UVFormatter = UVFormatter()
+    val uvi: UVFormatter = UVFormatter,
+    val moonPhase: MoonPhaseFormatter = MoonPhaseFormatter
 ) {
     val precipitation: PrecipitationFormatter
     val weather: WeatherFormatter

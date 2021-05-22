@@ -43,7 +43,7 @@ fun Sky(
             datetime = currentHour.datetime,
             sunrise = currentDay.sunrise,
             sunset = currentDay.sunset,
-            moonPhase = currentDay.moonPhase,
+            moonPhaseId = currentDay.moonPhase,
             isSouthernHemisphere = isSouthernHemisphere
         )
         Clouds(
