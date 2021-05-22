@@ -52,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.LocalDataFormatter
-import com.example.androiddevchallenge.ui.theme.cloudColor
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.stormCloudColor
 
@@ -83,13 +82,10 @@ fun Clouds(
 
         clouds.forEachIndexed { index, cloudOffset ->
 
-            val hasLightning = index > total - 5 && hasThunders
             val isReverse = index % 3 == 0
+            val hasLightning = index > total - 5 && hasThunders && cloudOffset.z > 2
 
-            val (width, height, alpha) = getCloudModifiers(
-                z = cloudOffset.z,
-                hasLightning
-            )
+            val (width, height, alpha) = getCloudModifiers(cloudOffset.z)
 
             val x = (maxWidth * cloudOffset.x) - width / 2
             val y = maxHeight * cloudOffset.y
@@ -132,23 +128,13 @@ fun Clouds(
                 )
 
             ) {
-
-                when {
-                    hasLightning -> {
-                        StormCloudWithLightning(
-                            color = MaterialTheme.colors.stormCloudColor,
-                            lightningColor = MaterialTheme.colors.lightningColor,
-                            lightningDuration = 8000 / cloudOffset.z,
-                            modifier = cloudModifier
-                        )
-                    }
-                    else -> {
-                        Cloud(
-                            color = MaterialTheme.colors.cloudColor,
-                            modifier = cloudModifier
-                        )
-                    }
-                }
+                StormCloudWithLightning(
+                    color = MaterialTheme.colors.stormCloudColor,
+                    lightningColor = MaterialTheme.colors.lightningColor,
+                    lightningDuration = 8000 / cloudOffset.z,
+                    modifier = cloudModifier,
+                    drawLightning = hasLightning
+                )
             }
         }
     }
@@ -156,25 +142,21 @@ fun Clouds(
 
 /**
  * Function to generate width,height and alpha of a cloud by taking into account the cloud z offset
- * and whether or not is a storm cloud
  * @param z cloudiness (percent)
- * @param hasLightning encoded value containing if the weather has thunders. Full description in Forecast.kt.
  */
-fun getCloudModifiers(z: Int, hasLightning: Boolean = false): Triple<Dp, Dp, Float> {
-    return if (hasLightning)
-        Triple(300.dp, 330.dp, .95f)
-    else when (z) {
+fun getCloudModifiers(z: Int): Triple<Dp, Dp, Float> {
+    return when (z) {
         4 -> {
-            Triple(350.dp, 240.dp, .95f)
+            Triple(300.dp, 320.dp, .98f)
         }
         3 -> {
-            Triple(280.dp, 190.dp, .90f)
+            Triple(280.dp, 300.dp, .95f)
         }
         2 -> {
-            Triple(250.dp, 160.dp, .55f)
+            Triple(250.dp, 270.dp, .55f)
         }
         else -> {
-            Triple(200.dp, 130.dp, .4f)
+            Triple(200.dp, 220.dp, .4f)
         }
     }
 }
@@ -261,7 +243,7 @@ fun Cloud(color: Color, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(widthDp = 150, heightDp = 100)
+@Preview(widthDp = 300, heightDp = 200)
 @Composable
 fun CloudPreview() {
     Cloud(color = Color.White, modifier = Modifier.size(width = 120.dp, height = 30.dp))
@@ -400,33 +382,41 @@ fun StormCloudPreview() {
  * @param lightningColor color of the lightning
  * @param lightningDuration duration of the alpha animation
  * @param modifier Modifier
+ * @param drawLightning when we should draw the Lightning.
  */
 @Composable
 fun StormCloudWithLightning(
     color: Color,
     lightningColor: Color,
     lightningDuration: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    drawLightning: Boolean = true
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            keyframes {
-                durationMillis = lightningDuration
-                0f at lightningDuration / 3
-                1f at lightningDuration / 5
-                0f at lightningDuration / 7
-            },
-            repeatMode = RepeatMode.Restart
+    val alpha = if (drawLightning) {
+        val infiniteTransition = rememberInfiniteTransition()
+        val value by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0f,
+            animationSpec = infiniteRepeatable(
+                keyframes {
+                    durationMillis = lightningDuration
+                    0f at lightningDuration / 3
+                    1f at lightningDuration / 5
+                    0f at lightningDuration / 7
+                },
+                repeatMode = RepeatMode.Restart
+            )
         )
-    )
+        value
+    } else {
+        0f
+    }
     StormCloudWithLightning(
         color = color,
         lightningColor = lightningColor,
         lightningAlpha = alpha,
-        modifier = modifier
+        modifier = modifier,
+        drawLightning = drawLightning
     )
 }
 
@@ -436,13 +426,15 @@ fun StormCloudWithLightning(
  * @param lightningColor color of the lightning
  * @param lightningAlpha alpha of the lightning
  * @param modifier Modifier
+ * @param drawLightning when we should draw the Lightning.
  */
 @Composable
 fun StormCloudWithLightning(
     color: Color,
     lightningColor: Color,
     lightningAlpha: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    drawLightning: Boolean = true
 ) {
     BoxWithConstraints(modifier = modifier) {
         StormCloud(
@@ -453,18 +445,20 @@ fun StormCloudWithLightning(
                 .width(maxWidth)
                 .height(maxHeight * .62f)
         )
-        Lightning(
-            color = lightningColor,
-            alpha = lightningAlpha,
-            modifier = Modifier
-                .height(maxHeight * .45f)
-                .width(maxWidth * .35f)
-                .offset(x = maxWidth * .3f, y = maxHeight * .5f)
-        )
+        if (drawLightning) {
+            Lightning(
+                color = lightningColor,
+                alpha = lightningAlpha,
+                modifier = Modifier
+                    .height(maxHeight * .45f)
+                    .width(maxWidth * .35f)
+                    .offset(x = maxWidth * .3f, y = maxHeight * .5f)
+            )
+        }
     }
 }
 
-@Preview(widthDp = 100, heightDp = 110)
+@Preview(widthDp = 300, heightDp = 320)
 @Composable
 fun StormCloudWithLightningPreview() {
     StormCloudWithLightning(
