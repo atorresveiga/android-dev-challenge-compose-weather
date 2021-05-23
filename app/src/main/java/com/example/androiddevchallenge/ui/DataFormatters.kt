@@ -38,7 +38,7 @@ class TemperatureFormatter {
 
 class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
 
-    private val timeZone = TimeZone.currentSystemDefault()
+    private val timeZone = TimeZone.UTC
 
     @Composable
     fun getDateHour(datetime: Long): String {

@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.data
 
+import android.util.Log
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
@@ -108,7 +109,7 @@ class OpenWeatherTransformation {
             val days = mutableListOf<DayForecast>()
             for (hour in openWeatherForecast.hourly) {
                 val hourForecast = HourForecast(
-                    datetime = hour.datetime, // local representation of datetime
+                    datetime = hour.datetime + openWeatherForecast.offset, // utc representation of datetime
                     temperature = hour.temperature,
                     feelsLike = hour.feelsLike,
                     pressure = hour.pressure,
@@ -126,18 +127,25 @@ class OpenWeatherTransformation {
                 hours.add(hourForecast)
             }
 
-            val timezone = TimeZone.currentSystemDefault()
+            val timezone = TimeZone.UTC
             var previousPhase = -1
             for (day in openWeatherForecast.daily) {
-                val date = Instant.fromEpochSeconds(day.datetime).toLocalDateTime(timezone).date
+                val date = Instant.fromEpochSeconds(day.datetime + openWeatherForecast.offset)
+                    .toLocalDateTime(timezone).date
+
+                Log.d(
+                    "Date Analysis",
+                    "datetime:${day.datetime} utc:${day.datetime + openWeatherForecast.offset} date:$date"
+                )
+
                 val moonPhase = getMoonPhase(date)
                 val dayForecast = DayForecast(
-                    datetime = day.datetime,
+                    datetime = day.datetime + openWeatherForecast.offset,
                     pressure = day.pressure,
                     humidity = day.humidity,
                     uvi = day.uvi,
-                    sunrise = day.sunrise,
-                    sunset = day.sunset,
+                    sunrise = day.sunrise + openWeatherForecast.offset,
+                    sunset = day.sunset + openWeatherForecast.offset,
                     minTemperature = day.temperature.min,
                     maxTemperature = day.temperature.max,
                     rain = day.rain,

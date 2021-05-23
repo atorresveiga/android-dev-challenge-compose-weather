@@ -289,7 +289,7 @@ class IndexForecast(forecast: Forecast) {
 
     init {
         daily.forEachIndexed { index, dayForecast ->
-            val timezone = TimeZone.currentSystemDefault()
+            val timezone = TimeZone.UTC
             val date = Instant.fromEpochSeconds(dayForecast.datetime).toLocalDateTime(timezone).date
             for (hour in hourly) {
                 val hourDate =
