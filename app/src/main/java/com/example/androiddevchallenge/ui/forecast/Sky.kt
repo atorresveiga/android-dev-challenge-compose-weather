@@ -36,6 +36,7 @@ fun Sky(
     currentDay: DayForecast,
     currentHour: HourForecast,
     direction: Direction,
+    timezoneId: String,
     isSouthernHemisphere: Boolean
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -44,7 +45,8 @@ fun Sky(
             sunrise = currentDay.sunrise,
             sunset = currentDay.sunset,
             moonPhaseId = currentDay.moonPhase,
-            isSouthernHemisphere = isSouthernHemisphere
+            isSouthernHemisphere = isSouthernHemisphere,
+            timezoneId = timezoneId
         )
         Clouds(
             cloudiness = currentHour.clouds,

@@ -33,7 +33,7 @@ import com.example.androiddevchallenge.ui.forecast.Cloud
 import com.example.androiddevchallenge.ui.forecast.Sun
 import com.example.androiddevchallenge.ui.theme.cloudColor
 import com.example.androiddevchallenge.ui.theme.sunColor
-import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
 fun Information(modifier: Modifier = Modifier, content: @Composable () -> Unit = {}) {

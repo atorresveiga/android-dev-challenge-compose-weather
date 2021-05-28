@@ -37,11 +37,9 @@ class TemperatureFormatter {
 }
 
 class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
-
-    private val timeZone = TimeZone.UTC
-
     @Composable
-    fun getDateHour(datetime: Long): String {
+    fun getDateHour(datetime: Long, timezoneId: String): String {
+        val timeZone = TimeZone.of(timezoneId)
         val localDateTime =
             Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone)
         val today = Clock.System.now().toLocalDateTime(timeZone)
@@ -77,8 +75,10 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
         }
     }
 
-    fun getHour(datetime: Long): Int =
-        Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
+    fun getHour(datetime: Long, timezoneId: String): Int {
+        val timeZone = TimeZone.of(timezoneId)
+        return Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
+    }
 
     enum class HourSystem {
         Twelve,

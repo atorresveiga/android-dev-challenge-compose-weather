@@ -83,6 +83,7 @@ data class LocationEntity(
     val name: String,
     val latitude: Double,
     val longitude: Double,
+    val timezoneId: String,
     val datetime: Long
 )
 
@@ -218,6 +219,7 @@ fun Location.toLocationEntity() =
         name = name,
         latitude = latitude,
         longitude = longitude,
+        timezoneId = timezoneId,
         datetime = Clock.System.now().epochSeconds
     )
 
@@ -225,5 +227,6 @@ fun LocationEntity.toLocation() =
     Location(
         name = name,
         latitude = latitude,
-        longitude = longitude
+        longitude = longitude,
+        timezoneId = timezoneId
     )

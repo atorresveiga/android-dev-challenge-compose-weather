@@ -18,6 +18,7 @@ package com.example.androiddevchallenge.ui.location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.domain.FindLocationTimezone
 import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.GetLastSelectedLocationsUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
@@ -43,7 +44,8 @@ class LocationViewModel @Inject constructor(
     private val findUserLocationUseCase: FindUserLocationUseCase,
     private val updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
     private val getLastSelectedLocationsUseCase: GetLastSelectedLocationsUseCase,
-    private val searchLocationUseCase: SearchLocationUseCase
+    private val searchLocationUseCase: SearchLocationUseCase,
+    private val findLocationTimezone: FindLocationTimezone
 ) : ViewModel() {
 
     private val mutableUiState: MutableStateFlow<LocationState> =
@@ -107,10 +109,16 @@ class LocationViewModel @Inject constructor(
 
     fun selectLocation(location: Location) {
         viewModelScope.launch {
-            updateCurrentLocationUseCase.execute(location)
+            val selectedLocation = if (location.timezoneId.isEmpty()) {
+                mutableUiState.value = LocationState.FindingLocationTimeZone
+                findLocationTimezone.execute(location)
+            } else {
+                location
+            }
+            updateCurrentLocationUseCase.execute(selectedLocation)
             mutableUiState.value = LocationState.LocationSelected
         }
     }
 }
 
-enum class LocationState { SelectLocation, FindingUserLocation, LocationSelected }
+enum class LocationState { SelectLocation, FindingUserLocation, FindingLocationTimeZone, LocationSelected }

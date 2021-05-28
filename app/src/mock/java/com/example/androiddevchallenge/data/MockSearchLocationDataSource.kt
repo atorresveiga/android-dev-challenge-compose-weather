@@ -17,6 +17,7 @@ package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.delay
+import kotlinx.datetime.TimeZone
 import java.util.Locale
 import javax.inject.Inject
 
@@ -32,5 +33,9 @@ class MockSearchLocationDataSource @Inject constructor() : SearchLocationDataSou
 
     override suspend fun findNearby(latitude: Double, longitude: Double): Location {
         return MockDataGenerator.locations.first()
+            .copy(timezoneId = timezone(latitude = latitude, longitude = longitude))
     }
+
+    override suspend fun timezone(latitude: Double, longitude: Double) =
+        TimeZone.currentSystemDefault().id
 }

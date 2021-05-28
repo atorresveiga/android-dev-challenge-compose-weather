@@ -35,36 +35,40 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
 
     private val _dataStore = appContext.dataStore
 
-    private val _timezone = stringPreferencesKey("timezone")
-    private val _latitude = doublePreferencesKey("latitude")
-    private val _longitude = doublePreferencesKey("longitude")
-    private val _lastUpdated = longPreferencesKey("last_updated")
+    private val mutableName = stringPreferencesKey("name")
+    private val mutableTimezoneId = stringPreferencesKey("timezone_id")
+    private val mutableLatitude = doublePreferencesKey("latitude")
+    private val mutableLongitude = doublePreferencesKey("longitude")
+    private val mutableLastUpdated = longPreferencesKey("last_updated")
 
     suspend fun setCurrentLocation(location: Location) {
         _dataStore.edit { preferences ->
-            preferences[_timezone] = location.name
-            preferences[_latitude] = location.latitude
-            preferences[_longitude] = location.longitude
+            preferences[mutableName] = location.name
+            preferences[mutableLatitude] = location.latitude
+            preferences[mutableLongitude] = location.longitude
+            preferences[mutableTimezoneId] = location.timezoneId
         }
     }
 
     suspend fun setLastUpdated(datetime: Long) {
         _dataStore.edit { preferences ->
-            preferences[_lastUpdated] = datetime
+            preferences[mutableLastUpdated] = datetime
         }
     }
 
     val lastUpdated =
-        _dataStore.data.map { preferences -> preferences[_lastUpdated] ?: return@map null }
+        _dataStore.data.map { preferences -> preferences[mutableLastUpdated] ?: return@map null }
 
     val currentLocation: Flow<Location?> = _dataStore.data.map { preferences ->
-        val timezoneValue = preferences[_timezone] ?: return@map null
-        val latitudeValue = preferences[_latitude] ?: return@map null
-        val longitudeValue = preferences[_longitude] ?: return@map null
+        val timezoneValue = preferences[mutableName] ?: return@map null
+        val latitudeValue = preferences[mutableLatitude] ?: return@map null
+        val longitudeValue = preferences[mutableLongitude] ?: return@map null
+        val timeZoneIdValue = preferences[mutableTimezoneId] ?: return@map null
         Location(
             name = timezoneValue,
             latitude = latitudeValue,
-            longitude = longitudeValue
+            longitude = longitudeValue,
+            timezoneId = timeZoneIdValue
         )
     }
 }

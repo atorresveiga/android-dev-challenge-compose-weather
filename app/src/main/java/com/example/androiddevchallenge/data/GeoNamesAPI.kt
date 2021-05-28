@@ -37,7 +37,16 @@ interface GeoNamesAPI {
         @Query("featureClass") featureClass: String = "P",
         @Query("maxRows") max: Int = 8
     ): GeoNamesResponse
+
+    @GET("timezoneJSON")
+    suspend fun timezone(
+        @Query("lat") latitude: Double,
+        @Query("lng") longitude: Double
+    ): GeoNamesTimeZone
 }
+
+@Serializable
+data class GeoNamesTimeZone(val timezoneId: String)
 
 @Serializable
 data class GeoNamesResponse(

@@ -61,13 +61,14 @@ fun DayNight(
     sunrise: Long,
     sunset: Long,
     moonPhaseId: Int,
+    timezoneId: String,
     isSouthernHemisphere: Boolean
 ) {
 
     val dateFormatter = LocalDataFormatter.current.date
-    val currentHour = dateFormatter.getHour(datetime)
-    val sunriseHour = dateFormatter.getHour(sunrise)
-    val sunsetHour = dateFormatter.getHour(sunset)
+    val currentHour = dateFormatter.getHour(datetime, timezoneId)
+    val sunriseHour = dateFormatter.getHour(sunrise, timezoneId)
+    val sunsetHour = dateFormatter.getHour(sunset, timezoneId)
 
     val density = LocalDensity.current
 

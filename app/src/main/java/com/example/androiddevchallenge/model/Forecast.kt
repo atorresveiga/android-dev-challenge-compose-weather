@@ -34,11 +34,13 @@ data class Forecast(
  * @param name name
  * @param latitude location's latitude
  * @param longitude location's longitude
+ * @param timezoneId location's timezoneId (according to olson).
  */
 data class Location(
     val name: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val timezoneId: String
 )
 
 /**

@@ -34,16 +34,19 @@ object MockDataGenerator {
             name = "Buenos Aires,Argentina",
             latitude = -34.5477769,
             longitude = -58.4515826,
+            timezoneId = ""
         ),
         Location(
             name = "Chicago, USA",
             latitude = -22.955536,
-            longitude = -43.1847027
+            longitude = -43.1847027,
+            timezoneId = ""
         ),
         Location(
             name = "Nuevo Vedado, La Habana, Cuba",
             latitude = 23.1206009,
-            longitude = -82.4065344
+            longitude = -82.4065344,
+            timezoneId = ""
         )
     )
 

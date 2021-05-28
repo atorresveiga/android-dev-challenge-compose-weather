@@ -48,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
@@ -63,8 +62,6 @@ import com.google.accompanist.insets.systemBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import dev.chrisbanes.accompanist.insets.navigationBarsPadding
-import dev.chrisbanes.accompanist.insets.systemBarsPadding
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -188,6 +185,7 @@ fun ForecastScreen(
             currentDay = currentDay,
             currentHour = selectedHour,
             direction = direction,
+            timezoneId = indexForecast.location.timezoneId,
             isSouthernHemisphere = indexForecast.location.latitude < 0
         )
 
@@ -197,6 +195,7 @@ fun ForecastScreen(
             hourForecast = selectedHour,
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
+            timezoneId = indexForecast.location.timezoneId,
             modifier = Modifier.align(Alignment.Center),
             onSelectLocation = onSelectLocation
         )
@@ -291,7 +290,7 @@ class IndexForecast(forecast: Forecast) {
 
     init {
         daily.forEachIndexed { index, dayForecast ->
-            val timezone = TimeZone.UTC
+            val timezone = TimeZone.of(location.timezoneId)
             val date = Instant.fromEpochSeconds(dayForecast.datetime).toLocalDateTime(timezone).date
             for (hour in hourly) {
                 val hourDate =

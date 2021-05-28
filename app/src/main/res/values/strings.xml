@@ -110,6 +110,7 @@
     <string name="without_location">"Start by selecting a location\nto check the weather"</string>
     <string name="select_location_action">"Select location"</string>
     <string name="finding_location">"Finding your location"</string>
+    <string name="finding_timezone">"Completing location data"</string>
     <string name="location_not_found">"Location not found"</string>
     <string name="find_your_location">Your location</string>
     <string name="last_selected_locations">Last selected locations</string>

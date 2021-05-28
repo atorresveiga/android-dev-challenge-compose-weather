@@ -46,8 +46,9 @@ fun WeatherInformation(
     minTemperature: Float,
     maxTemperature: Float,
     hourForecast: HourForecast,
+    timezoneId: String,
     modifier: Modifier = Modifier,
-    onSelectLocation: () -> Unit = {}
+    onSelectLocation: () -> Unit = {},
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
@@ -111,7 +112,10 @@ fun WeatherInformation(
         )
         Text(
             modifier = Modifier.padding(top = 8.dp),
-            text = LocalDataFormatter.current.date.getDateHour(datetime = hourForecast.datetime)
+            text = LocalDataFormatter.current.date.getDateHour(
+                datetime = hourForecast.datetime,
+                timezoneId = timezoneId
+            )
         )
     }
 }

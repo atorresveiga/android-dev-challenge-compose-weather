@@ -132,17 +132,25 @@ fun LocationScreen(
                 }
             }
         }
-        LocationState.FindingUserLocation -> {
+        LocationState.FindingUserLocation, LocationState.FindingLocationTimeZone -> {
+
+            val resId =
+                if (uiState == LocationState.FindingUserLocation)
+                    R.string.finding_location
+                else
+                    R.string.finding_timezone
+
             Information {
                 Text(
                     modifier = Modifier
                         .padding(top = 16.dp),
-                    text = stringResource(id = R.string.finding_location),
+                    text = stringResource(id = resId),
                     style = MaterialTheme.typography.h4,
                     textAlign = TextAlign.Center
                 )
             }
         }
+
         LocationState.LocationSelected -> navController.popBackStack()
     }
 }
