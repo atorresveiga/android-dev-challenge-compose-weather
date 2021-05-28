@@ -42,7 +42,7 @@ class SyncWorker @AssistedInject constructor(
         return try {
             refreshDataUseCase.execute()
             val currentDataTime = Clock.System.now().epochSeconds
-            clearOldDataUseCase.execute(currentDataTime - 3600)
+            clearOldDataUseCase.execute(currentDataTime)
             Result.success()
         } catch (e: Exception) {
             Result.failure()

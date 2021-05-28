@@ -118,8 +118,8 @@ interface ForecastDAO {
 
     @Transaction
     suspend fun clearOlderThan(datetime: Long) {
-        clearDailyForecastOlderThan(datetime)
-        clearHourlyForecastOlderThan(datetime)
+        clearDailyForecastOlderThan(datetime - 3600 * 24)
+        clearHourlyForecastOlderThan(datetime - 3600)
         clearSelectedLocations()
     }
 }
