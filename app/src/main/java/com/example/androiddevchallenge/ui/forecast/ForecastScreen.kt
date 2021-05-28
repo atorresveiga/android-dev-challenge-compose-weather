@@ -58,6 +58,8 @@ import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.Result
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
+import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.systemBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState

@@ -74,7 +74,7 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.Result
-import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
 fun LocationScreen(

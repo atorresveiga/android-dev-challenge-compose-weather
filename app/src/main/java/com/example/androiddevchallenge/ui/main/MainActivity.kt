@@ -26,8 +26,8 @@ import com.example.androiddevchallenge.ui.DataFormatter
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.NavGraph
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
-import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
