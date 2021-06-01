@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +40,8 @@ class ForecastViewModel @Inject constructor(
     private val mutableUiState: MutableStateFlow<ForecastState> =
         MutableStateFlow(CheckCurrentLocation)
     val uiState: StateFlow<ForecastState> = mutableUiState
+
+    private var currentForecast: Forecast? = null
 
     init {
         viewModelScope.launch {
@@ -55,14 +58,18 @@ class ForecastViewModel @Inject constructor(
 
     private fun getForecast() {
         viewModelScope.launch {
-            getForecastUseCase.execute().collect { cachedForecast ->
-                if (cachedForecast == null || cachedForecast.hourly.size < 35) {
-                    onRefreshData()
-                } else {
-                    mutableUiState.value =
-                        DisplayForecast(forecast = Result.Success(cachedForecast))
+            getForecastUseCase.execute(
+                startTime = Clock.System.now().epochSeconds
+            )
+                .collect { cachedForecast ->
+                    if (cachedForecast == null || cachedForecast.hourly.size < 35) {
+                        onRefreshData()
+                    } else {
+                        mutableUiState.value =
+                            DisplayForecast(forecast = Result.Success(cachedForecast))
+                        currentForecast = cachedForecast
+                    }
                 }
-            }
         }
     }
 
@@ -70,6 +77,17 @@ class ForecastViewModel @Inject constructor(
         mutableUiState.value = DisplayForecast(forecast = Result.Loading)
         viewModelScope.launch {
             refreshDataUseCase.execute()
+        }
+    }
+
+    fun displayCurrentForecast() {
+        // Display forecast for the current hour
+        currentForecast?.let { forecast ->
+            val currentTime = Clock.System.now().epochSeconds
+            val firstForecastHour = forecast.hourly.first().datetime
+            if (currentTime - firstForecastHour > 3600) {
+                getForecast()
+            }
         }
     }
 }

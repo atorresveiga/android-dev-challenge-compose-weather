@@ -23,9 +23,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.hours
+import kotlin.time.minutes
 
 interface LocalForecastRepository {
-    fun getForecast(): Flow<Forecast?>
+    fun getForecast(startTime: Long): Flow<Forecast?>
     fun getCurrentLocation(): Flow<Location?>
     suspend fun saveCurrentLocation(location: Location)
     suspend fun saveForecast(forecast: Forecast)
@@ -41,7 +47,8 @@ class LocalForecastRepositoryDefault(
 
     private val forecastDAO = appDatabase.forecastDAO()
 
-    override fun getForecast(): Flow<Forecast?> {
+    @OptIn(ExperimentalTime::class)
+    override fun getForecast(startTime: Long): Flow<Forecast?> {
 
         return dataStoreManager.currentLocation
             .combine(dataStoreManager.lastUpdated) { currentLocation, lastUpdated ->
@@ -52,14 +59,23 @@ class LocalForecastRepositoryDefault(
                     pair.first ?: return@flatMapLatest flow { emit(null) }
                 val lastUpdated = pair.second ?: return@flatMapLatest flow { emit(null) }
 
+                val timeZone = TimeZone.of(currentLocation.timezoneId)
+                val instant = Instant.fromEpochSeconds(startTime)
+                val date = instant.toLocalDateTime(timeZone = timeZone)
+
+                val startTimeWithoutMinutes = instant.minus((date.minute + 1).minutes)
+                val startTimeWithoutHours = startTimeWithoutMinutes.minus(date.hour.hours)
+
                 forecastDAO.getHourlyForecastFrom(
-                    currentLocation.latitude,
-                    currentLocation.longitude
+                    latitude = currentLocation.latitude,
+                    longitude = currentLocation.longitude,
+                    startTime = startTimeWithoutMinutes.epochSeconds
                 )
                     .combine(
                         forecastDAO.getDailyForecastFrom(
-                            currentLocation.latitude,
-                            currentLocation.longitude
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude,
+                            startTime = startTimeWithoutHours.epochSeconds
                         )
                     ) { hourly, daily ->
 

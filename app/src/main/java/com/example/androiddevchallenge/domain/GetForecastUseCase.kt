@@ -25,5 +25,5 @@ class GetForecastUseCase @Inject constructor(
     @DefaultDispatcher val defaultDispatcher: CoroutineDispatcher,
     private val localForecastRepository: LocalForecastRepository
 ) {
-    fun execute() = localForecastRepository.getForecast().flowOn(defaultDispatcher)
+    fun execute(startTime: Long) = localForecastRepository.getForecast(startTime).flowOn(defaultDispatcher)
 }

@@ -27,7 +27,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     private val mutableLocations: MutableStateFlow<MutableList<Location>> =
         MutableStateFlow(mutableListOf())
 
-    override fun getForecast(): Flow<Forecast?> = mutableForecast
+    override fun getForecast(startTime: Long): Flow<Forecast?> = mutableForecast
 
     override fun getCurrentLocation(): Flow<Location?> = mutableLocation
 

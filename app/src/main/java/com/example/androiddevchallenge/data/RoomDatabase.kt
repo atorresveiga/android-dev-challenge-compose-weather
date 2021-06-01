@@ -89,11 +89,19 @@ data class LocationEntity(
 
 @Dao
 interface ForecastDAO {
-    @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
-    fun getHourlyForecastFrom(latitude: Double, longitude: Double): Flow<List<HourForecastEntity>>
+    @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude AND datetime >= :startTime ORDER BY datetime ASC")
+    fun getHourlyForecastFrom(
+        latitude: Double,
+        longitude: Double,
+        startTime: Long
+    ): Flow<List<HourForecastEntity>>
 
-    @Query("SELECT * from day_forecast_table WHERE latitude = :latitude AND longitude=:longitude ORDER BY datetime ASC")
-    fun getDailyForecastFrom(latitude: Double, longitude: Double): Flow<List<DayForecastEntity>>
+    @Query("SELECT * from day_forecast_table WHERE latitude = :latitude AND longitude=:longitude AND datetime>= :startTime ORDER BY datetime ASC")
+    fun getDailyForecastFrom(
+        latitude: Double,
+        longitude: Double,
+        startTime: Long
+    ): Flow<List<DayForecastEntity>>
 
     @Query("SELECT * from location_table ORDER BY datetime DESC LIMIT 5")
     fun getLocations(): Flow<List<LocationEntity>>
