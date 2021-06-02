@@ -15,18 +15,19 @@
  */
 package com.example.androiddevchallenge.model
 
+const val EMPTY_TIME = -1L
+const val SECONDS_IN_AN_HOUR = 3600
+
 /**
  * A data class that holds the forecast data.
  * @param location location of the current forecast (timezone,lat lon..ect)
  * @param hourly forecast for the next 48 hours
  * @param daily forecast for the next 7 days
- * @param lastUpdated when was created this forecast
  */
 data class Forecast(
     val location: Location,
     val hourly: List<HourForecast>,
-    val daily: List<DayForecast>,
-    val lastUpdated: Long
+    val daily: List<DayForecast>
 )
 
 /**
@@ -35,12 +36,14 @@ data class Forecast(
  * @param latitude location's latitude
  * @param longitude location's longitude
  * @param timezoneId location's timezoneId (according to olson).
+ * @param lastUpdated last time we update this location
  */
 data class Location(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val timezoneId: String
+    val timezoneId: String,
+    val lastUpdated: Long
 )
 
 /**

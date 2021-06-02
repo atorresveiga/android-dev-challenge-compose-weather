@@ -50,43 +50,37 @@ class LocalForecastRepositoryDefault(
     @OptIn(ExperimentalTime::class)
     override fun getForecast(startTime: Long): Flow<Forecast?> {
 
-        return dataStoreManager.currentLocation
-            .combine(dataStoreManager.lastUpdated) { currentLocation, lastUpdated ->
-                Pair(currentLocation, lastUpdated)
-            }
-            .flatMapLatest { pair ->
-                val currentLocation =
-                    pair.first ?: return@flatMapLatest flow { emit(null) }
-                val lastUpdated = pair.second ?: return@flatMapLatest flow { emit(null) }
+        return dataStoreManager.currentLocation.flatMapLatest { prefLocation ->
+            val currentLocation =
+                prefLocation ?: return@flatMapLatest flow { emit(null) }
 
-                val timeZone = TimeZone.of(currentLocation.timezoneId)
-                val instant = Instant.fromEpochSeconds(startTime)
-                val date = instant.toLocalDateTime(timeZone = timeZone)
+            val timeZone = TimeZone.of(currentLocation.timezoneId)
+            val instant = Instant.fromEpochSeconds(startTime)
+            val date = instant.toLocalDateTime(timeZone = timeZone)
 
-                val startTimeWithoutMinutes = instant.minus((date.minute + 1).minutes)
-                val startTimeWithoutHours = startTimeWithoutMinutes.minus(date.hour.hours)
+            val startTimeWithoutMinutes = instant.minus((date.minute + 1).minutes)
+            val startTimeWithoutHours = startTimeWithoutMinutes.minus(date.hour.hours)
 
-                forecastDAO.getHourlyForecastFrom(
-                    latitude = currentLocation.latitude,
-                    longitude = currentLocation.longitude,
-                    startTime = startTimeWithoutMinutes.epochSeconds
-                )
-                    .combine(
-                        forecastDAO.getDailyForecastFrom(
-                            latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude,
-                            startTime = startTimeWithoutHours.epochSeconds
-                        )
-                    ) { hourly, daily ->
+            forecastDAO.getHourlyForecastFrom(
+                latitude = currentLocation.latitude,
+                longitude = currentLocation.longitude,
+                startTime = startTimeWithoutMinutes.epochSeconds
+            )
+                .combine(
+                    forecastDAO.getDailyForecastFrom(
+                        latitude = currentLocation.latitude,
+                        longitude = currentLocation.longitude,
+                        startTime = startTimeWithoutHours.epochSeconds
+                    )
+                ) { hourly, daily ->
 
-                        Forecast(
-                            location = currentLocation,
-                            hourly = hourly.map { it.toHourForecast() },
-                            daily = daily.map { it.toDayForecast() },
-                            lastUpdated = lastUpdated
-                        )
-                    }
-            }
+                    Forecast(
+                        location = currentLocation,
+                        hourly = hourly.map { it.toHourForecast() },
+                        daily = daily.map { it.toDayForecast() }
+                    )
+                }
+        }
     }
 
     override fun getCurrentLocation() = dataStoreManager.currentLocation
@@ -113,7 +107,7 @@ class LocalForecastRepositoryDefault(
                 )
             }
         )
-        dataStoreManager.setLastUpdated(forecast.lastUpdated)
+        saveCurrentLocation(forecast.location)
     }
 
     override suspend fun clearOldData(olderTime: Long) = forecastDAO.clearOlderThan(olderTime)

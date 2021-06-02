@@ -16,9 +16,11 @@
 package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.DayForecast
+import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.example.androiddevchallenge.ui.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -34,19 +36,22 @@ object MockDataGenerator {
             name = "Buenos Aires,Argentina",
             latitude = -34.5477769,
             longitude = -58.4515826,
-            timezoneId = ""
+            timezoneId = "",
+            lastUpdated = EMPTY_TIME
         ),
         Location(
             name = "Chicago, USA",
             latitude = -22.955536,
             longitude = -43.1847027,
-            timezoneId = ""
+            timezoneId = "",
+            lastUpdated = EMPTY_TIME
         ),
         Location(
             name = "Nuevo Vedado, La Habana, Cuba",
             latitude = 23.1206009,
             longitude = -82.4065344,
-            timezoneId = ""
+            timezoneId = "",
+            lastUpdated = EMPTY_TIME
         )
     )
 
@@ -74,7 +79,7 @@ object MockDataGenerator {
             ).toMutableList()
 
         var dayIndex = 1
-        var epoch = startEpoch + (3600 * hoursToMidnight)
+        var epoch = startEpoch + (SECONDS_IN_AN_HOUR * hoursToMidnight)
         var pendingHours = hours - hoursToMidnight
 
         while (pendingHours - 24 > 0) {
@@ -86,7 +91,7 @@ object MockDataGenerator {
                 )
             )
             pendingHours -= 24
-            epoch += (3600 * 24)
+            epoch += (SECONDS_IN_AN_HOUR * 24)
             dayIndex += 1
         }
 
@@ -100,7 +105,7 @@ object MockDataGenerator {
             )
         }
 
-        return Forecast(location, hourly, daily, startEpoch)
+        return Forecast(location.copy(lastUpdated = Clock.System.now().epochSeconds), hourly, daily)
     }
 
     fun createDailyForecast(startEpoch: Long, days: Int = 7): List<DayForecast> {
@@ -147,8 +152,8 @@ object MockDataGenerator {
                 snow = snow,
                 minTemperature = minTemperature,
                 maxTemperature = minTemperature + Random.nextInt(2, 4),
-                sunrise = datetime + 3600 * -8,
-                sunset = datetime + 3600 * 5,
+                sunrise = datetime + SECONDS_IN_AN_HOUR * -8,
+                sunset = datetime + SECONDS_IN_AN_HOUR * 5,
                 moonPhase = MoonPhaseFormatter.encode(moonPhase, previousPhase)
             )
 
@@ -230,7 +235,7 @@ object MockDataGenerator {
                 rain = rain,
                 snow = snow
             )
-            datetime += 3600
+            datetime += SECONDS_IN_AN_HOUR
             result.add(hourForecast)
         }
         return result

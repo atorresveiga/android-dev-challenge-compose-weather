@@ -28,6 +28,7 @@ import androidx.room.Transaction
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 
@@ -84,6 +85,7 @@ data class LocationEntity(
     val latitude: Double,
     val longitude: Double,
     val timezoneId: String,
+    val lastUpdated: Long,
     val datetime: Long
 )
 
@@ -103,7 +105,7 @@ interface ForecastDAO {
         startTime: Long
     ): Flow<List<DayForecastEntity>>
 
-    @Query("SELECT * from location_table ORDER BY datetime DESC LIMIT 5")
+    @Query("SELECT * from location_table ORDER BY datetime DESC")
     fun getLocations(): Flow<List<LocationEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -126,8 +128,8 @@ interface ForecastDAO {
 
     @Transaction
     suspend fun clearOlderThan(datetime: Long) {
-        clearDailyForecastOlderThan(datetime - 3600 * 24)
-        clearHourlyForecastOlderThan(datetime - 3600)
+        clearDailyForecastOlderThan(datetime - SECONDS_IN_AN_HOUR * 24)
+        clearHourlyForecastOlderThan(datetime - SECONDS_IN_AN_HOUR)
         clearSelectedLocations()
     }
 }
@@ -228,6 +230,7 @@ fun Location.toLocationEntity() =
         latitude = latitude,
         longitude = longitude,
         timezoneId = timezoneId,
+        lastUpdated = lastUpdated,
         datetime = Clock.System.now().epochSeconds
     )
 
@@ -236,5 +239,6 @@ fun LocationEntity.toLocation() =
         name = name,
         latitude = latitude,
         longitude = longitude,
-        timezoneId = timezoneId
+        timezoneId = timezoneId,
+        lastUpdated = lastUpdated
     )

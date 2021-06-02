@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.data
 
+import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
 import javax.inject.Inject
 
@@ -53,6 +54,7 @@ fun GeoNamesLocation.toLocation(timeZoneId: String = ""): Location {
         latitude = latitude,
         longitude = longitude,
         name = if (state.isNotEmpty()) "$name, $state, $country" else "$name, $country",
-        timezoneId = timeZoneId
+        timezoneId = timeZoneId,
+        lastUpdated = EMPTY_TIME
     )
 }

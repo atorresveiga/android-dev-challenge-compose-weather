@@ -21,6 +21,7 @@ import com.example.androiddevchallenge.domain.GetCurrentLocationUseCase
 import com.example.androiddevchallenge.domain.GetForecastUseCase
 import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import com.example.androiddevchallenge.model.Forecast
+import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.example.androiddevchallenge.ui.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,7 +86,7 @@ class ForecastViewModel @Inject constructor(
         currentForecast?.let { forecast ->
             val currentTime = Clock.System.now().epochSeconds
             val firstForecastHour = forecast.hourly.first().datetime
-            if (currentTime - firstForecastHour > 3600) {
+            if (currentTime - firstForecastHour > SECONDS_IN_AN_HOUR) {
                 getForecast()
             }
         }

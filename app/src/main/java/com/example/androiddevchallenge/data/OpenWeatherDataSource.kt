@@ -153,10 +153,9 @@ class OpenWeatherTransformation {
             }
 
             return Forecast(
-                location = location,
+                location = location.copy(lastUpdated = Clock.System.now().epochSeconds),
                 hourly = hours,
-                daily = days,
-                lastUpdated = Clock.System.now().epochSeconds
+                daily = days
             )
         }
     }

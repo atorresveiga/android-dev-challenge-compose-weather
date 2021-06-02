@@ -21,6 +21,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -47,28 +48,22 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[mutableLatitude] = location.latitude
             preferences[mutableLongitude] = location.longitude
             preferences[mutableTimezoneId] = location.timezoneId
+            preferences[mutableLastUpdated] = location.lastUpdated
         }
     }
-
-    suspend fun setLastUpdated(datetime: Long) {
-        _dataStore.edit { preferences ->
-            preferences[mutableLastUpdated] = datetime
-        }
-    }
-
-    val lastUpdated =
-        _dataStore.data.map { preferences -> preferences[mutableLastUpdated] ?: return@map null }
 
     val currentLocation: Flow<Location?> = _dataStore.data.map { preferences ->
         val timezoneValue = preferences[mutableName] ?: return@map null
         val latitudeValue = preferences[mutableLatitude] ?: return@map null
         val longitudeValue = preferences[mutableLongitude] ?: return@map null
         val timeZoneIdValue = preferences[mutableTimezoneId] ?: return@map null
+        val lastUpdatedValue = preferences[mutableLastUpdated] ?: EMPTY_TIME
         Location(
             name = timezoneValue,
             latitude = latitudeValue,
             longitude = longitudeValue,
-            timezoneId = timeZoneIdValue
+            timezoneId = timeZoneIdValue,
+            lastUpdated = lastUpdatedValue
         )
     }
 }
