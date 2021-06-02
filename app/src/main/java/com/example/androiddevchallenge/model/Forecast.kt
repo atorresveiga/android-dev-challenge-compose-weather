@@ -15,7 +15,7 @@
  */
 package com.example.androiddevchallenge.model
 
-const val EMPTY_TIME = -1L
+const val EMPTY_TIME = 0L
 const val SECONDS_IN_AN_HOUR = 3600
 
 /**
