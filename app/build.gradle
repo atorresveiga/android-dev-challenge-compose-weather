@@ -123,7 +123,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
 
     // Kotlin Datetime
-    implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.1.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-datetime:0.2.1"
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
@@ -147,8 +147,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4"
 
     // Swipe refresh
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.10.0"
-    implementation 'com.google.accompanist:accompanist-insets:0.10.0'
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.11.1"
+    implementation 'com.google.accompanist:accompanist-insets:0.11.1'
 
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
