@@ -98,6 +98,9 @@ data class HourForecast(
  * @param uvi UV index
  * @param sunrise Sunrise time, Unix, UTC
  * @param sunset Sunset time, Unix, UTC
+ * @param clouds cloudiness %
+ * @param windSpeed Wind speed. Units metre/sec
+ * @param windDegrees Wind direction, degrees (meteorological)
  * @param minTemperature Min daily temperature
  * @param maxTemperature Max daily temperature
  * @param rain rain volume
@@ -122,6 +125,9 @@ data class DayForecast(
     val uvi: Float,
     val sunrise: Long,
     val sunset: Long,
+    val clouds: Int,
+    val windSpeed: Float,
+    val windDegrees: Float,
     val minTemperature: Float,
     val maxTemperature: Float,
     val rain: Float = 0f,

@@ -154,6 +154,9 @@ object MockDataGenerator {
                 maxTemperature = minTemperature + Random.nextInt(2, 4),
                 sunrise = datetime + SECONDS_IN_AN_HOUR * -8,
                 sunset = datetime + SECONDS_IN_AN_HOUR * 5,
+                clouds = Random.nextInt(100),
+                windSpeed = Random.nextInt(10).toFloat(),
+                windDegrees = Random.nextInt(360).toFloat(),
                 moonPhase = MoonPhaseFormatter.encode(moonPhase, previousPhase)
             )
 

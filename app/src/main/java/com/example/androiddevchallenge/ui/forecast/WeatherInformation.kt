@@ -15,19 +15,11 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.North
-import androidx.compose.material.icons.rounded.Place
-import androidx.compose.material.icons.rounded.South
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,52 +43,14 @@ fun WeatherInformation(
     onSelectLocation: () -> Unit = {},
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            modifier = Modifier
-                .clickable { onSelectLocation() }
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Place,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Text(
-                text = LocalDataFormatter.current.location.getShortValue(name),
-                style = MaterialTheme.typography.h5
-            )
-        }
+        SelectLocation(currentLocationName = name, onSelectLocation = onSelectLocation)
         Text(
             modifier = Modifier.padding(top = 8.dp),
             text = LocalDataFormatter.current.weather.getWeatherFullText(weatherId)
-                .capitalize(Locale.getDefault()),
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             style = MaterialTheme.typography.h5
         )
-        Row(
-            modifier = Modifier.padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.South,
-                contentDescription = null,
-            )
-            Text(
-                modifier = Modifier.padding(end = 16.dp),
-                text = LocalDataFormatter.current.temperature.getValue(minTemperature),
-                style = MaterialTheme.typography.h5
-            )
-            Icon(
-                imageVector = Icons.Rounded.North,
-                contentDescription = null
-            )
-            Text(
-                text = LocalDataFormatter.current.temperature.getValue(maxTemperature),
-                style = MaterialTheme.typography.h5
-            )
-        }
-
+        MaxMinTemperature(min = minTemperature, max = maxTemperature)
         Text(
             modifier = Modifier.offset(x = 8.dp),
             text = LocalDataFormatter.current.temperature.getValue(hourForecast.temperature),

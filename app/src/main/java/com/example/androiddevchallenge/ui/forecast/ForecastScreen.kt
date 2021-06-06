@@ -16,34 +16,29 @@
 package com.example.androiddevchallenge.ui.forecast
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.North
 import androidx.compose.material.icons.rounded.Place
+import androidx.compose.material.icons.rounded.South
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -53,24 +48,14 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
-import com.example.androiddevchallenge.model.DayForecast
-import com.example.androiddevchallenge.model.Forecast
-import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.Result
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.math.max
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -80,6 +65,8 @@ fun ForecastScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
     val onSelectLocation = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }
+    val (displayDailyForecast, onDisplayForecastChange) = remember { mutableStateOf(false) }
+
     when (state) {
         is DisplayForecast -> {
             val isRefreshing = state.forecast is Result.Loading
@@ -114,11 +101,23 @@ fun ForecastScreen(
                         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                     }
 
-                    ForecastScreen(
-                        forecast = state.forecast.data,
-                        onSelectLocation = onSelectLocation,
-                        modifier = Modifier.alpha(1f - alpha)
-                    )
+                    if (displayDailyForecast) {
+                        DailyForecastScreen(
+                            forecast = state.forecast.data,
+                            onSelectLocation = onSelectLocation,
+                            modifier = Modifier.alpha(1f - alpha),
+                            isDailyForecastSelected = displayDailyForecast,
+                            onDisplayForecastChange = onDisplayForecastChange
+                        )
+                    } else {
+                        HourlyForecastScreen(
+                            forecast = state.forecast.data,
+                            onSelectLocation = onSelectLocation,
+                            modifier = Modifier.alpha(1f - alpha),
+                            isDailyForecastSelected = displayDailyForecast,
+                            onDisplayForecastChange = onDisplayForecastChange
+                        )
+                    }
                 }
 
                 Information(
@@ -179,146 +178,87 @@ fun ForecastScreen(
 }
 
 @Composable
-fun ForecastScreen(
-    forecast: Forecast,
+fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.South,
+            contentDescription = null,
+        )
+        Text(
+            modifier = Modifier.padding(end = 16.dp),
+            text = LocalDataFormatter.current.temperature.getValue(min),
+            style = MaterialTheme.typography.h5
+        )
+        Icon(
+            imageVector = Icons.Rounded.North,
+            contentDescription = null
+        )
+        Text(
+            text = LocalDataFormatter.current.temperature.getValue(max),
+            style = MaterialTheme.typography.h5
+        )
+    }
+}
+
+@Composable
+fun SelectLocation(
+    currentLocationName: String,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {}
 ) {
-    val indexForecast = IndexForecast(forecast)
-    Box(
-        modifier = modifier.fillMaxSize()
+    Row(
+        modifier = modifier
+            .clickable { onSelectLocation() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-
-        val (index, onIndexChange) = remember { mutableStateOf(0) }
-        val (direction, onDirectionChange) = remember { mutableStateOf(Direction.FORWARD) }
-
-        HourNavigation(indexForecast.hourly, index, onIndexChange, onDirectionChange)
-
-        val selectedHour = indexForecast.hourly[index]
-        val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
-
-        Sky(
-            currentDay = currentDay,
-            currentHour = selectedHour,
-            direction = direction,
-            timezoneId = indexForecast.location.timezoneId,
-            isSouthernHemisphere = indexForecast.location.latitude < 0
+        Icon(
+            imageVector = Icons.Rounded.Place,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 8.dp)
         )
-
-        WeatherInformation(
-            name = indexForecast.location.name,
-            weatherId = currentDay.weatherId,
-            hourForecast = selectedHour,
-            minTemperature = currentDay.minTemperature,
-            maxTemperature = currentDay.maxTemperature,
-            timezoneId = indexForecast.location.timezoneId,
-            modifier = Modifier.align(Alignment.Center),
-            onSelectLocation = onSelectLocation
-        )
-
-        PrecipitationInformation(
-            selectedHour,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .navigationBarsPadding()
-                .padding(start = 16.dp, bottom = 16.dp)
-        )
-
-        WindIndicator(
-            selectedHour.windDegrees,
-            selectedHour.windSpeed,
-            color = MaterialTheme.colors.onPrimary,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .systemBarsPadding()
-                .padding(end = 8.dp, top = 8.dp)
+        Text(
+            text = LocalDataFormatter.current.location.getShortValue(currentLocationName),
+            style = MaterialTheme.typography.h5
         )
     }
 }
 
 @Composable
-fun HourNavigation(
-    hourlyForecast: List<HourForecast>,
-    selected: Int,
-    onSelectedChange: (index: Int) -> Unit,
-    onDirectionChange: (direction: Direction) -> Unit
+fun DisplayDailyHourlyForecast(
+    isDailySelected: Boolean,
+    modifier: Modifier = Modifier,
+    onDisplayForecastChange: (displayDailyForecast: Boolean) -> Unit = { }
 ) {
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val screenWidthPx = with(density) { screenWidth.toPx() }
-
-    // Get the selected hour offset
-    val selectedOffset = -1 * selected * screenWidthPx / (hourlyForecast.size - 1)
-
-    // Initialize offset in the selected hour offset
-    var offset by remember { mutableStateOf(selectedOffset) }
-
-    Spacer(
-        Modifier
-            .fillMaxSize()
-            .scrollable(
-                orientation = Orientation.Horizontal,
-                // Scrollable state: describes how to consume
-                // scrolling delta and update offset (max offset to screenWidthPx)
-                state = rememberScrollableState { delta ->
-                    offset = (delta / 8 + offset).coerceIn(-1 * screenWidthPx, 0f)
-                    val index =
-                        (-1 * (hourlyForecast.size - 1) * offset / screenWidthPx).roundToInt()
-                    onSelectedChange(index)
-                    val direction = if (delta < 0) Direction.FORWARD else Direction.BACKWARD
-                    onDirectionChange(direction)
-                    delta / 8
-                }
-            )
-            .verticalScroll(state = rememberScrollState())
-    )
-}
-
-enum class Direction { FORWARD, BACKWARD }
-
-@Composable
-fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            text = LocalDataFormatter.current.precipitation.getIntensityString(
-                hourForecast.weatherId,
-                hourForecast.pop
-            )
+            text = stringResource(R.string.daily),
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier
+                .clickable { onDisplayForecastChange(true) }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .alpha(if (isDailySelected) 1f else .5f)
         )
         Text(
-            text = LocalDataFormatter.current.precipitation.getVolume(
-                max(
-                    hourForecast.snow,
-                    hourForecast.rain
-                )
-            )
+            text = "/",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.alpha(.5f)
+        )
+        Text(
+            text = stringResource(R.string.hourly),
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier
+                .clickable { onDisplayForecastChange(false) }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .alpha(if (isDailySelected) .5f else 1f)
         )
     }
-}
-
-class IndexForecast(forecast: Forecast) {
-    val location = forecast.location
-    private val daily = forecast.daily
-    val hourly = forecast.hourly
-
-    private val dayIndex: HashMap<Long, Int> = hashMapOf()
-
-    init {
-        daily.forEachIndexed { index, dayForecast ->
-            val timezone = TimeZone.of(location.timezoneId)
-            val date = Instant.fromEpochSeconds(dayForecast.datetime).toLocalDateTime(timezone).date
-            for (hour in hourly) {
-                val hourDate =
-                    Instant.fromEpochSeconds(hour.datetime).toLocalDateTime(timezone).date
-                if (date == hourDate) {
-                    dayIndex[hour.datetime] = index
-                }
-            }
-        }
-    }
-
-    fun getDayForecast(hourDatetime: Long): DayForecast =
-        dayIndex[hourDatetime]?.let { daily[it] }
-            ?: throw IllegalArgumentException("Hour not belongs to current forecast")
 }

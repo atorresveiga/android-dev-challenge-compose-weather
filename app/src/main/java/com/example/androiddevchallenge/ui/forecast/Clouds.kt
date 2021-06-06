@@ -431,10 +431,11 @@ fun StormCloudWithLightning(
 @Composable
 fun StormCloudWithLightning(
     color: Color,
-    lightningColor: Color,
-    lightningAlpha: Float,
     modifier: Modifier = Modifier,
-    drawLightning: Boolean = true
+    drawLightning: Boolean = false,
+    lightningColor: Color = Color.Transparent,
+    lightningAlpha: Float = 0f,
+
 ) {
     BoxWithConstraints(modifier = modifier) {
         StormCloud(

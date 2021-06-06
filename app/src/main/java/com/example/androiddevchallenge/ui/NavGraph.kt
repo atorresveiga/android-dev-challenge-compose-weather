@@ -16,7 +16,7 @@
 package com.example.androiddevchallenge.ui
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltNavGraphViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -41,14 +41,14 @@ fun NavGraph(startDestination: String = BlueCloudDestinations.FORECAST_ROUTE) {
         startDestination = startDestination
     ) {
         composable(BlueCloudDestinations.LOCATION_ROUTE) {
-            val locationViewModel = hiltNavGraphViewModel<LocationViewModel>()
+            val locationViewModel = hiltViewModel<LocationViewModel>()
             LocationScreen(
                 viewModel = locationViewModel,
                 navController = navController
             )
         }
         composable(BlueCloudDestinations.FORECAST_ROUTE) {
-            val forecastViewModel = hiltNavGraphViewModel<ForecastViewModel>()
+            val forecastViewModel = hiltViewModel<ForecastViewModel>()
             ForecastScreen(
                 viewModel = forecastViewModel,
                 navController = navController

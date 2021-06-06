@@ -25,12 +25,12 @@ import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.example.androiddevchallenge.ui.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import javax.inject.Inject
 
 @HiltViewModel
 class ForecastViewModel @Inject constructor(
@@ -65,7 +65,7 @@ class ForecastViewModel @Inject constructor(
             )
                 .collect { cachedForecast ->
                     if (cachedForecast == null || cachedForecast.hourly.size < 35) {
-                        onRefreshData()
+                        onRefreshData(force = true)
                     } else {
                         mutableUiState.value =
                             DisplayForecast(forecast = Result.Success(cachedForecast))
@@ -75,15 +75,17 @@ class ForecastViewModel @Inject constructor(
         }
     }
 
-    fun onRefreshData() {
+    fun onRefreshData(force: Boolean = false) {
+        mutableUiState.value = DisplayForecast(forecast = Result.Loading)
         // Refresh data only if is older than 6 hours
         val lastUpdated = currentForecast?.location?.lastUpdated ?: EMPTY_TIME
         val now = Clock.System.now().epochSeconds
-        if (now - lastUpdated < SECONDS_IN_AN_HOUR * 6) return
-
-        mutableUiState.value = DisplayForecast(forecast = Result.Loading)
-        viewModelScope.launch {
-            refreshDataUseCase.execute()
+        if (now - lastUpdated < SECONDS_IN_AN_HOUR * 6 && !force) {
+            getForecast()
+        } else {
+            viewModelScope.launch {
+                refreshDataUseCase.execute()
+            }
         }
     }
 

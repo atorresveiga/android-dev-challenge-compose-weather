@@ -36,8 +36,8 @@ private val LightColorPalette = lightColors(
     primary = blue700,
     secondary = deepPurple700,
     surface = blue700,
-    onPrimary = Color.White,
-    onSurface = Color.White,
+    onPrimary = white,
+    onSurface = white,
     secondaryVariant = indigo500
 )
 

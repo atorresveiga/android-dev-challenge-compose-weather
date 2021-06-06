@@ -47,14 +47,37 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
         val day = when (localDateTime.date) {
             today.date -> stringResource(R.string.today)
             today.date.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.tomorrow)
-            else -> localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.US).capitalize(
-                Locale.getDefault()
-            )
+            else -> localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                .replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }
         }
 
         val hour = getReadableHour(localDateTime.hour)
 
         return "$day $hour"
+    }
+
+    @Composable
+    fun getDate(datetime: Long, timezoneId: String): String {
+        val timeZone = TimeZone.of(timezoneId)
+        val localDateTime =
+            Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone)
+        val today = Clock.System.now().toLocalDateTime(timeZone)
+
+        return when (localDateTime.date) {
+            today.date -> stringResource(R.string.today)
+            today.date.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.tomorrow)
+            else ->
+                "${
+                localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    .replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }
+                } ${localDateTime.date.dayOfMonth}"
+        }
     }
 
     @Composable

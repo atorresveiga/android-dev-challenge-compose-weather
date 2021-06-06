@@ -194,25 +194,33 @@ fun DayNight(
 enum class DayNightState { Day, Night, Sunrise, Sunset }
 
 @Composable
-fun Sun(modifier: Modifier = Modifier, color: Color) {
-    val infiniteTransition = rememberInfiniteTransition()
+fun Sun(color: Color, modifier: Modifier = Modifier, animate: Boolean = true) {
     val sunFraction = 0.6f
-    val ripple by infiniteTransition.animateFloat(
-        initialValue = sunFraction,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 2500,
-                easing = FastOutLinearInEasing
-            ),
-            repeatMode = RepeatMode.Restart
+    if (animate) {
+        val infiniteTransition = rememberInfiniteTransition()
+        val ripple by infiniteTransition.animateFloat(
+            initialValue = sunFraction,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = 2500,
+                    easing = FastOutLinearInEasing
+                ),
+                repeatMode = RepeatMode.Restart
+            )
         )
-    )
-    Canvas(modifier = modifier) {
-        val maxRadius = size.minDimension * .5f
-        val minRadius = maxRadius * sunFraction
-        drawCircle(color = color, radius = maxRadius * ripple, alpha = 1 - ripple)
-        drawCircle(color = color, radius = minRadius)
+        Canvas(modifier = modifier) {
+            val maxRadius = size.minDimension * .5f
+            val minRadius = maxRadius * sunFraction
+            drawCircle(color = color, radius = maxRadius * ripple, alpha = 1 - ripple)
+            drawCircle(color = color, radius = minRadius)
+        }
+    } else {
+        Canvas(modifier = modifier) {
+            val maxRadius = size.minDimension * .5f
+            val minRadius = maxRadius * sunFraction
+            drawCircle(color = color, radius = minRadius)
+        }
     }
 }
 

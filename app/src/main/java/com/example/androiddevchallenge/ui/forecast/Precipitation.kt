@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
@@ -45,7 +43,7 @@ import kotlin.random.Random
  * @param weatherOffset the position of this raindrop in the screen
  */
 @Composable
-fun RainDrop(weatherOffset: WeatherOffset) {
+fun RainDrop(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
     val infiniteTransition = rememberInfiniteTransition()
 
     val length = if (weatherOffset.z > 2) .015f else .01f
@@ -64,13 +62,14 @@ fun RainDrop(weatherOffset: WeatherOffset) {
     )
 
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val height = if (sceneHeight > 0) sceneHeight else size.height
         drawLine(
             strokeWidth = 2f,
             color = color,
             start = Offset(x = size.width * weatherOffset.x, y = size.height * y),
             end = Offset(
                 x = size.width * weatherOffset.x,
-                y = size.height * y + size.height * length
+                y = size.height * y + height * length
             )
         )
     }
@@ -81,7 +80,7 @@ fun RainDrop(weatherOffset: WeatherOffset) {
  * @param weatherOffset the position of this raindrop in the screen
  */
 @Composable
-fun SnowFlake(weatherOffset: WeatherOffset) {
+fun SnowFlake(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
     val infiniteTransition = rememberInfiniteTransition()
     val duration = Random.nextInt(2000, 4000)
     val direction = if (Random.nextBoolean()) -1 else 1
@@ -111,10 +110,11 @@ fun SnowFlake(weatherOffset: WeatherOffset) {
     )
 
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val height = if (sceneHeight > 0) sceneHeight else size.height
         drawCircle(
             color = color,
             center = Offset(x = size.width * x, y = size.height * y),
-            radius = size.height * length
+            radius = height * length
         )
     }
 }
@@ -131,9 +131,10 @@ fun Precipitation(
     weatherId: Int,
     windSpeed: Float,
     windDegrees: Float,
-    modifier: Modifier = Modifier
+    precipitation: List<WeatherOffset>,
+    modifier: Modifier = Modifier,
+    sceneHeight: Float = -1f
 ) {
-    val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(250)) }
     val amount =
         (precipitation.size * LocalDataFormatter.current.precipitation.getIntensity(weatherId)).roundToInt()
     val form = LocalDataFormatter.current.precipitation.getForm(weatherId)
@@ -151,13 +152,13 @@ fun Precipitation(
         val precipitationToDisplay = precipitation.take(amount)
         precipitationToDisplay.forEachIndexed { index, p ->
             when (form) {
-                PrecipitationForm.Snow -> SnowFlake(p)
-                PrecipitationForm.Rain -> RainDrop(p)
+                PrecipitationForm.Snow -> SnowFlake(p, sceneHeight)
+                PrecipitationForm.Rain -> RainDrop(p, sceneHeight)
                 PrecipitationForm.RainAndSnow -> {
                     if (index < precipitationToDisplay.size / 2) {
-                        RainDrop(p)
+                        RainDrop(p, sceneHeight)
                     } else {
-                        SnowFlake(p)
+                        SnowFlake(p, sceneHeight)
                     }
                 }
             }
