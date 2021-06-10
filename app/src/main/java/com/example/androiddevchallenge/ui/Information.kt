@@ -48,13 +48,14 @@ fun Information(modifier: Modifier = Modifier, content: @Composable () -> Unit =
                 .fillMaxWidth()
                 .fillMaxHeight(.6f)
         ) {
+            val isLandScape = maxWidth > maxHeight
+            val padding = if (isLandScape) 48.dp else 0.dp
             Sun(
                 color = MaterialTheme.colors.sunColor,
                 modifier = Modifier
-                    .padding(48.dp)
+                    .padding(padding)
                     .fillMaxSize()
             )
-
             Cloud(
                 color = MaterialTheme.colors.cloudColor,
                 modifier = Modifier

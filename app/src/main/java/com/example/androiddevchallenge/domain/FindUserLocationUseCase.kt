@@ -38,8 +38,8 @@ class FindUserLocationUseCase @Inject constructor(
                 ?: throw LocationNotFoundException("User location is null")
 
             val location = searchLocationDataSource.findNearby(
-                latitude = userLocation.latitude,
-                longitude = userLocation.longitude
+                latitude = userLocation.first,
+                longitude = userLocation.second
             )
 
             localForecastRepository.saveCurrentLocation(location)

@@ -34,6 +34,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -60,8 +61,7 @@ fun DailyForecastScreen(
     forecast: Forecast,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
-    isDailyForecastSelected: Boolean = true,
-    onDisplayForecastChange: (displayDailyForecast: Boolean) -> Unit = { }
+    forecastDisplay: MutableState<ForecastDisplay>
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val sceneHeight = with(LocalDensity.current) { maxHeight.toPx() }
@@ -79,10 +79,7 @@ fun DailyForecastScreen(
                     modifier = modifier
                         .fillMaxWidth()
                 ) {
-                    DisplayDailyHourlyForecast(
-                        isDailySelected = isDailyForecastSelected,
-                        onDisplayForecastChange = onDisplayForecastChange
-                    )
+                    SelectDailyHourlyForecast(forecastDisplay = forecastDisplay)
                     SelectLocation(
                         modifier = Modifier.align(Alignment.Center),
                         currentLocationName = forecast.location.name,

@@ -16,12 +16,11 @@
 package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.UserLocationDataSource
-import com.example.androiddevchallenge.model.Location
 
 class FakeUserLocationDataSource() : UserLocationDataSource {
-    var location: Location? = null
+    var location: Pair<Double, Double>? = null
     var fail: Exception? = null
-    override suspend fun getLocation(): Location? {
+    override suspend fun getLocation(): Pair<Double, Double>? {
         fail?.let { throw it }
         return location
     }

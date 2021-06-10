@@ -17,16 +17,12 @@ package com.example.androiddevchallenge.ui.location
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.domain.FindLocationTimezone
 import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.GetLastSelectedLocationsUseCase
-import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.domain.SearchLocationUseCase
 import com.example.androiddevchallenge.domain.UpdateCurrentLocationUseCase
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.ui.Event
-import com.example.androiddevchallenge.ui.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -48,57 +44,87 @@ class LocationViewModel @Inject constructor(
     private val findLocationTimezone: FindLocationTimezone
 ) : ViewModel() {
 
-    private val mutableUiState: MutableStateFlow<LocationState> =
-        MutableStateFlow(LocationState.SelectLocation)
-    val uiState: StateFlow<LocationState> = mutableUiState
-
-    private val mutableError: MutableStateFlow<Event<Int>?> = MutableStateFlow(null)
-    val error: StateFlow<Event<Int>?> = mutableError
-
-    private val mutableLastSelectedLocations: MutableStateFlow<List<Location>> =
-        MutableStateFlow(emptyList())
-    val lastSelectedLocations: StateFlow<List<Location>> = mutableLastSelectedLocations
-
+    private var lastSelectedLocations: List<Location> = emptyList()
     private val mutableQuery = MutableStateFlow("")
-    val query: StateFlow<String> = mutableQuery
+    private var foundLocations: List<Location> = emptyList()
+    private val mutableUiState: MutableStateFlow<LocationViewState> = MutableStateFlow(
+        SelectLocation(
+            lastSelectedLocations = lastSelectedLocations,
+            query = mutableQuery.value,
+            isSearching = false,
+            foundLocations = foundLocations,
+            error = null
+        )
+    )
 
-    val foundLocations: MutableStateFlow<Result<List<Location>>> =
-        MutableStateFlow(Result.Success(emptyList()))
+    val uiState: StateFlow<LocationViewState> = mutableUiState
 
     init {
-        query.mapLatest { searchQuery ->
+        mutableQuery.mapLatest { searchQuery ->
             if (searchQuery.length < 3) {
-                foundLocations.value = Result.Success(emptyList())
+                foundLocations = emptyList()
+                (mutableUiState.value as? SelectLocation)?.let {
+                    mutableUiState.value = it.copy(
+                        isSearching = false,
+                        query = searchQuery,
+                        foundLocations = foundLocations,
+                        error = null
+                    )
+                }
             } else {
-                foundLocations.value = Result.Loading
+                (mutableUiState.value as? SelectLocation)?.let {
+                    mutableUiState.value = it.copy(
+                        isSearching = true,
+                        query = searchQuery
+                    )
+                }
                 // Delay the search until the user stops typing for 2 second
                 delay(2000)
-                try {
-                    foundLocations.value =
-                        Result.Success(searchLocationUseCase.execute(searchQuery))
+                foundLocations = try {
+                    searchLocationUseCase.execute(searchQuery)
                 } catch (exception: Exception) {
                     // We don't care about exception, we must recover with a new query
-                    foundLocations.value = Result.Success(emptyList())
+                    emptyList()
+                }
+                (mutableUiState.value as? SelectLocation)?.let {
+                    mutableUiState.value =
+                        it.copy(
+                            foundLocations = foundLocations,
+                            isSearching = false,
+                            error = null
+                        )
                 }
             }
         }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            getLastSelectedLocationsUseCase.execute().collect { selectedLocations ->
-                mutableLastSelectedLocations.value = selectedLocations
+            getLastSelectedLocationsUseCase.execute().collect { cachedSelectedLocations ->
+                lastSelectedLocations = cachedSelectedLocations
+                (mutableUiState.value as? SelectLocation)?.let {
+                    mutableUiState.value = it.copy(lastSelectedLocations = lastSelectedLocations)
+                }
             }
         }
     }
 
+    private fun showError(e: Exception) {
+        mutableUiState.value = SelectLocation(
+            lastSelectedLocations = lastSelectedLocations,
+            query = mutableQuery.value,
+            isSearching = false,
+            foundLocations = foundLocations,
+            error = e
+        )
+    }
+
     fun findUserLocation() {
-        mutableUiState.value = LocationState.FindingUserLocation
+        mutableUiState.value = FindingUserLocation
         viewModelScope.launch {
             try {
                 findUserLocationUseCase.execute()
-                mutableUiState.value = LocationState.LocationSelected
-            } catch (e: LocationNotFoundException) {
-                mutableUiState.value = LocationState.SelectLocation
-                mutableError.value = Event(R.string.location_not_found)
+                mutableUiState.value = LocationSelected
+            } catch (e: Exception) {
+                showError(e)
             }
         }
     }
@@ -109,16 +135,31 @@ class LocationViewModel @Inject constructor(
 
     fun selectLocation(location: Location) {
         viewModelScope.launch {
-            val selectedLocation = if (location.timezoneId.isEmpty()) {
-                mutableUiState.value = LocationState.FindingLocationTimeZone
-                findLocationTimezone.execute(location)
-            } else {
-                location
+            try {
+                val selectedLocation = if (location.timezoneId.isEmpty()) {
+                    mutableUiState.value = FindingLocationTimeZone
+                    findLocationTimezone.execute(location)
+                } else {
+                    location
+                }
+                updateCurrentLocationUseCase.execute(selectedLocation)
+                mutableUiState.value = LocationSelected
+            } catch (e: Exception) {
+                showError(e)
             }
-            updateCurrentLocationUseCase.execute(selectedLocation)
-            mutableUiState.value = LocationState.LocationSelected
         }
     }
 }
 
-enum class LocationState { SelectLocation, FindingUserLocation, FindingLocationTimeZone, LocationSelected }
+sealed class LocationViewState
+object FindingUserLocation : LocationViewState()
+object FindingLocationTimeZone : LocationViewState()
+object LocationSelected : LocationViewState()
+data class SelectLocation(
+    val lastSelectedLocations: List<Location>,
+    val query: String,
+    val isSearching: Boolean,
+    val foundLocations: List<Location>,
+    // This could be wrapped in an "Event" to prevent re-launch the exception on screen rotation
+    val error: Exception?
+) : LocationViewState()

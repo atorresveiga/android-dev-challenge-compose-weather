@@ -23,7 +23,6 @@ import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
-import com.example.androiddevchallenge.ui.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,44 +38,52 @@ class ForecastViewModel @Inject constructor(
     private val refreshDataUseCase: RefreshDataUseCase
 ) : ViewModel() {
 
-    private val mutableUiState: MutableStateFlow<ForecastState> =
+    private val mutableUiState: MutableStateFlow<ForecastViewState> =
         MutableStateFlow(CheckCurrentLocation)
-    val uiState: StateFlow<ForecastState> = mutableUiState
+    val uiState: StateFlow<ForecastViewState> = mutableUiState
 
     private var currentForecast: Forecast? = null
 
     init {
         viewModelScope.launch {
-            getCurrentLocationUseCase.execute()
-                .collect { location ->
-                    if (location != null) {
-                        getForecast()
-                    } else {
-                        mutableUiState.value = NoLocationFound
+            try {
+                getCurrentLocationUseCase.execute()
+                    .collect { location ->
+                        if (location != null) {
+                            getForecast()
+                        } else {
+                            mutableUiState.value = NoLocationFound
+                        }
                     }
-                }
+            } catch (e: Exception) {
+                mutableUiState.value = NoLocationFound
+            }
         }
     }
 
     private fun getForecast() {
         viewModelScope.launch {
-            getForecastUseCase.execute(
-                startTime = Clock.System.now().epochSeconds
-            )
-                .collect { cachedForecast ->
-                    if (cachedForecast == null || cachedForecast.hourly.size < 35) {
-                        onRefreshData(force = true)
-                    } else {
-                        mutableUiState.value =
-                            DisplayForecast(forecast = Result.Success(cachedForecast))
-                        currentForecast = cachedForecast
+            try {
+                getForecastUseCase.execute(
+                    startTime = Clock.System.now().epochSeconds
+                )
+                    .collect { cachedForecast ->
+                        if (cachedForecast == null || cachedForecast.hourly.size < 35) {
+                            onRefreshData(force = true)
+                        } else {
+                            mutableUiState.value =
+                                DisplayForecast(isLoading = false, forecast = cachedForecast)
+                            currentForecast = cachedForecast
+                        }
                     }
-                }
+            } catch (e: Exception) {
+                mutableUiState.value = LoadingForecastError
+            }
         }
     }
 
     fun onRefreshData(force: Boolean = false) {
-        mutableUiState.value = DisplayForecast(forecast = Result.Loading)
+        mutableUiState.value = DisplayForecast(isLoading = true, forecast = null)
         // Refresh data only if is older than 6 hours
         val lastUpdated = currentForecast?.location?.lastUpdated ?: EMPTY_TIME
         val now = Clock.System.now().epochSeconds
@@ -84,7 +91,11 @@ class ForecastViewModel @Inject constructor(
             getForecast()
         } else {
             viewModelScope.launch {
-                refreshDataUseCase.execute()
+                try {
+                    refreshDataUseCase.execute()
+                } catch (e: Exception) {
+                    mutableUiState.value = LoadingForecastError
+                }
             }
         }
     }
@@ -101,7 +112,8 @@ class ForecastViewModel @Inject constructor(
     }
 }
 
-sealed class ForecastState
-object CheckCurrentLocation : ForecastState()
-object NoLocationFound : ForecastState()
-data class DisplayForecast(val forecast: Result<Forecast>) : ForecastState()
+sealed class ForecastViewState
+object CheckCurrentLocation : ForecastViewState()
+object NoLocationFound : ForecastViewState()
+object LoadingForecastError : ForecastViewState()
+data class DisplayForecast(val isLoading: Boolean, val forecast: Forecast?) : ForecastViewState()

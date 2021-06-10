@@ -113,10 +113,13 @@
     <string name="select_location_action">"Select location"</string>
     <string name="finding_location">"Finding your location"</string>
     <string name="finding_timezone">"Completing location data"</string>
-    <string name="location_not_found">"Location not found"</string>
+    <string name="location_not_found">We couldn\'t find your location, please try again</string>
     <string name="find_your_location">Your location</string>
     <string name="last_selected_locations">Last selected locations</string>
     <string name="loading_forecast">Loading the forecast\nfor your location</string>
     <string name="initializing">Initializing</string>
+    <string name="loading_forecast_error">Ups…Something went wrong while updating the forecast</string>
+    <string name="update_forecast">Update forecast</string>
+    <string name="default_error">Ups…Something went wrong, please try again</string>
 
 </resources>

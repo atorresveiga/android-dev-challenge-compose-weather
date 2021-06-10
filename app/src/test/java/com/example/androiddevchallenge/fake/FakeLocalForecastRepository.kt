@@ -24,11 +24,11 @@ import kotlinx.coroutines.flow.flow
 
 class FakeLocalForecastRepository : LocalForecastRepository {
 
-    var fail: Exception? = null
+    private var fail: Exception? = null
     var currentLocation: Location? = null
     private var lastSelectedLocations = emptyList<Location>()
 
-    override fun getForecast(): Flow<Forecast?> = flow {
+    override fun getForecast(startTime: Long): Flow<Forecast?> = flow {
         fail?.let { throw it }
         currentLocation?.let {
             val forecast = MockDataGenerator.createForecast(it)

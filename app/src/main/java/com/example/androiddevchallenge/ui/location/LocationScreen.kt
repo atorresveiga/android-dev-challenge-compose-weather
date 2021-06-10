@@ -47,6 +47,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
@@ -71,9 +72,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.Information
-import com.example.androiddevchallenge.ui.Result
 import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
@@ -82,47 +83,36 @@ fun LocationScreen(
     navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scaffoldState = rememberScaffoldState()
+    val findUserLocationWithPermission =
+        wrapFindLocationWithPermission(viewModel::findUserLocation)
 
     when (uiState) {
-        LocationState.SelectLocation -> {
+        is SelectLocation -> {
+            (uiState as SelectLocation).let {
 
-            val error = viewModel.error.collectAsState()
-            val scaffoldState = rememberScaffoldState()
-            val lastSelectedLocations by viewModel.lastSelectedLocations.collectAsState()
-            val foundLocations by viewModel.foundLocations.collectAsState()
-            val searchQuery by viewModel.query.collectAsState()
-            val findUserLocationWithPermission =
-                wrapFindLocationWithPermission(viewModel::findUserLocation)
+                val error = it.error
+                val lastSelectedLocations = it.lastSelectedLocations
+                val foundLocations = it.foundLocations
+                val searchQuery = it.query
+                val isSearching = it.isSearching
 
-            error.value?.getContentIfNotHandled()?.let { resId ->
-                val errorString = stringResource(id = resId)
-                LaunchedEffect(resId) {
-                    scaffoldState.snackbarHostState.showSnackbar(errorString)
+                error?.let { exception ->
+                    // Show Error
+                    val errorString =
+                        if (exception is LocationNotFoundException)
+                            stringResource(id = R.string.location_not_found)
+                        else stringResource(id = R.string.default_error)
+
+                    LaunchedEffect(exception) {
+                        scaffoldState.snackbarHostState.showSnackbar(errorString)
+                    }
                 }
-            }
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Scaffold(
-                    scaffoldState = scaffoldState,
-                    backgroundColor = MaterialTheme.colors.surface,
-                    snackbarHost = { hostState ->
-                        SnackbarHost(hostState = hostState) { data ->
-                            Snackbar(
-                                snackbarData = data,
-                                backgroundColor = MaterialTheme.colors.error,
-                                contentColor = MaterialTheme.colors.onError
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .widthIn(max = 600.dp)
-                        .systemBarsPadding()
-                ) {
+                ScaffoldWithErrorSnackBar(scaffoldState = scaffoldState) {
                     SelectLocation(
                         lastSelectedLocations = lastSelectedLocations,
+                        isSearching = isSearching,
                         foundLocations = foundLocations,
                         searchQuery = searchQuery,
                         updateSearchQuery = viewModel::updateSearchQuery,
@@ -132,10 +122,9 @@ fun LocationScreen(
                 }
             }
         }
-        LocationState.FindingUserLocation, LocationState.FindingLocationTimeZone -> {
-
+        FindingUserLocation, FindingLocationTimeZone -> {
             val resId =
-                if (uiState == LocationState.FindingUserLocation)
+                if (uiState == FindingUserLocation)
                     R.string.finding_location
                 else
                     R.string.finding_timezone
@@ -150,8 +139,10 @@ fun LocationScreen(
                 )
             }
         }
-
-        LocationState.LocationSelected -> navController.popBackStack()
+        LocationSelected -> {
+            Box(modifier = Modifier.fillMaxSize())
+            navController.popBackStack()
+        }
     }
 }
 
@@ -184,7 +175,8 @@ fun wrapFindLocationWithPermission(findUserLocation: () -> Unit): () -> Unit {
 @Composable
 fun SelectLocation(
     lastSelectedLocations: List<Location>,
-    foundLocations: Result<List<Location>>,
+    isSearching: Boolean,
+    foundLocations: List<Location>,
     modifier: Modifier = Modifier,
     searchQuery: String = "",
     updateSearchQuery: (searchQuery: String) -> Unit,
@@ -206,6 +198,7 @@ fun SelectLocation(
 
         SearchLocation(
             searchQuery = searchQuery,
+            isSearching = isSearching,
             foundLocations = foundLocations,
             onSelectLocation = onSelectLocation,
             updateSearchQuery = updateSearchQuery
@@ -298,8 +291,9 @@ fun BlueCloudButton(
 @Composable
 fun SearchLocation(
     modifier: Modifier = Modifier,
+    isSearching: Boolean = false,
     searchQuery: String = "",
-    foundLocations: Result<List<Location>>,
+    foundLocations: List<Location>,
     onSelectLocation: (location: Location) -> Unit,
     updateSearchQuery: (searchQuery: String) -> Unit
 ) {
@@ -316,7 +310,7 @@ fun SearchLocation(
                 )
             },
             trailingIcon = {
-                if (foundLocations is Result.Loading) {
+                if (isSearching) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
@@ -339,7 +333,7 @@ fun SearchLocation(
                 .fillMaxWidth()
         )
 
-        if (foundLocations is Result.Success && foundLocations.data.isNotEmpty()) {
+        if (foundLocations.isNotEmpty()) {
             LazyColumn(
                 Modifier.background(
                     color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
@@ -349,7 +343,7 @@ fun SearchLocation(
                     )
                 )
             ) {
-                itemsIndexed(foundLocations.data) { index, location ->
+                itemsIndexed(foundLocations) { index, location ->
                     key(location.name) {
                         if (index != 0) {
                             Divider()
@@ -358,6 +352,33 @@ fun SearchLocation(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ScaffoldWithErrorSnackBar(scaffoldState: ScaffoldState, content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Scaffold(
+            scaffoldState = scaffoldState,
+            backgroundColor = MaterialTheme.colors.surface,
+            snackbarHost = { hostState ->
+                SnackbarHost(hostState = hostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        backgroundColor = MaterialTheme.colors.error,
+                        contentColor = MaterialTheme.colors.onError
+                    )
+                }
+            },
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .systemBarsPadding()
+        ) {
+            content()
         }
     }
 }

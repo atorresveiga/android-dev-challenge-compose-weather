@@ -15,16 +15,12 @@
  */
 package com.example.androiddevchallenge.data
 
-import android.location.Location
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class MockUserLocationDataSource @Inject constructor() : UserLocationDataSource {
-    override suspend fun getLocation(): Location? {
+    override suspend fun getLocation(): Pair<Double, Double> {
         delay(3000)
-        return Location("Mock").also {
-            it.latitude = 0.0
-            it.longitude = 0.0
-        }
+        return Pair(0.0, 0.0)
     }
 }

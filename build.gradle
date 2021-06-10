@@ -20,7 +20,7 @@ buildscript {
     ext.coroutines_version = '1.4.2'
     ext.hilt_version = '2.36'
     ext.room_version = '2.3.0'
-    ext.work_version = '2.6.0-alpha02'
+    ext.work_version = '2.6.0-beta01'
 
     repositories {
         google()

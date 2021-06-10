@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,8 +55,7 @@ fun HourlyForecastScreen(
     forecast: Forecast,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
-    isDailyForecastSelected: Boolean = false,
-    onDisplayForecastChange: (displayDailyForecast: Boolean) -> Unit = { }
+    forecastDisplay: MutableState<ForecastDisplay>
 ) {
     val indexForecast = IndexForecast(forecast)
     Box(
@@ -78,12 +78,11 @@ fun HourlyForecastScreen(
             isSouthernHemisphere = indexForecast.location.latitude < 0
         )
 
-        DisplayDailyHourlyForecast(
+        SelectDailyHourlyForecast(
+            forecastDisplay = forecastDisplay,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(top = 4.dp, start = 8.dp),
-            isDailySelected = isDailyForecastSelected,
-            onDisplayForecastChange = onDisplayForecastChange
         )
 
         WeatherInformation(

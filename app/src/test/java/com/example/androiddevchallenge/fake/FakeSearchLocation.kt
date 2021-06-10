@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge.data
+package com.example.androiddevchallenge.fake
 
+import com.example.androiddevchallenge.data.SearchLocationDataSource
 import com.example.androiddevchallenge.model.Location
-import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
-import java.util.Locale
-import javax.inject.Inject
 
-class MockSearchLocationDataSource @Inject constructor() : SearchLocationDataSource {
+class FakeSearchLocation : SearchLocationDataSource {
     override suspend fun searchLocation(query: String): List<Location> {
-        delay(1000)
-        return MockDataGenerator.locations.filter {
-            it.name.lowercase(Locale.getDefault())
-                .replace("_", "")
-                .contains(query.lowercase(Locale.getDefault()).trim())
-        }
+        return emptyList()
     }
-
     override suspend fun findNearby(latitude: Double, longitude: Double): Location {
-        return MockDataGenerator.locations.first()
-            .copy(timezoneId = timezone(latitude = latitude, longitude = longitude))
+        return Location(
+            name = "Test",
+            latitude = latitude,
+            longitude = longitude,
+            timezoneId = timezone(latitude, longitude),
+            lastUpdated = Clock.System.now().epochSeconds
+        )
     }
-
-    override suspend fun timezone(latitude: Double, longitude: Double) =
+    override suspend fun timezone(latitude: Double, longitude: Double): String =
         TimeZone.currentSystemDefault().id
 }

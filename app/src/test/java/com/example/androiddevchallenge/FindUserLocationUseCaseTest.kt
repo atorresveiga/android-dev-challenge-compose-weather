@@ -19,14 +19,12 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.fake.FakeLocalForecastRepository
+import com.example.androiddevchallenge.fake.FakeSearchLocation
 import com.example.androiddevchallenge.fake.FakeUserLocationDataSource
-import com.example.androiddevchallenge.model.Location
 import com.google.common.truth.Truth.assertThat
-import kotlinx.datetime.TimeZone
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.lang.Exception
 
 class FindUserLocationUseCaseTest {
 
@@ -37,15 +35,18 @@ class FindUserLocationUseCaseTest {
     var coroutineRule = MainCoroutineRule()
 
     private lateinit var useCase: FindUserLocationUseCase
-    private val locationDataSource = FakeUserLocationDataSource()
-    private val localRepository = FakeLocalForecastRepository()
+    private lateinit var locationDataSource: FakeUserLocationDataSource
+    private lateinit var localRepository: FakeLocalForecastRepository
 
     @Before
     fun setup() {
+        locationDataSource = FakeUserLocationDataSource()
+        localRepository = FakeLocalForecastRepository()
         useCase = FindUserLocationUseCase(
             defaultDispatcher = coroutineRule.testDispatcher,
             userLocationDataSource = locationDataSource,
-            localForecastRepository = localRepository
+            localForecastRepository = localRepository,
+            searchLocationDataSource = FakeSearchLocation()
         )
     }
 
@@ -66,14 +67,13 @@ class FindUserLocationUseCaseTest {
     fun `When found user location THEN saved it locally`() =
         coroutineRule.runBlockingTest {
             // WHEN found user location
-            val location = Location(
-                name = TimeZone.currentSystemDefault().id,
-                latitude = 100.0,
-                longitude = 100.0
-            )
+            val location = Pair(0.0, 0.0)
             locationDataSource.location = location
             useCase.execute()
             // THEN saved it locally
-            assertThat(localRepository.currentLocation).isEqualTo(location)
+            val savedLocation = localRepository.currentLocation
+            assertThat(savedLocation).isNotNull()
+            assertThat(savedLocation?.latitude).isEqualTo(location.first)
+            assertThat(savedLocation?.longitude).isEqualTo(location.second)
         }
 }

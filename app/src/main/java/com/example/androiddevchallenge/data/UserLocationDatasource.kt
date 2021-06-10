@@ -17,7 +17,6 @@ package com.example.androiddevchallenge.data
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -31,7 +30,7 @@ import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
 
 interface UserLocationDataSource {
-    suspend fun getLocation(): Location?
+    suspend fun getLocation(): Pair<Double, Double>?
 }
 
 class GMSUserLocationDataSource @Inject constructor(@ApplicationContext appContext: Context) :
@@ -40,12 +39,15 @@ class GMSUserLocationDataSource @Inject constructor(@ApplicationContext appConte
         LocationServices.getFusedLocationProviderClient(appContext)
 
     @SuppressLint("MissingPermission")
-    override suspend fun getLocation(): Location? {
+    override suspend fun getLocation(): Pair<Double, Double>? {
         val cancellationTokenSource = CancellationTokenSource()
-        return fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
-            LocationRequest.PRIORITY_LOW_POWER,
-            cancellationTokenSource.token
-        ).await { cancellationTokenSource.cancel() }
+        val location =
+            fusedLocationClient.lastLocation.await() ?: fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_LOW_POWER,
+                cancellationTokenSource.token
+            ).await { cancellationTokenSource.cancel() }
+
+        return location?.let { Pair(it.latitude, it.longitude) }
     }
 }
 

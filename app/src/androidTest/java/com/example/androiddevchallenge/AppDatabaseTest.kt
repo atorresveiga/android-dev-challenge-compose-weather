@@ -28,6 +28,7 @@ import com.example.androiddevchallenge.data.toDayForecastEntity
 import com.example.androiddevchallenge.data.toHourForecast
 import com.example.androiddevchallenge.data.toHourForecastEntity
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -75,8 +76,8 @@ class AppDatabaseTest {
 
         forecastDAO.saveHourlyForecast(locationForecast)
 
-        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0).first()
-        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0).first()
+        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0, 1616407200).first()
+        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0, 1616407200).first()
 
         assertThat(wrongLocation).isEmpty()
         assertThat(rightLocation).isEqualTo(locationForecast)
@@ -95,8 +96,8 @@ class AppDatabaseTest {
 
         forecastDAO.saveDailyForecast(locationForecast)
 
-        val wrongLocation = forecastDAO.getDailyForecastFrom(100.0, 100.0).first()
-        val rightLocation = forecastDAO.getDailyForecastFrom(0.0, 0.0).first()
+        val wrongLocation = forecastDAO.getDailyForecastFrom(100.0, 100.0, 1616407200).first()
+        val rightLocation = forecastDAO.getDailyForecastFrom(0.0, 0.0, 1616407200).first()
 
         assertThat(wrongLocation).isEmpty()
         assertThat(rightLocation).isEqualTo(locationForecast)
@@ -106,12 +107,12 @@ class AppDatabaseTest {
     @Throws(Exception::class)
     fun clearHourlyForecastOlderThanTest() = runBlocking {
 
-        val location = Location("test_timezone", 0.0, 0.0)
+        val location = Location("test_timezone", 0.0, 0.0, "timezone", 1616407200)
 
         val oldForecast = MockDataGenerator
             .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
 
-        val newDatetime = oldForecast.hourly.last().datetime + 3600
+        val newDatetime = oldForecast.hourly.last().datetime + SECONDS_IN_AN_HOUR
 
         val newForecast = MockDataGenerator
             .createForecast(startEpoch = newDatetime, days = 5, hours = 5, location = location)
@@ -129,7 +130,7 @@ class AppDatabaseTest {
         forecastDAO.clearOlderThan(newDatetime)
 
         val currentHourlyForecast =
-            forecastDAO.getHourlyForecastFrom(location.latitude, location.longitude).first()
+            forecastDAO.getHourlyForecastFrom(location.latitude, location.longitude, 1616407200).first()
 
         assertThat(currentHourlyForecast.map { it.toHourForecast() }).isEqualTo(newForecast.hourly)
     }
@@ -138,7 +139,7 @@ class AppDatabaseTest {
     @Throws(Exception::class)
     fun clearDailyForecastOlderThanTest() = runBlocking {
 
-        val location = Location("test_timezone", 0.0, 0.0)
+        val location = Location("test_timezone", 0.0, 0.0, "timezone", 1616407200)
 
         val oldForecast = MockDataGenerator
             .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
@@ -160,7 +161,7 @@ class AppDatabaseTest {
         forecastDAO.clearOlderThan(newDatetime)
 
         val currentDailyForecast =
-            forecastDAO.getDailyForecastFrom(location.latitude, location.longitude).first()
+            forecastDAO.getDailyForecastFrom(location.latitude, location.longitude, 1616407200).first()
 
         assertThat(currentDailyForecast.map { it.toDayForecast() }).isEqualTo(newForecast.daily)
     }
@@ -175,7 +176,9 @@ class AppDatabaseTest {
                     name = "$i timezone",
                     latitude = i.toDouble(),
                     longitude = i.toDouble(),
-                    datetime = datetime + 100 * i
+                    timezoneId = "$i timezone",
+                    datetime = datetime + 100 * i,
+                    lastUpdated = datetime
                 )
             )
         }
@@ -193,7 +196,9 @@ class AppDatabaseTest {
                 name = "$i timezone",
                 latitude = i.toDouble(),
                 longitude = i.toDouble(),
-                datetime = datetime + 100 * i
+                timezoneId = "$i timezone",
+                datetime = datetime + 100 * i,
+                lastUpdated = datetime
             )
             forecastDAO.saveLocation(entity)
             locations.add(entity)

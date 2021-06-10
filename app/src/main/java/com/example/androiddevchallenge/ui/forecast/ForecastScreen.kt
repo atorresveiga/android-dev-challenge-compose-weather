@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.South
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,10 +49,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.LocalDataFormatter
-import com.example.androiddevchallenge.ui.Result
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
@@ -65,114 +66,35 @@ fun ForecastScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
     val onSelectLocation = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }
-    val (displayDailyForecast, onDisplayForecastChange) = remember { mutableStateOf(false) }
+    val forecastDisplay = remember { mutableStateOf(ForecastDisplay.Hourly) }
 
     when (state) {
         is DisplayForecast -> {
-            val isRefreshing = state.forecast is Result.Loading
-            val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
-            val refreshTriggerDistance = 80.dp
-            val alpha =
-                swipeRefreshState.indicatorOffset / with(LocalDensity.current) { refreshTriggerDistance.toPx() }
-
-            SwipeRefresh(
-                state = swipeRefreshState,
+            DisplayForecast(
+                isRefreshing = state.isLoading,
+                forecast = state.forecast,
+                onSelectLocation = onSelectLocation,
+                updateForecast = { viewModel.displayCurrentForecast() },
                 onRefresh = { viewModel.onRefreshData() },
-                modifier = Modifier.fillMaxSize(),
-                refreshTriggerDistance = refreshTriggerDistance,
-                indicator = { s, trigger ->
-                    SwipeRefreshIndicator(
-                        state = s,
-                        refreshTriggerDistance = trigger,
-                        refreshingOffset = 32.dp
-                    )
-                }
-            ) {
-                if (state.forecast is Result.Success) {
-
-                    val lifecycleOwner = LocalLifecycleOwner.current
-                    DisposableEffect(lifecycleOwner) {
-                        val observer = object : DefaultLifecycleObserver {
-                            override fun onResume(owner: LifecycleOwner) {
-                                viewModel.displayCurrentForecast()
-                            }
-                        }
-                        lifecycleOwner.lifecycle.addObserver(observer)
-                        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-                    }
-
-                    if (displayDailyForecast) {
-                        DailyForecastScreen(
-                            forecast = state.forecast.data,
-                            onSelectLocation = onSelectLocation,
-                            modifier = Modifier.alpha(1f - alpha),
-                            isDailyForecastSelected = displayDailyForecast,
-                            onDisplayForecastChange = onDisplayForecastChange
-                        )
-                    } else {
-                        HourlyForecastScreen(
-                            forecast = state.forecast.data,
-                            onSelectLocation = onSelectLocation,
-                            modifier = Modifier.alpha(1f - alpha),
-                            isDailyForecastSelected = displayDailyForecast,
-                            onDisplayForecastChange = onDisplayForecastChange
-                        )
-                    }
-                }
-
-                Information(
+                forecastDisplay = forecastDisplay
+            )
+        }
+        is NoLocationFound -> {
+            NoLocationFound(onSelectLocation = onSelectLocation)
+        }
+        is CheckCurrentLocation -> {
+            Information {
+                Text(
                     modifier = Modifier
-                        .alpha(if (swipeRefreshState.isRefreshing) 1f else alpha)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 16.dp),
-                        text = stringResource(id = R.string.loading_forecast),
-                        style = MaterialTheme.typography.h4,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                        .padding(top = 16.dp),
+                    text = stringResource(id = R.string.initializing),
+                    style = MaterialTheme.typography.h4,
+                    textAlign = TextAlign.Center
+                )
             }
         }
-        else -> {
-            Information {
-                if (state == NoLocationFound) {
-                    Column(
-                        modifier = Modifier
-                            .widthIn(max = 600.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 16.dp),
-                            text = stringResource(id = R.string.without_location),
-                            style = MaterialTheme.typography.h4,
-                            textAlign = TextAlign.Center
-                        )
-                        BlueCloudButton(
-                            onClick = { onSelectLocation() },
-                            modifier = Modifier
-                                .padding(top = 24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Place,
-                                contentDescription = null,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text(text = stringResource(id = R.string.select_location_action))
-                        }
-                    }
-                } else {
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 16.dp),
-                        text = stringResource(id = R.string.initializing),
-                        style = MaterialTheme.typography.h4,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+        is LoadingForecastError -> {
+            LoadingForecastError(retry = { viewModel.onRefreshData(force = true) })
         }
     }
 }
@@ -229,10 +151,9 @@ fun SelectLocation(
 }
 
 @Composable
-fun DisplayDailyHourlyForecast(
-    isDailySelected: Boolean,
-    modifier: Modifier = Modifier,
-    onDisplayForecastChange: (displayDailyForecast: Boolean) -> Unit = { }
+fun SelectDailyHourlyForecast(
+    forecastDisplay: MutableState<ForecastDisplay>,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
@@ -243,9 +164,9 @@ fun DisplayDailyHourlyForecast(
             text = stringResource(R.string.daily),
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { onDisplayForecastChange(true) }
+                .clickable { forecastDisplay.value = ForecastDisplay.Daily }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .alpha(if (isDailySelected) 1f else .5f)
+                .alpha(if (forecastDisplay.value == ForecastDisplay.Daily) 1f else .5f)
         )
         Text(
             text = "/",
@@ -256,9 +177,143 @@ fun DisplayDailyHourlyForecast(
             text = stringResource(R.string.hourly),
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { onDisplayForecastChange(false) }
+                .clickable { forecastDisplay.value = ForecastDisplay.Hourly }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .alpha(if (isDailySelected) .5f else 1f)
+                .alpha(if (forecastDisplay.value == ForecastDisplay.Hourly) 1f else .5f)
         )
     }
 }
+
+@Composable
+fun DisplayForecast(
+    isRefreshing: Boolean,
+    forecast: Forecast?,
+    onRefresh: () -> Unit,
+    updateForecast: () -> Unit,
+    onSelectLocation: () -> Unit,
+    forecastDisplay: MutableState<ForecastDisplay>
+) {
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+    val refreshTriggerDistance = 80.dp
+    val alpha =
+        swipeRefreshState.indicatorOffset / with(LocalDensity.current) { refreshTriggerDistance.toPx() }
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = { onRefresh() },
+        modifier = Modifier.fillMaxSize(),
+        refreshTriggerDistance = refreshTriggerDistance,
+        indicator = { s, trigger ->
+            SwipeRefreshIndicator(
+                state = s,
+                refreshTriggerDistance = trigger,
+                refreshingOffset = 32.dp
+            )
+        }
+    ) {
+        if (forecast != null) {
+            val lifecycleOwner = LocalLifecycleOwner.current
+            DisposableEffect(lifecycleOwner) {
+                val observer = object : DefaultLifecycleObserver {
+                    override fun onResume(owner: LifecycleOwner) {
+                        updateForecast()
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            }
+
+            when (forecastDisplay.value) {
+                ForecastDisplay.Daily -> {
+                    DailyForecastScreen(
+                        forecast = forecast,
+                        onSelectLocation = onSelectLocation,
+                        modifier = Modifier.alpha(1f - alpha),
+                        forecastDisplay = forecastDisplay
+                    )
+                }
+                ForecastDisplay.Hourly -> {
+                    HourlyForecastScreen(
+                        forecast = forecast,
+                        onSelectLocation = onSelectLocation,
+                        modifier = Modifier.alpha(1f - alpha),
+                        forecastDisplay = forecastDisplay
+                    )
+                }
+            }
+        }
+        Information(
+            modifier = Modifier
+                .alpha(if (swipeRefreshState.isRefreshing) 1f else alpha)
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp),
+                text = stringResource(id = R.string.loading_forecast),
+                style = MaterialTheme.typography.h4,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun NoLocationFound(onSelectLocation: () -> Unit) {
+    Information {
+        Column(
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp),
+                text = stringResource(id = R.string.without_location),
+                style = MaterialTheme.typography.h4,
+                textAlign = TextAlign.Center
+            )
+            BlueCloudButton(
+                onClick = { onSelectLocation() },
+                modifier = Modifier
+                    .padding(top = 24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Place,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(text = stringResource(id = R.string.select_location_action))
+            }
+        }
+    }
+}
+
+@Composable
+fun LoadingForecastError(retry: () -> Unit) {
+    Information {
+        Column(
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp),
+                text = stringResource(id = R.string.loading_forecast_error),
+                style = MaterialTheme.typography.h4,
+                textAlign = TextAlign.Center
+            )
+            BlueCloudButton(
+                onClick = { retry() },
+                modifier = Modifier
+                    .padding(top = 24.dp)
+            ) {
+                Text(text = stringResource(id = R.string.update_forecast))
+            }
+        }
+    }
+}
+
+enum class ForecastDisplay { Hourly, Daily }
