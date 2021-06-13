@@ -78,7 +78,7 @@ fun HourlyForecastScreen(
             isSouthernHemisphere = indexForecast.location.latitude < 0
         )
 
-        SelectDailyHourlyForecast(
+        DailyHourlyForecast(
             forecastDisplay = forecastDisplay,
             modifier = Modifier
                 .statusBarsPadding()

@@ -48,9 +48,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.stormCloudColor
@@ -144,21 +146,30 @@ fun Clouds(
  * Function to generate width,height and alpha of a cloud by taking into account the cloud z offset
  * @param z cloudiness (percent)
  */
+
+@Composable
 fun getCloudModifiers(z: Int): Triple<Dp, Dp, Float> {
-    return when (z) {
+    val width: Dp
+    val alpha: Float
+    when (z) {
         4 -> {
-            Triple(300.dp, 320.dp, .98f)
+            width = dimensionResource(id = R.dimen.cloud4)
+            alpha = .98f
         }
         3 -> {
-            Triple(280.dp, 300.dp, .95f)
+            width = dimensionResource(id = R.dimen.cloud3)
+            alpha = .95f
         }
         2 -> {
-            Triple(250.dp, 270.dp, .55f)
+            width = dimensionResource(id = R.dimen.cloud2)
+            alpha = .55f
         }
         else -> {
-            Triple(200.dp, 220.dp, .4f)
+            width = dimensionResource(id = R.dimen.cloud1)
+            alpha = .4f
         }
     }
+    return Triple(width, width * 1.1f, alpha)
 }
 
 /**
@@ -395,11 +406,13 @@ fun StormCloudWithLightning(
     val alpha = if (drawLightning) {
         val infiniteTransition = rememberInfiniteTransition()
         val value by infiniteTransition.animateFloat(
-            initialValue = 1f,
+            initialValue = 0f,
             targetValue = 0f,
             animationSpec = infiniteRepeatable(
                 keyframes {
+                    delayMillis = 3000
                     durationMillis = lightningDuration
+                    1f at 1
                     0f at lightningDuration / 3
                     1f at lightningDuration / 5
                     0f at lightningDuration / 7

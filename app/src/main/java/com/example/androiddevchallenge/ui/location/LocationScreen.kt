@@ -74,6 +74,7 @@ import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.domain.LocationNotFoundException
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.Information
 import com.google.accompanist.insets.systemBarsPadding
 
@@ -130,11 +131,10 @@ fun LocationScreen(
                     R.string.finding_timezone
 
             Information {
-                Text(
+                BlueCloudTitle(
                     modifier = Modifier
                         .padding(top = 16.dp),
                     text = stringResource(id = resId),
-                    style = MaterialTheme.typography.h4,
                     textAlign = TextAlign.Center
                 )
             }
@@ -190,9 +190,8 @@ fun SelectLocation(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
+        BlueCloudTitle(
             text = stringResource(id = R.string.select_location),
-            style = MaterialTheme.typography.h4,
             textAlign = TextAlign.Center
         )
 

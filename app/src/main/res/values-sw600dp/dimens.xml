@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="cloud4">320dp</dimen>
+    <dimen name="cloud3">280dp</dimen>
+    <dimen name="cloud2">250dp</dimen>
+    <dimen name="cloud1">225dp</dimen>
+    <bool name="isLargeDisplay">true</bool>
+</resources>

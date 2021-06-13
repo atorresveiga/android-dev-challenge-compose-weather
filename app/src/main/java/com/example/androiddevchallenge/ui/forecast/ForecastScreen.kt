@@ -24,10 +24,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.North
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.South
@@ -35,14 +38,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -51,6 +58,7 @@ import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
+import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
@@ -84,11 +92,10 @@ fun ForecastScreen(
         }
         is CheckCurrentLocation -> {
             Information {
-                Text(
+                BlueCloudTitle(
                     modifier = Modifier
                         .padding(top = 16.dp),
                     text = stringResource(id = R.string.initializing),
-                    style = MaterialTheme.typography.h4,
                     textAlign = TextAlign.Center
                 )
             }
@@ -129,7 +136,8 @@ fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
 fun SelectLocation(
     currentLocationName: String,
     modifier: Modifier = Modifier,
-    onSelectLocation: () -> Unit = {}
+    onSelectLocation: () -> Unit = {},
+    style: TextStyle = MaterialTheme.typography.h5
 ) {
     Row(
         modifier = modifier
@@ -145,13 +153,78 @@ fun SelectLocation(
         )
         Text(
             text = LocalDataFormatter.current.location.getShortValue(currentLocationName),
-            style = MaterialTheme.typography.h5
+            style = style
         )
     }
 }
 
 @Composable
-fun SelectDailyHourlyForecast(
+fun SmallSelectDailyHourlyForecast(
+    forecastDisplay: MutableState<ForecastDisplay>,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selected: String
+    val dailyTextAlpha: Float
+    val hourlyTextAlpha: Float
+
+    if (forecastDisplay.value == ForecastDisplay.Daily) {
+        selected = stringResource(R.string.daily)
+        dailyTextAlpha = .5f
+        hourlyTextAlpha = 1f
+    } else {
+        selected = stringResource(R.string.hourly)
+        dailyTextAlpha = 1f
+        hourlyTextAlpha = .5f
+    }
+
+    Row(
+        modifier = modifier
+            .padding(start = 16.dp)
+            .clickable { expanded = !expanded }
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) { // Anchor view
+        Text(text = selected, style = MaterialTheme.typography.h6) // City name label
+        Icon(
+            modifier = Modifier.padding(top = 8.dp),
+            imageVector = Icons.Filled.ArrowDropDown,
+            contentDescription = null
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    forecastDisplay.value = ForecastDisplay.Daily
+                    expanded = false
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.daily),
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.alpha(dailyTextAlpha)
+                )
+            }
+            DropdownMenuItem(
+                onClick = {
+                    forecastDisplay.value = ForecastDisplay.Hourly
+                    expanded = false
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.hourly),
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.alpha(hourlyTextAlpha)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LargeSelectDailyHourlyForecast(
     forecastDisplay: MutableState<ForecastDisplay>,
     modifier: Modifier = Modifier
 ) {
@@ -181,6 +254,18 @@ fun SelectDailyHourlyForecast(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .alpha(if (forecastDisplay.value == ForecastDisplay.Hourly) 1f else .5f)
         )
+    }
+}
+
+@Composable
+fun DailyHourlyForecast(
+    forecastDisplay: MutableState<ForecastDisplay>,
+    modifier: Modifier = Modifier
+) {
+    if (booleanResource(id = R.bool.isLargeDisplay)) {
+        LargeSelectDailyHourlyForecast(forecastDisplay = forecastDisplay, modifier = modifier)
+    } else {
+        SmallSelectDailyHourlyForecast(forecastDisplay = forecastDisplay, modifier = modifier)
     }
 }
 
@@ -246,11 +331,10 @@ fun DisplayForecast(
             modifier = Modifier
                 .alpha(if (swipeRefreshState.isRefreshing) 1f else alpha)
         ) {
-            Text(
+            BlueCloudTitle(
                 modifier = Modifier
                     .padding(top = 16.dp),
                 text = stringResource(id = R.string.loading_forecast),
-                style = MaterialTheme.typography.h4,
                 textAlign = TextAlign.Center
             )
         }
@@ -266,11 +350,10 @@ fun NoLocationFound(onSelectLocation: () -> Unit) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            BlueCloudTitle(
                 modifier = Modifier
                     .padding(top = 16.dp),
                 text = stringResource(id = R.string.without_location),
-                style = MaterialTheme.typography.h4,
                 textAlign = TextAlign.Center
             )
             BlueCloudButton(
@@ -298,11 +381,10 @@ fun LoadingForecastError(retry: () -> Unit) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            BlueCloudTitle(
                 modifier = Modifier
                     .padding(top = 16.dp),
                 text = stringResource(id = R.string.loading_forecast_error),
-                style = MaterialTheme.typography.h4,
                 textAlign = TextAlign.Center
             )
             BlueCloudButton(

@@ -24,11 +24,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.booleanResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.forecast.Cloud
 import com.example.androiddevchallenge.ui.forecast.Sun
 import com.example.androiddevchallenge.ui.theme.cloudColor
@@ -56,14 +61,35 @@ fun Information(modifier: Modifier = Modifier, content: @Composable () -> Unit =
                     .padding(padding)
                     .fillMaxSize()
             )
+            val width = dimensionResource(id = R.dimen.cloud3)
+            val xOffsetModifier = if (maxWidth > 580.dp) .2f else .12f
             Cloud(
                 color = MaterialTheme.colors.cloudColor,
                 modifier = Modifier
-                    .size(width = 250.dp, height = 160.dp)
-                    .offset(x = maxWidth * .2f, y = maxHeight * .5f)
+                    .size(width = width, height = width * .66f)
+                    .offset(x = maxWidth * xOffsetModifier, y = maxHeight * .45f)
                     .alpha(.98f)
             )
         }
         content()
     }
+}
+
+@Composable
+fun BlueCloudTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    val style = if (booleanResource(id = R.bool.isLargeDisplay)) {
+        MaterialTheme.typography.h4
+    } else {
+        MaterialTheme.typography.h5
+    }
+    Text(
+        modifier = modifier,
+        text = text,
+        style = style,
+        textAlign = textAlign
+    )
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
@@ -66,6 +67,16 @@ fun DailyForecastScreen(
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val sceneHeight = with(LocalDensity.current) { maxHeight.toPx() }
         val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(80)) }
+        val isLarge = maxWidth > 580.dp
+        val selectLocationModifier: Modifier
+        val selectLocationStyle: TextStyle
+        if (isLarge) {
+            selectLocationModifier = Modifier.align(Alignment.Center)
+            selectLocationStyle = MaterialTheme.typography.h5
+        } else {
+            selectLocationModifier = Modifier.align(Alignment.CenterEnd)
+            selectLocationStyle = MaterialTheme.typography.h6
+        }
         Column(
             modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -79,11 +90,12 @@ fun DailyForecastScreen(
                     modifier = modifier
                         .fillMaxWidth()
                 ) {
-                    SelectDailyHourlyForecast(forecastDisplay = forecastDisplay)
+                    DailyHourlyForecast(forecastDisplay = forecastDisplay)
                     SelectLocation(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = selectLocationModifier,
                         currentLocationName = forecast.location.name,
-                        onSelectLocation = onSelectLocation
+                        onSelectLocation = onSelectLocation,
+                        style = selectLocationStyle
                     )
                 }
             }
@@ -91,7 +103,6 @@ fun DailyForecastScreen(
                 modifier = modifier.fillMaxHeight()
             ) {
                 itemsIndexed(forecast.daily) { index, day ->
-
                     var rowModifier = Modifier
                         .clipToBounds()
                         .fillMaxWidth()
@@ -99,88 +110,197 @@ fun DailyForecastScreen(
                     if (index == forecast.daily.lastIndex) {
                         rowModifier = rowModifier.navigationBarsPadding()
                     }
-
                     key(day.datetime) {
-                        Box(
-                            modifier = rowModifier,
-                            contentAlignment = Alignment.TopCenter
-                        ) {
-
-                            if (LocalDataFormatter.current.precipitation.isPrecipitation(day.weatherId)) {
-                                val alpha =
-                                    LocalDataFormatter.current.precipitation.getIntensity(day.weatherId)
-                                        .coerceAtMost(.7f)
-                                Precipitation(
-                                    weatherId = day.weatherId,
-                                    windDegrees = day.windDegrees,
-                                    windSpeed = day.windSpeed,
-                                    precipitation = precipitation,
-                                    sceneHeight = sceneHeight,
-                                    modifier = Modifier
-                                        .matchParentSize()
-                                        .background(color = MaterialTheme.colors.overlay.copy(alpha = alpha))
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier
-                                    .widthIn(max = 600.dp)
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(top = 8.dp),
-                                        text = LocalDataFormatter.current.date.getDate(
-                                            datetime = day.datetime,
-                                            timezoneId = forecast.location.timezoneId
-                                        ),
-                                        style = MaterialTheme.typography.h5
-                                    )
-                                }
-
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(top = 8.dp),
-                                        text = LocalDataFormatter.current.weather.getWeatherFullText(
-                                            day.weatherId
-                                        )
-                                            .replaceFirstChar {
-                                                if (it.isLowerCase()) it.titlecase(
-                                                    Locale.getDefault()
-                                                ) else it.toString()
-                                            }
-                                    )
-                                    DayWeatherIcon(
-                                        dayForecast = day,
-                                        modifier = Modifier.size(200.dp)
-                                    )
-                                }
-
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    MaxMinTemperature(
-                                        min = day.minTemperature,
-                                        max = day.maxTemperature
-                                    )
-                                }
-                            }
-                            Divider(thickness = 1.dp)
+                        if (isLarge) {
+                            LargeDayListItem(
+                                day = day,
+                                timezoneId = forecast.location.timezoneId,
+                                precipitation = precipitation,
+                                sceneHeight = sceneHeight,
+                                modifier = rowModifier
+                            )
+                        } else {
+                            SmallDayListItem(
+                                day = day,
+                                timezoneId = forecast.location.timezoneId,
+                                precipitation = precipitation,
+                                sceneHeight = sceneHeight,
+                                modifier = rowModifier
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun LargeDayListItem(
+    day: DayForecast,
+    timezoneId: String,
+    precipitation: List<WeatherOffset>,
+    sceneHeight: Float,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopCenter
+    ) {
+
+        if (LocalDataFormatter.current.precipitation.isPrecipitation(day.weatherId)) {
+            val alpha =
+                LocalDataFormatter.current.precipitation.getIntensity(day.weatherId)
+                    .coerceAtMost(.7f)
+            Precipitation(
+                weatherId = day.weatherId,
+                windDegrees = day.windDegrees,
+                windSpeed = day.windSpeed,
+                precipitation = precipitation,
+                sceneHeight = sceneHeight,
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = MaterialTheme.colors.overlay.copy(alpha = alpha))
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = LocalDataFormatter.current.date.getDate(
+                        datetime = day.datetime,
+                        timezoneId = timezoneId
+                    ),
+                    style = MaterialTheme.typography.h5
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = LocalDataFormatter.current.weather.getWeatherFullText(
+                        day.weatherId
+                    )
+                        .replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.getDefault()
+                            ) else it.toString()
+                        }
+                )
+                DayWeatherIcon(
+                    dayForecast = day,
+                    modifier = Modifier.size(200.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                MaxMinTemperature(
+                    min = day.minTemperature,
+                    max = day.maxTemperature
+                )
+            }
+        }
+        Divider(thickness = 1.dp)
+    }
+}
+
+@Composable
+fun SmallDayListItem(
+    day: DayForecast,
+    timezoneId: String,
+    precipitation: List<WeatherOffset>,
+    sceneHeight: Float,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopCenter
+    ) {
+
+        if (LocalDataFormatter.current.precipitation.isPrecipitation(day.weatherId)) {
+            val alpha =
+                LocalDataFormatter.current.precipitation.getIntensity(day.weatherId)
+                    .coerceAtMost(.7f)
+            Precipitation(
+                weatherId = day.weatherId,
+                windDegrees = day.windDegrees,
+                windSpeed = day.windSpeed,
+                precipitation = precipitation,
+                sceneHeight = sceneHeight,
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = MaterialTheme.colors.overlay.copy(alpha = alpha))
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    modifier = Modifier
+                        .padding(top = 8.dp, start = 16.dp)
+                        .fillMaxWidth(),
+                    text = LocalDataFormatter.current.weather.getWeatherFullText(
+                        day.weatherId
+                    )
+                        .replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.getDefault()
+                            ) else it.toString()
+                        }
+                )
+                DayWeatherIcon(
+                    dayForecast = day,
+                    modifier = Modifier.size(200.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = LocalDataFormatter.current.date.getDate(
+                        datetime = day.datetime,
+                        timezoneId = timezoneId
+                    ),
+                    style = MaterialTheme.typography.h5
+                )
+                MaxMinTemperature(
+                    min = day.minTemperature,
+                    max = day.maxTemperature
+                )
+            }
+        }
+        Divider(thickness = 1.dp)
     }
 }
 
