@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.MoonPhase
 import com.example.androiddevchallenge.ui.theme.moonColor
 import com.example.androiddevchallenge.ui.theme.sunColor
@@ -65,7 +64,7 @@ fun DayNight(
     isSouthernHemisphere: Boolean
 ) {
 
-    val dateFormatter = LocalDataFormatter.current.date
+    val dateFormatter = LocalSettings.current.dataFormatter.date
     val currentHour = dateFormatter.getHour(datetime, timezoneId)
     val sunriseHour = dateFormatter.getHour(sunrise, timezoneId)
     val sunsetHour = dateFormatter.getHour(sunset, timezoneId)
@@ -132,7 +131,7 @@ fun DayNight(
 
             Moon(
                 color = MaterialTheme.colors.moonColor,
-                phase = LocalDataFormatter.current.moonPhase.decode(
+                phase = LocalSettings.current.dataFormatter.moonPhase.decode(
                     moonPhaseId = moonPhaseId,
                     isBeforeSunrise = currentHour < sunriseHour
                 ),

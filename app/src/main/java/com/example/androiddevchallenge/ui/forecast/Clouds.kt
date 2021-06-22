@@ -53,7 +53,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.stormCloudColor
 
@@ -73,8 +72,11 @@ fun Clouds(
     modifier: Modifier = Modifier
 ) {
 
-    val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(50)) }
-    val hasThunders = LocalDataFormatter.current.weather.hasThunders(weatherId)
+    val totalClouds = LocalSettings.current.clouds
+    // Storm cloud only if offset > 2
+    val desireStormClouds = LocalSettings.current.stormClouds
+    val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(totalClouds)) }
+    val hasThunders = LocalSettings.current.dataFormatter.weather.hasThunders(weatherId)
 
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
 
@@ -85,7 +87,7 @@ fun Clouds(
         clouds.forEachIndexed { index, cloudOffset ->
 
             val isReverse = index % 3 == 0
-            val hasLightning = index > total - 5 && hasThunders && cloudOffset.z > 2
+            val hasLightning = index > total - desireStormClouds && hasThunders && cloudOffset.z > 2
 
             val (width, height, alpha) = getCloudModifiers(cloudOffset.z)
 

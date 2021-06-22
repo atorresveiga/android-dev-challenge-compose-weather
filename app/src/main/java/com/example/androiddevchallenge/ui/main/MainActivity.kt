@@ -20,10 +20,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.view.WindowCompat
-import com.example.androiddevchallenge.ui.DataFormatter
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.NavGraph
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.google.accompanist.insets.ProvideWindowInsets
@@ -31,20 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    // private val viewModel by viewModels<MainViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContent {
             MyTheme {
                 ProvideWindowInsets {
-                    CompositionLocalProvider(LocalDataFormatter provides DataFormatter()) {
-                        BlueCloudApp()
-                    }
+                    BlueCloudApp()
                 }
             }
         }

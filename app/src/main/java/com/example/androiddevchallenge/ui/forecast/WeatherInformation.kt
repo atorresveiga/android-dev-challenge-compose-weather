@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.HourForecast
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import java.util.Locale
 
 @Composable
@@ -46,27 +45,27 @@ fun WeatherInformation(
         SelectLocation(currentLocationName = name, onSelectLocation = onSelectLocation)
         Text(
             modifier = Modifier.padding(top = 8.dp),
-            text = LocalDataFormatter.current.weather.getWeatherFullText(weatherId)
+            text = LocalSettings.current.dataFormatter.weather.getWeatherFullText(weatherId)
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             style = MaterialTheme.typography.h5
         )
         MaxMinTemperature(min = minTemperature, max = maxTemperature)
         Text(
             modifier = Modifier.offset(x = 8.dp),
-            text = LocalDataFormatter.current.temperature.getValue(hourForecast.temperature),
+            text = LocalSettings.current.dataFormatter.temperature.getValue(hourForecast.temperature),
             style = MaterialTheme.typography.h1
         )
         Text(
             text = stringResource(
                 R.string.feels_like_uvi,
-                LocalDataFormatter.current.temperature.getValue(hourForecast.feelsLike),
-                LocalDataFormatter.current.uvi.getValue(hourForecast.uvi)
+                LocalSettings.current.dataFormatter.temperature.getValue(hourForecast.feelsLike),
+                LocalSettings.current.dataFormatter.uvi.getValue(hourForecast.uvi)
             ),
             textAlign = TextAlign.Center
         )
         Text(
             modifier = Modifier.padding(top = 8.dp),
-            text = LocalDataFormatter.current.date.getDateHour(
+            text = LocalSettings.current.dataFormatter.date.getDateHour(
                 datetime = hourForecast.datetime,
                 timezoneId = timezoneId
             )

@@ -23,12 +23,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,11 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
-import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.datetime.Instant
@@ -55,7 +57,9 @@ fun HourlyForecastScreen(
     forecast: Forecast,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
-    forecastDisplay: MutableState<ForecastDisplay>
+    updateSettings: () -> Unit,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
 ) {
     val indexForecast = IndexForecast(forecast)
     Box(
@@ -79,10 +83,14 @@ fun HourlyForecastScreen(
         )
 
         DailyHourlyForecast(
-            forecastDisplay = forecastDisplay,
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange,
             modifier = Modifier
                 .statusBarsPadding()
-                .padding(top = 4.dp, start = 8.dp),
+                .padding(
+                    top = 4.dp,
+                    start = dimensionResource(id = R.dimen.small_horizontal_padding)
+                )
         )
 
         WeatherInformation(
@@ -101,7 +109,10 @@ fun HourlyForecastScreen(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .navigationBarsPadding()
-                .padding(start = 16.dp, bottom = 16.dp)
+                .padding(
+                    start = dimensionResource(id = R.dimen.horizontal_padding),
+                    bottom = 16.dp
+                )
         )
 
         WindIndicator(
@@ -109,9 +120,24 @@ fun HourlyForecastScreen(
             selectedHour.windSpeed,
             color = MaterialTheme.colors.onPrimary,
             modifier = Modifier
-                .align(Alignment.TopEnd)
+                .navigationBarsPadding()
+                .align(Alignment.BottomEnd)
+                .padding(
+                    end = dimensionResource(id = R.dimen.horizontal_padding),
+                    bottom = 16.dp
+                )
+        )
+
+        UpdateSettingsButton(
+            updateSettings = updateSettings,
+            modifier = Modifier
                 .statusBarsPadding()
-                .padding(end = 8.dp, top = 8.dp)
+                .padding(
+                    top = 4.dp,
+                    end = dimensionResource(id = R.dimen.small_horizontal_padding)
+                )
+                .size(48.dp)
+                .align(Alignment.TopEnd)
         )
     }
 }
@@ -161,17 +187,13 @@ enum class Direction { FORWARD, BACKWARD }
 fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
-            text = LocalDataFormatter.current.precipitation.getIntensityString(
-                hourForecast.weatherId,
-                hourForecast.pop
+            text = LocalSettings.current.dataFormatter.precipitation.getIntensityString(
+                hourForecast.weatherId, hourForecast.pop
             )
         )
         Text(
-            text = LocalDataFormatter.current.precipitation.getVolume(
-                max(
-                    hourForecast.snow,
-                    hourForecast.rain
-                )
+            text = LocalSettings.current.dataFormatter.precipitation.getVolume(
+                max(hourForecast.snow, hourForecast.rain)
             )
         )
     }

@@ -15,9 +15,20 @@
     <string name="tomorrow">Tomorrow</string>
     <string name="daily">Daily</string>
     <string name="hourly">Hourly</string>
+    <string name="twelve">12 hours</string>
+    <string name="twenty_four">24 hours</string>
     <string name="midnight">Midnight</string>
     <string name="noon">Noon</string>
-    <string name="wind_direction">From %1$s %2$s</string>
+    <string name="wind_direction">From %1$s ( %2$s )</string>
+
+    <!-- Measure Systems -->
+    <string name="celsius">C°</string>
+    <string name="fahrenheit">F°</string>
+    <string name="meters">m/s</string>
+    <string name="kilometers">km/h</string>
+    <string name="miles">mph</string>
+    <string name="millimeters">mm</string>
+    <string name="inches">in</string>
 
     <string name="n_ne">N/NE</string>
     <string name="ne">NE</string>
@@ -121,5 +132,16 @@
     <string name="loading_forecast_error">Ups…Something went wrong while updating the forecast</string>
     <string name="update_forecast">Update forecast</string>
     <string name="default_error">Ups…Something went wrong, please try again</string>
+    <string name="settings">Settings</string>
+    <string name="measurements_settings">Measurements</string>
+    <string name="temperature_system">Temperature System</string>
+    <string name="time_format">Time Format</string>
+    <string name="wind_speed_system">Wind Speed System</string>
+    <string name="visual_settings">Visual Settings</string>
+    <string name="default_view">Default forecast view</string>
+    <string name="cloud_number">Clouds Number</string>
+    <string name="storm_cloud_number">Storm Clouds Number</string>
+    <string name="precipitation_number">Precipitation Number</string>
+    <string name="list_item_precipitation_number">List Item Precipitation Number</string>
 
 </resources>

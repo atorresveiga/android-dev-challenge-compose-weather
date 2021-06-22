@@ -16,7 +16,6 @@
 package com.example.androiddevchallenge.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
@@ -28,15 +27,51 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.math.roundToInt
 
-class TemperatureFormatter {
-    fun getValue(celsius: Float): String {
-        return "${celsius.roundToInt()}°"
+interface TemperatureFormatter {
+    fun getValue(celsius: Float): String
+}
+
+class CelsiusTemperatureFormatter : TemperatureFormatter {
+    override fun getValue(celsius: Float): String {
+        celsius.dec()
+        val result = if (celsius - celsius.toInt() > 0) celsius else celsius.toInt()
+        return "$result°C"
     }
 }
 
-class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
+class FahrenheitTemperatureFormatter : TemperatureFormatter {
+    override fun getValue(celsius: Float): String {
+        val fahrenheit = (celsius * 9f / 5f) + 32
+        val result = if (fahrenheit - fahrenheit.toInt() > 0) fahrenheit else fahrenheit.toInt()
+        return "$result°F"
+    }
+}
+
+interface HourSystemFormatter {
+    @Composable
+    fun getReadableHour(hour: Int): String
+}
+
+class TwelveHourSystemFormatter : HourSystemFormatter {
+    @Composable
+    override fun getReadableHour(hour: Int): String {
+        val endString = when (hour) {
+            0 -> stringResource(R.string.midnight)
+            12 -> stringResource(R.string.noon)
+            in 1..11 -> "AM"
+            else -> "PM"
+        }
+        return "${(if (hour % 12 == 0) 12 else hour % 12)}:00 $endString"
+    }
+}
+
+class TwentyFourHourSystemFormatter : HourSystemFormatter {
+    @Composable
+    override fun getReadableHour(hour: Int) = "${hour.toString().padStart(2, '0')} h"
+}
+
+class DateFormatter(private val hourSystemFormatter: HourSystemFormatter) {
     @Composable
     fun getDateHour(datetime: Long, timezoneId: String): String {
         val timeZone = TimeZone.of(timezoneId)
@@ -53,7 +88,7 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
                 }
         }
 
-        val hour = getReadableHour(localDateTime.hour)
+        val hour = hourSystemFormatter.getReadableHour(localDateTime.hour)
 
         return "$day $hour"
     }
@@ -80,38 +115,43 @@ class DateFormatter(var system: HourSystem = HourSystem.Twelve) {
         }
     }
 
-    @Composable
-    private fun getReadableHour(hour: Int): String {
-        return when (system) {
-            HourSystem.Twelve -> {
-                val endString = when (hour) {
-                    0 -> stringResource(R.string.midnight)
-                    12 -> stringResource(R.string.noon)
-                    in 1..11 -> "AM"
-                    else -> "PM"
-                }
-                "${(if (hour % 12 == 0) 12 else hour % 12)}:00 $endString"
-            }
-            else -> {
-                "${hour.toString().padStart(2, '0')} h"
-            }
-        }
-    }
-
     fun getHour(datetime: Long, timezoneId: String): Int {
         val timeZone = TimeZone.of(timezoneId)
         return Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone).hour
     }
-
-    enum class HourSystem {
-        Twelve,
-        TwentyFour
-    }
 }
 
-class WindFormatter {
+interface WindMeasurement {
+    fun getValue(windSpeed: Float): Float
+
     @Composable
-    fun getValue(windSpeed: Float): String {
+    fun getMeasurement(): String
+}
+
+class MetersWindMeasurement : WindMeasurement {
+    override fun getValue(windSpeed: Float) = windSpeed
+
+    @Composable
+    override fun getMeasurement(): String = stringResource(id = R.string.meters)
+}
+
+class KilometersWindMeasurement : WindMeasurement {
+    override fun getValue(windSpeed: Float) = windSpeed * 3.6f
+
+    @Composable
+    override fun getMeasurement(): String = stringResource(id = R.string.kilometers)
+}
+
+class MilesWindMeasurement : WindMeasurement {
+    override fun getValue(windSpeed: Float) = windSpeed * 2.237f
+
+    @Composable
+    override fun getMeasurement(): String = stringResource(id = R.string.miles)
+}
+
+class WindFormatter(windMeasurement: WindMeasurement) : WindMeasurement by windMeasurement {
+    @Composable
+    fun getScale(windSpeed: Float): String {
         // windSpeed is saved in m/s
         return when (windSpeed) {
             in 0f..0.277778f -> stringResource(R.string.calm_still) // < 1 k/h
@@ -161,6 +201,8 @@ class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
         return when {
             isPrecipitation(weatherId) -> {
                 weatherFormatter.getWeatherWithScale(weatherId)
+                    // Ugly capitalize recommended
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }
             pop > 0.25f -> stringResource(R.string.chance_precipitation)
             else -> stringResource(R.string.no_precipitation)
@@ -191,8 +233,6 @@ class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
 
     fun getVolume(volume: Float) = volume.toString().plus(" mm")
 }
-
-enum class PrecipitationForm { Rain, Snow, RainAndSnow }
 
 class ScaleFormatter {
     private val scales: HashMap<Int, Array<String>> = hashMapOf()
@@ -251,13 +291,6 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
     }
 }
 
-class LocationFormatter {
-    fun getShortValue(name: String): String {
-        val sections = name.split(",")
-        return sections.first()
-    }
-}
-
 object UVFormatter {
     private lateinit var uvScale: Array<String>
 
@@ -298,26 +331,42 @@ object MoonPhaseFormatter {
     }
 }
 
-enum class MoonPhase {
-    NewMoon, WaxingCrescent, FirstQuarter, WaxingGibbous, FullMoon, WaningGibbous, ThirdQuarter, WaningCrescent;
-}
-
 class DataFormatter(
-    val temperature: TemperatureFormatter = TemperatureFormatter(),
-    val date: DateFormatter = DateFormatter(),
-    val wind: WindFormatter = WindFormatter(),
-    val location: LocationFormatter = LocationFormatter(),
-    val uvi: UVFormatter = UVFormatter,
-    val moonPhase: MoonPhaseFormatter = MoonPhaseFormatter
+    hourSystem: HourSystem,
+    temperatureSystem: TemperatureSystem,
+    windSpeedSystem: WindSpeedSystem
 ) {
+    val temperature: TemperatureFormatter
+    val date: DateFormatter
+    val wind: WindFormatter
     val precipitation: PrecipitationFormatter
     val weather: WeatherFormatter
+    val uvi: UVFormatter = UVFormatter
+    val moonPhase: MoonPhaseFormatter = MoonPhaseFormatter
 
     init {
         val scaleFormatter = ScaleFormatter()
+        temperature = when (temperatureSystem) {
+            TemperatureSystem.Celsius -> CelsiusTemperatureFormatter()
+            TemperatureSystem.Fahrenheit -> FahrenheitTemperatureFormatter()
+        }
+        val hour = when (hourSystem) {
+            HourSystem.Twelve -> TwelveHourSystemFormatter()
+            HourSystem.TwentyFour -> TwentyFourHourSystemFormatter()
+        }
+        val windMeasurement = when (windSpeedSystem) {
+            WindSpeedSystem.Meters -> MetersWindMeasurement()
+            WindSpeedSystem.Kilometers -> KilometersWindMeasurement()
+            WindSpeedSystem.Miles -> MilesWindMeasurement()
+        }
+        wind = WindFormatter(windMeasurement)
+        date = DateFormatter(hour)
         weather = WeatherFormatter(scaleFormatter)
         precipitation = PrecipitationFormatter(weather)
     }
 }
 
-val LocalDataFormatter = compositionLocalOf<DataFormatter> { error("No data formatter found!") }
+fun String.getLocationShortValue(): String {
+    val sections = this.split(",")
+    return sections.first()
+}

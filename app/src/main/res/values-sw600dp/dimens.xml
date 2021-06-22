@@ -4,5 +4,7 @@
     <dimen name="cloud3">280dp</dimen>
     <dimen name="cloud2">250dp</dimen>
     <dimen name="cloud1">225dp</dimen>
-    <bool name="isLargeDisplay">true</bool>
+    <bool name="is_large_display">true</bool>
+    <dimen name="horizontal_padding">24dp</dimen>
+    <dimen name="small_horizontal_padding">16dp</dimen>
 </resources>

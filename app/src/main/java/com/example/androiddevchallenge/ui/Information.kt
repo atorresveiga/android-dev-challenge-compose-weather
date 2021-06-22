@@ -81,7 +81,7 @@ fun BlueCloudTitle(
     modifier: Modifier = Modifier,
     textAlign: TextAlign = TextAlign.Start
 ) {
-    val style = if (booleanResource(id = R.bool.isLargeDisplay)) {
+    val style = if (booleanResource(id = R.bool.is_large_display)) {
         MaterialTheme.typography.h4
     } else {
         MaterialTheme.typography.h5

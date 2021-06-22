@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.PrecipitationForm
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -136,8 +135,8 @@ fun Precipitation(
     sceneHeight: Float = -1f
 ) {
     val amount =
-        (precipitation.size * LocalDataFormatter.current.precipitation.getIntensity(weatherId)).roundToInt()
-    val form = LocalDataFormatter.current.precipitation.getForm(weatherId)
+        (precipitation.size * LocalSettings.current.dataFormatter.precipitation.getIntensity(weatherId)).roundToInt()
+    val form = LocalSettings.current.dataFormatter.precipitation.getForm(weatherId)
 
     val isWindSpeedStrong = windSpeed > 2
 

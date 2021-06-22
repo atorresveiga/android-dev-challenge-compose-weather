@@ -18,6 +18,7 @@ package com.example.androiddevchallenge.ui.forecast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,11 +34,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.North
 import androidx.compose.material.icons.rounded.Place
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.South
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,9 +62,12 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.BlueCloudTitle
+import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.Information
-import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.Settings
+import com.example.androiddevchallenge.ui.getLocationShortValue
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
+import com.example.androiddevchallenge.ui.translatableString
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -74,18 +80,23 @@ fun ForecastScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
     val onSelectLocation = { navController.navigate(BlueCloudDestinations.LOCATION_ROUTE) }
-    val forecastDisplay = remember { mutableStateOf(ForecastDisplay.Hourly) }
+    val updateSettings = { navController.navigate(BlueCloudDestinations.SETTINGS_ROUTE) }
 
     when (state) {
         is DisplayForecast -> {
-            DisplayForecast(
-                isRefreshing = state.isLoading,
-                forecast = state.forecast,
-                onSelectLocation = onSelectLocation,
-                updateForecast = { viewModel.displayCurrentForecast() },
-                onRefresh = { viewModel.onRefreshData() },
-                forecastDisplay = forecastDisplay
-            )
+            val (forecastDisplay, onDisplayViewChange) = remember { mutableStateOf(state.settings.defaultDisplayView) }
+            CompositionLocalProvider(LocalSettings provides state.settings) {
+                DisplayForecast(
+                    isRefreshing = state.isLoading,
+                    forecast = state.forecast,
+                    onSelectLocation = onSelectLocation,
+                    updateForecast = { viewModel.displayCurrentForecast() },
+                    onRefresh = { viewModel.onRefreshData() },
+                    updateSettings = updateSettings,
+                    forecastDisplayView = forecastDisplay,
+                    onDisplayViewChange = onDisplayViewChange
+                )
+            }
         }
         is NoLocationFound -> {
             NoLocationFound(onSelectLocation = onSelectLocation)
@@ -106,6 +117,8 @@ fun ForecastScreen(
     }
 }
 
+val LocalSettings = compositionLocalOf<Settings> { error("No settings found!") }
+
 @Composable
 fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
     Row(
@@ -118,7 +131,7 @@ fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.padding(end = 16.dp),
-            text = LocalDataFormatter.current.temperature.getValue(min),
+            text = LocalSettings.current.dataFormatter.temperature.getValue(min),
             style = MaterialTheme.typography.h5
         )
         Icon(
@@ -126,7 +139,7 @@ fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
             contentDescription = null
         )
         Text(
-            text = LocalDataFormatter.current.temperature.getValue(max),
+            text = LocalSettings.current.dataFormatter.temperature.getValue(max),
             style = MaterialTheme.typography.h5
         )
     }
@@ -152,7 +165,7 @@ fun SelectLocation(
             modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-            text = LocalDataFormatter.current.location.getShortValue(currentLocationName),
+            text = currentLocationName.getLocationShortValue(),
             style = style
         )
     }
@@ -160,64 +173,45 @@ fun SelectLocation(
 
 @Composable
 fun SmallSelectDailyHourlyForecast(
-    forecastDisplay: MutableState<ForecastDisplay>,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val selected: String
-    val dailyTextAlpha: Float
-    val hourlyTextAlpha: Float
 
-    if (forecastDisplay.value == ForecastDisplay.Daily) {
-        selected = stringResource(R.string.daily)
-        dailyTextAlpha = .5f
-        hourlyTextAlpha = 1f
-    } else {
-        selected = stringResource(R.string.hourly)
-        dailyTextAlpha = 1f
-        hourlyTextAlpha = .5f
-    }
-
-    Row(
-        modifier = modifier
-            .padding(start = 16.dp)
-            .clickable { expanded = !expanded }
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) { // Anchor view
-        Text(text = selected, style = MaterialTheme.typography.h6) // City name label
-        Icon(
-            modifier = Modifier.padding(top = 8.dp),
-            imageVector = Icons.Filled.ArrowDropDown,
-            contentDescription = null
-        )
+    Box(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .clickable { expanded = !expanded }
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) { // Anchor view
+            Text(
+                text = forecastDisplayView.translatableString(),
+                style = MaterialTheme.typography.h6
+            ) // City name label
+            Icon(
+                modifier = Modifier.padding(top = 8.dp),
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null
+            )
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuItem(
-                onClick = {
-                    forecastDisplay.value = ForecastDisplay.Daily
-                    expanded = false
+            ForecastDisplayView.values().forEach {
+                DropdownMenuItem(
+                    onClick = {
+                        onDisplayViewChange(it)
+                        expanded = false
+                    }
+                ) {
+                    Text(
+                        text = it.translatableString(),
+                        style = MaterialTheme.typography.h6
+                    )
                 }
-            ) {
-                Text(
-                    text = stringResource(R.string.daily),
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.alpha(dailyTextAlpha)
-                )
-            }
-            DropdownMenuItem(
-                onClick = {
-                    forecastDisplay.value = ForecastDisplay.Hourly
-                    expanded = false
-                }
-            ) {
-                Text(
-                    text = stringResource(R.string.hourly),
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.alpha(hourlyTextAlpha)
-                )
             }
         }
     }
@@ -225,7 +219,8 @@ fun SmallSelectDailyHourlyForecast(
 
 @Composable
 fun LargeSelectDailyHourlyForecast(
-    forecastDisplay: MutableState<ForecastDisplay>,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -234,12 +229,12 @@ fun LargeSelectDailyHourlyForecast(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(R.string.daily),
+            text = stringResource(R.string.hourly),
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { forecastDisplay.value = ForecastDisplay.Daily }
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .alpha(if (forecastDisplay.value == ForecastDisplay.Daily) 1f else .5f)
+                .clickable { onDisplayViewChange(ForecastDisplayView.Hourly) }
+                .padding(8.dp)
+                .alpha(if (forecastDisplayView == ForecastDisplayView.Hourly) 1f else .5f)
         )
         Text(
             text = "/",
@@ -247,25 +242,34 @@ fun LargeSelectDailyHourlyForecast(
             modifier = Modifier.alpha(.5f)
         )
         Text(
-            text = stringResource(R.string.hourly),
+            text = stringResource(R.string.daily),
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { forecastDisplay.value = ForecastDisplay.Hourly }
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .alpha(if (forecastDisplay.value == ForecastDisplay.Hourly) 1f else .5f)
+                .clickable { onDisplayViewChange(ForecastDisplayView.Daily) }
+                .padding(8.dp)
+                .alpha(if (forecastDisplayView == ForecastDisplayView.Daily) 1f else .5f)
         )
     }
 }
 
 @Composable
 fun DailyHourlyForecast(
-    forecastDisplay: MutableState<ForecastDisplay>,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (booleanResource(id = R.bool.isLargeDisplay)) {
-        LargeSelectDailyHourlyForecast(forecastDisplay = forecastDisplay, modifier = modifier)
+    if (booleanResource(id = R.bool.is_large_display)) {
+        LargeSelectDailyHourlyForecast(
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange,
+            modifier = modifier
+        )
     } else {
-        SmallSelectDailyHourlyForecast(forecastDisplay = forecastDisplay, modifier = modifier)
+        SmallSelectDailyHourlyForecast(
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange,
+            modifier = modifier
+        )
     }
 }
 
@@ -273,10 +277,12 @@ fun DailyHourlyForecast(
 fun DisplayForecast(
     isRefreshing: Boolean,
     forecast: Forecast?,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     onRefresh: () -> Unit,
     updateForecast: () -> Unit,
     onSelectLocation: () -> Unit,
-    forecastDisplay: MutableState<ForecastDisplay>
+    updateSettings: () -> Unit
 ) {
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
     val refreshTriggerDistance = 80.dp
@@ -308,21 +314,25 @@ fun DisplayForecast(
                 onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
             }
 
-            when (forecastDisplay.value) {
-                ForecastDisplay.Daily -> {
+            when (forecastDisplayView) {
+                ForecastDisplayView.Daily -> {
                     DailyForecastScreen(
                         forecast = forecast,
                         onSelectLocation = onSelectLocation,
                         modifier = Modifier.alpha(1f - alpha),
-                        forecastDisplay = forecastDisplay
+                        updateSettings = updateSettings,
+                        forecastDisplayView = forecastDisplayView,
+                        onDisplayViewChange = onDisplayViewChange
                     )
                 }
-                ForecastDisplay.Hourly -> {
+                ForecastDisplayView.Hourly -> {
                     HourlyForecastScreen(
                         forecast = forecast,
                         onSelectLocation = onSelectLocation,
                         modifier = Modifier.alpha(1f - alpha),
-                        forecastDisplay = forecastDisplay
+                        updateSettings = updateSettings,
+                        forecastDisplayView = forecastDisplayView,
+                        onDisplayViewChange = onDisplayViewChange
                     )
                 }
             }
@@ -398,4 +408,14 @@ fun LoadingForecastError(retry: () -> Unit) {
     }
 }
 
-enum class ForecastDisplay { Hourly, Daily }
+@Composable
+fun UpdateSettingsButton(updateSettings: () -> Unit, modifier: Modifier = Modifier) {
+    Icon(
+        imageVector = Icons.Rounded.Settings,
+        contentDescription = null,
+        modifier = modifier
+            .clickable { updateSettings() }
+            .padding(8.dp)
+
+    )
+}

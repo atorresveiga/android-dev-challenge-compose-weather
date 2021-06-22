@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -43,8 +42,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.R
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -115,14 +114,19 @@ fun WindIndicator(
                 }
         ) {
 
-            val speed = windSpeed.roundToInt()
+            val speed = LocalSettings.current.dataFormatter.wind.getValue(windSpeed).roundToInt().toString()
+            val style = if (speed.length > 2)
+                MaterialTheme.typography.button.copy(fontSize = 12.sp)
+            else
+                MaterialTheme.typography.button
+
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = speed.toString(),
-                style = MaterialTheme.typography.button
+                text = speed,
+                style = style
             )
 
-            for (i in 0..(speed * 3).coerceAtMost(27)) {
+            for (i in 0..(windSpeed.toInt() * 3).coerceAtMost(27)) {
                 WindFlow(
                     windDegrees = degrees,
                     windSpeed = windSpeed,
@@ -133,16 +137,14 @@ fun WindIndicator(
             }
         }
         Text(
-            text = LocalDataFormatter.current.wind.getValue(windSpeed),
-            modifier = Modifier.padding(end = 16.dp)
+            text = LocalSettings.current.dataFormatter.wind.getScale(windSpeed)
         )
         Text(
             text = stringResource(
                 R.string.wind_direction,
-                LocalDataFormatter.current.wind.getDirection(windDegrees),
-                "(m/s)"
-            ),
-            modifier = Modifier.padding(end = 16.dp)
+                LocalSettings.current.dataFormatter.wind.getDirection(windDegrees),
+                LocalSettings.current.dataFormatter.wind.getMeasurement()
+            )
         )
     }
 }

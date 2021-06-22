@@ -28,5 +28,6 @@ val yellow200 = Color(0xFFFFF59D)
 val amber50 = Color(0xFFFFF8E1)
 val white = Color(0xFFFFFFFF)
 val gray = Color(0xFFEEEEEE)
-
 val alphaBlack = Color(0xCC000000)
+val blue700Light = Color(0xFF1e88e5)
+val blue900Dark = Color(0xFF002171)

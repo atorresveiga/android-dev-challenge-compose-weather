@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
-import com.example.androiddevchallenge.ui.LocalDataFormatter
 import com.example.androiddevchallenge.ui.theme.overlay
 
 @Composable
@@ -56,8 +55,9 @@ fun Sky(
             direction = direction
         )
         SkyOverlay(weatherId = currentHour.weatherId)
-        if (LocalDataFormatter.current.precipitation.isPrecipitation(currentHour.weatherId)) {
-            val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(250)) }
+        if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(currentHour.weatherId)) {
+            val hourlyPrecipitation = LocalSettings.current.hourlyPrecipitation
+            val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(hourlyPrecipitation)) }
             Precipitation(
                 weatherId = currentHour.weatherId,
                 windDegrees = currentHour.windDegrees,
@@ -71,7 +71,7 @@ fun Sky(
 
 @Composable
 fun SkyOverlay(weatherId: Int) {
-    val precipitation = LocalDataFormatter.current.precipitation
+    val precipitation = LocalSettings.current.dataFormatter.precipitation
     val isPrecipitation = precipitation.isPrecipitation(weatherId)
 
     val alpha by animateFloatAsState(

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +35,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -44,11 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
-import com.example.androiddevchallenge.ui.LocalDataFormatter
+import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.theme.cloudColor
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.overlay
@@ -62,43 +63,29 @@ fun DailyForecastScreen(
     forecast: Forecast,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
-    forecastDisplay: MutableState<ForecastDisplay>
+    updateSettings: () -> Unit,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val sceneHeight = with(LocalDensity.current) { maxHeight.toPx() }
-        val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(80)) }
-        val isLarge = maxWidth > 580.dp
-        val selectLocationModifier: Modifier
-        val selectLocationStyle: TextStyle
-        if (isLarge) {
-            selectLocationModifier = Modifier.align(Alignment.Center)
-            selectLocationStyle = MaterialTheme.typography.h5
-        } else {
-            selectLocationModifier = Modifier.align(Alignment.CenterEnd)
-            selectLocationStyle = MaterialTheme.typography.h6
+        val dailyPrecipitation = LocalSettings.current.dailyPrecipitation
+        val precipitation by remember {
+            mutableStateOf(
+                generateRandomWeatherOffsets(dailyPrecipitation)
+            )
         }
         Column(
             modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                modifier = modifier
-                    .statusBarsPadding()
-                    .fillMaxWidth()
-            ) {
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                ) {
-                    DailyHourlyForecast(forecastDisplay = forecastDisplay)
-                    SelectLocation(
-                        modifier = selectLocationModifier,
-                        currentLocationName = forecast.location.name,
-                        onSelectLocation = onSelectLocation,
-                        style = selectLocationStyle
-                    )
-                }
-            }
+            DailyForecastTopBar(
+                currentLocation = forecast.location.name,
+                onSelectLocation = onSelectLocation,
+                updateSettings = updateSettings,
+                forecastDisplayView = forecastDisplayView,
+                onDisplayViewChange = onDisplayViewChange
+            )
             LazyColumn(
                 modifier = modifier.fillMaxHeight()
             ) {
@@ -111,7 +98,7 @@ fun DailyForecastScreen(
                         rowModifier = rowModifier.navigationBarsPadding()
                     }
                     key(day.datetime) {
-                        if (isLarge) {
+                        if (booleanResource(id = R.bool.is_large_display)) {
                             LargeDayListItem(
                                 day = day,
                                 timezoneId = forecast.location.timezoneId,
@@ -148,9 +135,9 @@ fun LargeDayListItem(
         contentAlignment = Alignment.TopCenter
     ) {
 
-        if (LocalDataFormatter.current.precipitation.isPrecipitation(day.weatherId)) {
+        if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(day.weatherId)) {
             val alpha =
-                LocalDataFormatter.current.precipitation.getIntensity(day.weatherId)
+                LocalSettings.current.dataFormatter.precipitation.getIntensity(day.weatherId)
                     .coerceAtMost(.7f)
             Precipitation(
                 weatherId = day.weatherId,
@@ -178,7 +165,7 @@ fun LargeDayListItem(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp),
-                    text = LocalDataFormatter.current.date.getDate(
+                    text = LocalSettings.current.dataFormatter.date.getDate(
                         datetime = day.datetime,
                         timezoneId = timezoneId
                     ),
@@ -192,7 +179,7 @@ fun LargeDayListItem(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp),
-                    text = LocalDataFormatter.current.weather.getWeatherFullText(
+                    text = LocalSettings.current.dataFormatter.weather.getWeatherFullText(
                         day.weatherId
                     )
                         .replaceFirstChar {
@@ -234,9 +221,9 @@ fun SmallDayListItem(
         contentAlignment = Alignment.TopCenter
     ) {
 
-        if (LocalDataFormatter.current.precipitation.isPrecipitation(day.weatherId)) {
+        if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(day.weatherId)) {
             val alpha =
-                LocalDataFormatter.current.precipitation.getIntensity(day.weatherId)
+                LocalSettings.current.dataFormatter.precipitation.getIntensity(day.weatherId)
                     .coerceAtMost(.7f)
             Precipitation(
                 weatherId = day.weatherId,
@@ -267,7 +254,7 @@ fun SmallDayListItem(
                     modifier = Modifier
                         .padding(top = 8.dp, start = 16.dp)
                         .fillMaxWidth(),
-                    text = LocalDataFormatter.current.weather.getWeatherFullText(
+                    text = LocalSettings.current.dataFormatter.weather.getWeatherFullText(
                         day.weatherId
                     )
                         .replaceFirstChar {
@@ -288,7 +275,7 @@ fun SmallDayListItem(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp),
-                    text = LocalDataFormatter.current.date.getDate(
+                    text = LocalSettings.current.dataFormatter.date.getDate(
                         datetime = day.datetime,
                         timezoneId = timezoneId
                     ),
@@ -306,9 +293,9 @@ fun SmallDayListItem(
 
 @Composable
 fun DayWeatherIcon(dayForecast: DayForecast, modifier: Modifier) {
-    val hasThunders = LocalDataFormatter.current.weather.hasThunders(dayForecast.weatherId)
+    val hasThunders = LocalSettings.current.dataFormatter.weather.hasThunders(dayForecast.weatherId)
     val isPrecipitation =
-        LocalDataFormatter.current.precipitation.isPrecipitation(dayForecast.weatherId)
+        LocalSettings.current.dataFormatter.precipitation.isPrecipitation(dayForecast.weatherId)
     val isCloudy = dayForecast.clouds > 45
 
     if (hasThunders || isPrecipitation || isCloudy) {
@@ -379,5 +366,105 @@ fun SunIcon(modifier: Modifier = Modifier, showCloud: Boolean = false) {
                     .offset(x = maxWidth * .35f, y = maxHeight * .35f)
             )
         }
+    }
+}
+
+@Composable
+fun DailyForecastTopBar(
+    currentLocation: String,
+    onSelectLocation: () -> Unit,
+    updateSettings: () -> Unit,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        modifier = modifier
+            .statusBarsPadding()
+            .fillMaxWidth()
+    ) {
+        if (booleanResource(id = R.bool.is_large_display)) {
+            LargeDailyForecastTopBar(
+                currentLocation = currentLocation,
+                onSelectLocation = onSelectLocation,
+                updateSettings = updateSettings,
+                forecastDisplayView = forecastDisplayView,
+                onDisplayViewChange = onDisplayViewChange
+            )
+        } else {
+            SmallDailyForecastTopBar(
+                currentLocation = currentLocation,
+                onSelectLocation = onSelectLocation,
+                updateSettings = updateSettings,
+                forecastDisplayView = forecastDisplayView,
+                onDisplayViewChange = onDisplayViewChange
+            )
+        }
+    }
+}
+
+@Composable
+fun SmallDailyForecastTopBar(
+    currentLocation: String,
+    onSelectLocation: () -> Unit,
+    updateSettings: () -> Unit,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DailyHourlyForecast(
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange,
+            modifier = Modifier
+                .padding(start = 4.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        SelectLocation(
+            currentLocationName = currentLocation,
+            onSelectLocation = onSelectLocation,
+            style = MaterialTheme.typography.h6
+        )
+        UpdateSettingsButton(
+            updateSettings = updateSettings,
+            modifier = Modifier
+                .padding(end = 4.dp)
+                .size(48.dp)
+        )
+    }
+}
+
+@Composable
+fun LargeDailyForecastTopBar(
+    currentLocation: String,
+    onSelectLocation: () -> Unit,
+    updateSettings: () -> Unit,
+    forecastDisplayView: ForecastDisplayView,
+    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        DailyHourlyForecast(
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange,
+            modifier = Modifier.padding(start = 12.dp)
+        )
+        SelectLocation(
+            currentLocationName = currentLocation,
+            onSelectLocation = onSelectLocation,
+            modifier = Modifier.align(Alignment.Center)
+        )
+        UpdateSettingsButton(
+            updateSettings = updateSettings,
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .size(48.dp)
+                .align(Alignment.CenterEnd)
+        )
     }
 }

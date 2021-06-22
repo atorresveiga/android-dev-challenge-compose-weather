@@ -50,6 +50,9 @@ val Colors.sunColor: Color
 val Colors.moonColor: Color
     get() = if (isLight) white else amber50
 
+val Colors.cardsBackground: Color
+    get() = if (isLight) blue700Light else blue900Dark
+
 @Suppress("UNUSED")
 val Colors.stormCloudColor: Color
     get() = gray
