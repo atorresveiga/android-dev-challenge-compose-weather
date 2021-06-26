@@ -115,7 +115,7 @@
 
     <string name="uvi">UV %1$s</string>
 
-    <string name="feels_like_uvi">Feels like %1$s\u00A0\u00A0/\u00A0\u00A0UV %2$s</string>
+    <string name="temperature_feels_like">%1$s / feels like %2$s</string>
     <string name="showers">showers</string>
     <string name="with_thunder">with thunder</string>
 

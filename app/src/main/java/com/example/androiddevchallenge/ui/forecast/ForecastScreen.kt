@@ -120,7 +120,12 @@ fun ForecastScreen(
 val LocalSettings = compositionLocalOf<Settings> { error("No settings found!") }
 
 @Composable
-fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
+fun MaxMinTemperature(
+    min: Float,
+    max: Float,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.h5
+) {
     Row(
         modifier = modifier.padding(top = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -132,7 +137,7 @@ fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
         Text(
             modifier = Modifier.padding(end = 16.dp),
             text = LocalSettings.current.dataFormatter.temperature.getValue(min),
-            style = MaterialTheme.typography.h5
+            style = style
         )
         Icon(
             imageVector = Icons.Rounded.North,
@@ -140,7 +145,7 @@ fun MaxMinTemperature(min: Float, max: Float, modifier: Modifier = Modifier) {
         )
         Text(
             text = LocalSettings.current.dataFormatter.temperature.getValue(max),
-            style = MaterialTheme.typography.h5
+            style = style
         )
     }
 }

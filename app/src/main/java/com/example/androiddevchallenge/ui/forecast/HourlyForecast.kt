@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
@@ -74,6 +75,14 @@ fun HourlyForecastScreen(
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
 
+        val weatherInfoModifier = if (booleanResource(id = R.bool.is_large_display)) {
+            Modifier.align(Alignment.Center)
+        } else {
+            Modifier
+                .padding(top = 160.dp)
+                .align(Alignment.TopCenter)
+        }
+
         Sky(
             currentDay = currentDay,
             currentHour = selectedHour,
@@ -94,13 +103,16 @@ fun HourlyForecastScreen(
         )
 
         WeatherInformation(
-            name = indexForecast.location.name,
+            locationName = indexForecast.location.name,
+            datetime = selectedHour.datetime,
             weatherId = currentDay.weatherId,
-            hourForecast = selectedHour,
+            temperature = selectedHour.temperature,
+            feelsLike = selectedHour.feelsLike,
+            uvi = selectedHour.uvi,
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
             timezoneId = indexForecast.location.timezoneId,
-            modifier = Modifier.align(Alignment.Center),
+            modifier = weatherInfoModifier,
             onSelectLocation = onSelectLocation
         )
 

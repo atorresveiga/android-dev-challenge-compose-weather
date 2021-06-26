@@ -26,9 +26,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.hours
-import kotlin.time.minutes
 
 interface LocalForecastRepository {
     fun getForecast(startTime: Long): Flow<Forecast?>
@@ -58,8 +57,8 @@ class LocalForecastRepositoryDefault(
             val instant = Instant.fromEpochSeconds(startTime)
             val date = instant.toLocalDateTime(timeZone = timeZone)
 
-            val startTimeWithoutMinutes = instant.minus((date.minute + 1).minutes)
-            val startTimeWithoutHours = startTimeWithoutMinutes.minus(date.hour.hours)
+            val startTimeWithoutMinutes = instant.minus(Duration.minutes((date.minute + 1)))
+            val startTimeWithoutHours = startTimeWithoutMinutes.minus(Duration.hours(date.hour))
 
             forecastDAO.getHourlyForecastFrom(
                 latitude = currentLocation.latitude,

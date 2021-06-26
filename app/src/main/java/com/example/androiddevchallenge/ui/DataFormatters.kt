@@ -19,14 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
+import java.time.format.TextStyle
+import java.util.Locale
+import kotlin.math.roundToInt
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import java.time.format.TextStyle
-import java.util.Locale
 
 interface TemperatureFormatter {
     fun getValue(celsius: Float): String
@@ -34,8 +35,7 @@ interface TemperatureFormatter {
 
 class CelsiusTemperatureFormatter : TemperatureFormatter {
     override fun getValue(celsius: Float): String {
-        celsius.dec()
-        val result = if (celsius - celsius.toInt() > 0) celsius else celsius.toInt()
+        val result = celsius.roundToInt()
         return "$result°C"
     }
 }
@@ -43,7 +43,7 @@ class CelsiusTemperatureFormatter : TemperatureFormatter {
 class FahrenheitTemperatureFormatter : TemperatureFormatter {
     override fun getValue(celsius: Float): String {
         val fahrenheit = (celsius * 9f / 5f) + 32
-        val result = if (fahrenheit - fahrenheit.toInt() > 0) fahrenheit else fahrenheit.toInt()
+        val result = fahrenheit.roundToInt()
         return "$result°F"
     }
 }
@@ -57,8 +57,8 @@ class TwelveHourSystemFormatter : HourSystemFormatter {
     @Composable
     override fun getReadableHour(hour: Int): String {
         val endString = when (hour) {
-            0 -> stringResource(R.string.midnight)
-            12 -> stringResource(R.string.noon)
+            0 -> "AM" // stringResource(R.string.midnight)
+            12 -> "M" // stringResource(R.string.noon)
             in 1..11 -> "AM"
             else -> "PM"
         }
@@ -73,28 +73,15 @@ class TwentyFourHourSystemFormatter : HourSystemFormatter {
 
 class DateFormatter(private val hourSystemFormatter: HourSystemFormatter) {
     @Composable
-    fun getDateHour(datetime: Long, timezoneId: String): String {
+    fun getReadableHour(datetime: Long, timezoneId: String): String {
         val timeZone = TimeZone.of(timezoneId)
         val localDateTime =
             Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone)
-        val today = Clock.System.now().toLocalDateTime(timeZone)
-
-        val day = when (localDateTime.date) {
-            today.date -> stringResource(R.string.today)
-            today.date.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.tomorrow)
-            else -> localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                .replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                }
-        }
-
-        val hour = hourSystemFormatter.getReadableHour(localDateTime.hour)
-
-        return "$day $hour"
+        return hourSystemFormatter.getReadableHour(localDateTime.hour)
     }
 
     @Composable
-    fun getDate(datetime: Long, timezoneId: String): String {
+    fun getReadableDate(datetime: Long, timezoneId: String): String {
         val timeZone = TimeZone.of(timezoneId)
         val localDateTime =
             Instant.fromEpochSeconds(datetime).toLocalDateTime(timeZone)
@@ -105,12 +92,12 @@ class DateFormatter(private val hourSystemFormatter: HourSystemFormatter) {
             today.date.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.tomorrow)
             else ->
                 "${
-                localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    .replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
-                    }
+                    localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                        .replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.getDefault()
+                            ) else it.toString()
+                        }
                 } ${localDateTime.date.dayOfMonth}"
         }
     }

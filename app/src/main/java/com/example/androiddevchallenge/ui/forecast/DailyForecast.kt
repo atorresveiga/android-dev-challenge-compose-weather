@@ -165,7 +165,7 @@ fun LargeDayListItem(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp),
-                    text = LocalSettings.current.dataFormatter.date.getDate(
+                    text = LocalSettings.current.dataFormatter.date.getReadableDate(
                         datetime = day.datetime,
                         timezoneId = timezoneId
                     ),
@@ -275,15 +275,16 @@ fun SmallDayListItem(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 8.dp),
-                    text = LocalSettings.current.dataFormatter.date.getDate(
+                    text = LocalSettings.current.dataFormatter.date.getReadableDate(
                         datetime = day.datetime,
                         timezoneId = timezoneId
                     ),
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.h6
                 )
                 MaxMinTemperature(
                     min = day.minTemperature,
-                    max = day.maxTemperature
+                    max = day.maxTemperature,
+                    style = MaterialTheme.typography.h6
                 )
             }
         }
