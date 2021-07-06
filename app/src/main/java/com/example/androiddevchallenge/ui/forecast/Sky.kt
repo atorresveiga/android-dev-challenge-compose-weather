@@ -38,9 +38,10 @@ fun Sky(
     currentHour: HourForecast,
     direction: Direction,
     timezoneId: String,
-    isSouthernHemisphere: Boolean
+    isSouthernHemisphere: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         DayNight(
             datetime = currentHour.datetime,
             sunrise = currentDay.sunrise,
@@ -57,7 +58,13 @@ fun Sky(
         SkyOverlay(weatherId = currentHour.weatherId)
         if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(currentHour.weatherId)) {
             val hourlyPrecipitation = LocalSettings.current.hourlyPrecipitation
-            val precipitation by remember { mutableStateOf(generateRandomWeatherOffsets(hourlyPrecipitation)) }
+            val precipitation by remember {
+                mutableStateOf(
+                    generateRandomWeatherOffsets(
+                        hourlyPrecipitation
+                    )
+                )
+            }
             Precipitation(
                 weatherId = currentHour.weatherId,
                 windDegrees = currentHour.windDegrees,

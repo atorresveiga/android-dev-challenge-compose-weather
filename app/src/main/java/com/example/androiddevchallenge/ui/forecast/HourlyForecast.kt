@@ -15,28 +15,21 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
@@ -51,7 +44,6 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.max
-import kotlin.math.roundToInt
 
 @Composable
 fun HourlyForecastScreen(
@@ -63,15 +55,14 @@ fun HourlyForecastScreen(
     onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
 ) {
     val indexForecast = IndexForecast(forecast)
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
+
+    Box(modifier = modifier.fillMaxSize()) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
         val (direction, onDirectionChange) = remember { mutableStateOf(Direction.FORWARD) }
-
-        HourNavigation(indexForecast.hourly, index, onIndexChange, onDirectionChange)
-
+        val (hourNavigationInteractionState, onHourNavigationInteractionChange) = remember {
+            mutableStateOf(HourNavigationInteractionState.ACTIVE)
+        }
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
 
@@ -83,12 +74,37 @@ fun HourlyForecastScreen(
                 .align(Alignment.TopCenter)
         }
 
+        val controlsAlpha by animateFloatAsState(
+            targetValue = if (hourNavigationInteractionState == HourNavigationInteractionState.INACTIVE) {
+                .5f
+            } else {
+                .8f
+            }
+        )
+
+        val skyAlpha by animateFloatAsState(
+            targetValue = if (hourNavigationInteractionState == HourNavigationInteractionState.ACTIVE) {
+                .3f
+            } else {
+                1f
+            }
+        )
+
+        HourNavigation(
+            hourlyForecast = indexForecast.hourly,
+            selected = index,
+            onSelectedChange = onIndexChange,
+            onDirectionChange = onDirectionChange,
+            onHourNavigationInteractionChange = onHourNavigationInteractionChange
+        )
+
         Sky(
             currentDay = currentDay,
             currentHour = selectedHour,
             direction = direction,
             timezoneId = indexForecast.location.timezoneId,
-            isSouthernHemisphere = indexForecast.location.latitude < 0
+            isSouthernHemisphere = indexForecast.location.latitude < 0,
+            modifier = Modifier.alpha(skyAlpha)
         )
 
         DailyHourlyForecast(
@@ -100,6 +116,7 @@ fun HourlyForecastScreen(
                     top = 4.dp,
                     start = dimensionResource(id = R.dimen.small_horizontal_padding)
                 )
+                .alpha(controlsAlpha)
         )
 
         WeatherInformation(
@@ -112,7 +129,7 @@ fun HourlyForecastScreen(
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
             timezoneId = indexForecast.location.timezoneId,
-            modifier = weatherInfoModifier,
+            modifier = weatherInfoModifier.alpha(controlsAlpha),
             onSelectLocation = onSelectLocation
         )
 
@@ -125,6 +142,7 @@ fun HourlyForecastScreen(
                     start = dimensionResource(id = R.dimen.horizontal_padding),
                     bottom = 16.dp
                 )
+                .alpha(controlsAlpha)
         )
 
         WindIndicator(
@@ -138,6 +156,7 @@ fun HourlyForecastScreen(
                     end = dimensionResource(id = R.dimen.horizontal_padding),
                     bottom = 16.dp
                 )
+                .alpha(controlsAlpha)
         )
 
         UpdateSettingsButton(
@@ -150,50 +169,10 @@ fun HourlyForecastScreen(
                 )
                 .size(48.dp)
                 .align(Alignment.TopEnd)
+                .alpha(controlsAlpha)
         )
     }
 }
-
-@Composable
-fun HourNavigation(
-    hourlyForecast: List<HourForecast>,
-    selected: Int,
-    onSelectedChange: (index: Int) -> Unit,
-    onDirectionChange: (direction: Direction) -> Unit
-) {
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val screenWidthPx = with(density) { screenWidth.toPx() }
-
-    // Get the selected hour offset
-    val selectedOffset = -1 * selected * screenWidthPx / (hourlyForecast.size - 1)
-
-    // Initialize offset in the selected hour offset
-    var offset by remember { mutableStateOf(selectedOffset) }
-
-    Spacer(
-        Modifier
-            .fillMaxSize()
-            .scrollable(
-                orientation = Orientation.Horizontal,
-                // Scrollable state: describes how to consume
-                // scrolling delta and update offset (max offset to screenWidthPx)
-                state = rememberScrollableState { delta ->
-                    offset = (delta / 8 + offset).coerceIn(-1 * screenWidthPx, 0f)
-                    val index =
-                        (-1 * (hourlyForecast.size - 1) * offset / screenWidthPx).roundToInt()
-                    onSelectedChange(index)
-                    val direction = if (delta < 0) Direction.FORWARD else Direction.BACKWARD
-                    onDirectionChange(direction)
-                    delta / 8
-                }
-            )
-            .verticalScroll(state = rememberScrollState())
-    )
-}
-
-enum class Direction { FORWARD, BACKWARD }
 
 @Composable
 fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Modifier) {
