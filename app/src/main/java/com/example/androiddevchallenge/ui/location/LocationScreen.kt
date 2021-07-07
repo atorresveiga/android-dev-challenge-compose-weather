@@ -65,6 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -274,6 +275,7 @@ fun LastSelectedLocation(
 fun BlueCloudButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.small,
     content: @Composable RowScope.() -> Unit
 ) {
     Button(
@@ -283,6 +285,7 @@ fun BlueCloudButton(
             backgroundColor = MaterialTheme.colors.onPrimary,
             contentColor = MaterialTheme.colors.primary
         ),
+        shape = shape,
         content = content
     )
 }

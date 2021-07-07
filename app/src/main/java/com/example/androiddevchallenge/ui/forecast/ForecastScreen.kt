@@ -24,14 +24,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.North
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Settings
@@ -53,8 +54,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
@@ -183,6 +186,7 @@ fun SmallSelectDailyHourlyForecast(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val dismiss = { expanded = false }
 
     Box(modifier = modifier) {
         Row(
@@ -201,20 +205,46 @@ fun SmallSelectDailyHourlyForecast(
                 contentDescription = null
             )
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            ForecastDisplayView.values().forEach {
-                DropdownMenuItem(
-                    onClick = {
-                        onDisplayViewChange(it)
-                        expanded = false
-                    }
+    }
+
+    if (expanded) {
+        Dialog(onDismissRequest = dismiss) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.align(Alignment.Center)
                 ) {
-                    Text(
-                        text = it.translatableString(),
-                        style = MaterialTheme.typography.h6
+                    ForecastDisplayView.values()
+                        .forEach { item ->
+                            Text(
+                                text = item.translatableString(),
+                                style = if (item == forecastDisplayView)
+                                    MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
+                                else
+                                    MaterialTheme.typography.h5,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .clickable {
+                                        expanded = false
+                                        onDisplayViewChange(item)
+                                    }
+                                    .padding(8.dp)
+                            )
+                        }
+                }
+
+                BlueCloudButton(
+                    onClick = dismiss,
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .size(64.dp)
+                        .align(Alignment.BottomCenter)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = null
                     )
                 }
             }
