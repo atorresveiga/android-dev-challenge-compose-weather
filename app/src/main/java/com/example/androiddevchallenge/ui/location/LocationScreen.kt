@@ -140,10 +140,7 @@ fun LocationScreen(
                 )
             }
         }
-        LocationSelected -> {
-            Box(modifier = Modifier.fillMaxSize())
-            navController.popBackStack()
-        }
+        LocationSelected -> { navController.popBackStack() }
     }
 }
 

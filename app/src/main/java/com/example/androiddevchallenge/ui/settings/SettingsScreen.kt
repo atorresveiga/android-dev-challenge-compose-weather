@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.stringResource
@@ -70,12 +71,16 @@ fun SettingsScreen(
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         if (settings != null) {
             val scrollState = rememberScrollState()
+
+            val alpha = 1f - scrollState.value.toFloat() / (scrollState.maxValue * .1f)
+
             BlueCloudTitle(
                 text = stringResource(id = R.string.settings),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .systemBarsPadding()
                     .padding(top = 48.dp, bottom = 16.dp)
+                    .alpha(alpha = alpha)
             )
             Column(
                 modifier = Modifier
@@ -131,7 +136,10 @@ fun MeasurementSettings(
         backgroundColor = MaterialTheme.colors.cardsBackground
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            SettingItem(name = stringResource(R.string.measurements_settings), modifier = settingModifier) {
+            SettingItem(
+                name = stringResource(R.string.measurements_settings),
+                modifier = settingModifier
+            ) {
                 Divider()
             }
             SettingSwitch(
@@ -194,7 +202,10 @@ fun VisualSettings(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            SettingItem(name = stringResource(R.string.visual_settings), modifier = settingModifier) {
+            SettingItem(
+                name = stringResource(R.string.visual_settings),
+                modifier = settingModifier
+            ) {
                 Divider()
             }
             SettingSwitch(
@@ -223,7 +234,7 @@ fun VisualSettings(
                 value = stormClouds.value,
                 onValueChange = { value ->
                     stormClouds.value = value
-                    updateSettings(settings.copy(clouds = value.toInt()))
+                    updateSettings(settings.copy(stormClouds = value.toInt()))
                 },
                 valueRange = 5f..15f,
                 modifier = settingModifier

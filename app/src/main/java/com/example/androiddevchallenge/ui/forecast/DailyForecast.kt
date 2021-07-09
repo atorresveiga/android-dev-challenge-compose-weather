@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -141,8 +140,8 @@ fun LargeDayListItem(
                     .coerceAtMost(.7f)
             Precipitation(
                 weatherId = day.weatherId,
-                windDegrees = day.windDegrees,
-                windSpeed = day.windSpeed,
+                windDegrees = 0f,
+                windSpeed = 0f,
                 precipitation = precipitation,
                 sceneHeight = sceneHeight,
                 modifier = Modifier
@@ -227,8 +226,8 @@ fun SmallDayListItem(
                     .coerceAtMost(.7f)
             Precipitation(
                 weatherId = day.weatherId,
-                windDegrees = day.windDegrees,
-                windSpeed = day.windSpeed,
+                windDegrees = 0f,
+                windSpeed = 0f,
                 precipitation = precipitation,
                 sceneHeight = sceneHeight,
                 modifier = Modifier
@@ -379,28 +378,23 @@ fun DailyForecastTopBar(
     onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TopAppBar(
-        modifier = modifier
-            .statusBarsPadding()
-            .fillMaxWidth()
-    ) {
-        if (booleanResource(id = R.bool.is_large_display)) {
-            LargeDailyForecastTopBar(
-                currentLocation = currentLocation,
-                onSelectLocation = onSelectLocation,
-                updateSettings = updateSettings,
-                forecastDisplayView = forecastDisplayView,
-                onDisplayViewChange = onDisplayViewChange
-            )
-        } else {
-            SmallDailyForecastTopBar(
-                currentLocation = currentLocation,
-                onSelectLocation = onSelectLocation,
-                updateSettings = updateSettings,
-                forecastDisplayView = forecastDisplayView,
-                onDisplayViewChange = onDisplayViewChange
-            )
-        }
+
+    if (booleanResource(id = R.bool.is_large_display)) {
+        LargeDailyForecastTopBar(
+            currentLocation = currentLocation,
+            onSelectLocation = onSelectLocation,
+            updateSettings = updateSettings,
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange
+        )
+    } else {
+        SmallDailyForecastTopBar(
+            currentLocation = currentLocation,
+            onSelectLocation = onSelectLocation,
+            updateSettings = updateSettings,
+            forecastDisplayView = forecastDisplayView,
+            onDisplayViewChange = onDisplayViewChange
+        )
     }
 }
 
@@ -413,28 +407,41 @@ fun SmallDailyForecastTopBar(
     onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DailyHourlyForecast(
-            forecastDisplayView = forecastDisplayView,
-            onDisplayViewChange = onDisplayViewChange,
-            modifier = Modifier
-                .padding(start = 4.dp)
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        SelectLocation(
-            currentLocationName = currentLocation,
-            onSelectLocation = onSelectLocation,
-            style = MaterialTheme.typography.h6
-        )
-        UpdateSettingsButton(
-            updateSettings = updateSettings,
-            modifier = Modifier
-                .padding(end = 4.dp)
-                .size(48.dp)
-        )
+    Column(modifier = modifier) {
+        TopAppBar(
+            Modifier
+                .statusBarsPadding()
+                .fillMaxWidth()
+        ) {
+            Box(modifier = modifier.fillMaxWidth()) {
+                DailyHourlyForecast(
+                    forecastDisplayView = forecastDisplayView,
+                    onDisplayViewChange = onDisplayViewChange,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .align(Alignment.CenterStart)
+                )
+                UpdateSettingsButton(
+                    updateSettings = updateSettings,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .size(48.dp)
+                        .align(Alignment.CenterEnd)
+                )
+            }
+        }
+        TopAppBar(
+            backgroundColor = MaterialTheme.colors.background,
+            elevation = 2.dp
+        ) {
+            Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                SelectLocation(
+                    currentLocationName = currentLocation,
+                    onSelectLocation = onSelectLocation,
+                    style = MaterialTheme.typography.h6
+                )
+            }
+        }
     }
 }
 
@@ -447,25 +454,31 @@ fun LargeDailyForecastTopBar(
     onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxWidth()
+    TopAppBar(
+        modifier = modifier
+            .statusBarsPadding()
+            .fillMaxWidth()
     ) {
-        DailyHourlyForecast(
-            forecastDisplayView = forecastDisplayView,
-            onDisplayViewChange = onDisplayViewChange,
-            modifier = Modifier.padding(start = 12.dp)
-        )
-        SelectLocation(
-            currentLocationName = currentLocation,
-            onSelectLocation = onSelectLocation,
-            modifier = Modifier.align(Alignment.Center)
-        )
-        UpdateSettingsButton(
-            updateSettings = updateSettings,
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .size(48.dp)
-                .align(Alignment.CenterEnd)
-        )
+        Box(
+            modifier = modifier.fillMaxWidth()
+        ) {
+            DailyHourlyForecast(
+                forecastDisplayView = forecastDisplayView,
+                onDisplayViewChange = onDisplayViewChange,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+            SelectLocation(
+                currentLocationName = currentLocation,
+                onSelectLocation = onSelectLocation,
+                modifier = Modifier.align(Alignment.Center)
+            )
+            UpdateSettingsButton(
+                updateSettings = updateSettings,
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(48.dp)
+                    .align(Alignment.CenterEnd)
+            )
+        }
     }
 }

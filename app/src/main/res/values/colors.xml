@@ -11,4 +11,6 @@
   -->
 <resources>
     <color name="system_bar">#22000000</color>
+    <color name="primary">#FF1976d2</color>
+    <color name="secondary">#FF512DA8</color>
 </resources>

@@ -45,6 +45,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,7 +88,7 @@ fun ForecastScreen(
 
     when (state) {
         is DisplayForecast -> {
-            val (forecastDisplay, onDisplayViewChange) = remember { mutableStateOf(state.settings.defaultDisplayView) }
+            val (forecastDisplay, onDisplayViewChange) = rememberSaveable { mutableStateOf(state.settings.defaultDisplayView) }
             CompositionLocalProvider(LocalSettings provides state.settings) {
                 DisplayForecast(
                     isRefreshing = state.isLoading,

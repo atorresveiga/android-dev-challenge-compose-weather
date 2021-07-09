@@ -25,20 +25,22 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = blue900,
+    onPrimary = amber50,
     secondary = deepPurple900,
+    secondaryVariant = indigo900,
     surface = blue900,
     onSurface = amber50,
-    onPrimary = amber50,
-    secondaryVariant = indigo900
+    onBackground = amber50
 )
 
 private val LightColorPalette = lightColors(
     primary = blue700,
-    secondary = deepPurple700,
-    surface = blue700,
     onPrimary = white,
+    secondary = deepPurple700,
+    secondaryVariant = indigo500,
+    surface = blue700,
     onSurface = white,
-    secondaryVariant = indigo500
+    onBackground = blue700
 )
 
 val Colors.cloudColor: Color

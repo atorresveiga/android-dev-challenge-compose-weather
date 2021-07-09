@@ -76,15 +76,15 @@ fun HourlyForecastScreen(
 
         val controlsAlpha by animateFloatAsState(
             targetValue = if (hourNavigationInteractionState == HourNavigationInteractionState.INACTIVE) {
-                .5f
+                .4f
             } else {
-                .8f
+                .6f
             }
         )
 
         val skyAlpha by animateFloatAsState(
             targetValue = if (hourNavigationInteractionState == HourNavigationInteractionState.ACTIVE) {
-                .3f
+                .4f
             } else {
                 1f
             }

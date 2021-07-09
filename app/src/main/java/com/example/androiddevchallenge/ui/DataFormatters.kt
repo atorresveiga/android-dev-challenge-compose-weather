@@ -19,15 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
-import java.time.format.TextStyle
-import java.util.Locale
-import kotlin.math.roundToInt
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import java.time.format.TextStyle
+import java.util.Locale
+import kotlin.math.roundToInt
 
 interface TemperatureFormatter {
     fun getValue(celsius: Float): String
@@ -92,12 +92,12 @@ class DateFormatter(private val hourSystemFormatter: HourSystemFormatter) {
             today.date.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.tomorrow)
             else ->
                 "${
-                    localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                        .replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
-                        }
+                localDateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    .replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }
                 } ${localDateTime.date.dayOfMonth}"
         }
     }

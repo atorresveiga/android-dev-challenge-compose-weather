@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowCompat
+import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.NavGraph
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.google.accompanist.insets.ProvideWindowInsets
@@ -29,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_AndroidDevChallenge_NoActionBar)
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
