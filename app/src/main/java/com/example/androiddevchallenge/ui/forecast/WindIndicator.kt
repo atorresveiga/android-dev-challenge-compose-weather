@@ -23,9 +23,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
@@ -114,7 +114,8 @@ fun WindIndicator(
                 }
         ) {
 
-            val speed = LocalSettings.current.dataFormatter.wind.getValue(windSpeed).roundToInt().toString()
+            val speed =
+                LocalSettings.current.dataFormatter.wind.getValue(windSpeed).roundToInt().toString()
             val style = if (speed.length > 2)
                 MaterialTheme.typography.button.copy(fontSize = 12.sp)
             else
@@ -197,55 +198,50 @@ fun WindFlow(
 
     val clockWiseDirection = if (isClockWise) 1 else -1
 
-    Spacer(
-        modifier =
-        Modifier
-            .fillMaxSize()
-            .drawBehind {
-                val backgroundRadius = (size.minDimension) / 2
-                val marginPX = margin.toPx()
-                val start =
-                    (windDegrees).getCircularOffset(center, backgroundRadius - marginPX)
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val backgroundRadius = (size.minDimension) / 2
+        val marginPX = margin.toPx()
+        val start =
+            (windDegrees).getCircularOffset(center, backgroundRadius - marginPX)
 
-                val control1 =
-                    (windDegrees + 80 * clockWiseDirection).getCircularOffset(
-                        center,
-                        backgroundRadius - marginPX
-                    )
-                val control2 =
-                    (windDegrees + 100 * clockWiseDirection).getCircularOffset(
-                        center,
-                        backgroundRadius - marginPX
-                    )
-                val end =
-                    (windDegrees + 180 * clockWiseDirection).getCircularOffset(
-                        center,
-                        backgroundRadius
-                    )
+        val control1 =
+            (windDegrees + 80 * clockWiseDirection).getCircularOffset(
+                center,
+                backgroundRadius - marginPX
+            )
+        val control2 =
+            (windDegrees + 100 * clockWiseDirection).getCircularOffset(
+                center,
+                backgroundRadius - marginPX
+            )
+        val end =
+            (windDegrees + 180 * clockWiseDirection).getCircularOffset(
+                center,
+                backgroundRadius
+            )
 
-                val offset = calculateBezier(
-                    time = time,
-                    start = start,
-                    control1 = control1,
-                    control2 = control2,
-                    end = end
-                )
+        val offset = calculateBezier(
+            time = time,
+            start = start,
+            control1 = control1,
+            control2 = control2,
+            end = end
+        )
 
-                val offset2 = calculateBezier(
-                    time = time - .08f,
-                    start = start,
-                    control1 = control1,
-                    control2 = control2,
-                    end = end
-                )
-                drawLine(
-                    color = color,
-                    start = offset,
-                    end = offset2,
-                    alpha = alpha
-                )
-            }
-    )
+        val offset2 = calculateBezier(
+            time = time - .08f,
+            start = start,
+            control1 = control1,
+            control2 = control2,
+            end = end
+        )
+        drawLine(
+            color = color,
+            start = offset,
+            end = offset2,
+            alpha = alpha
+        )
+    }
 }
 
 /**
