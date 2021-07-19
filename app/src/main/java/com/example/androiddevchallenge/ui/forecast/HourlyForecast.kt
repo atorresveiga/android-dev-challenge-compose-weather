@@ -43,7 +43,6 @@ import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.max
 
 @Composable
 fun HourlyForecastScreen(
@@ -183,9 +182,7 @@ fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Mo
             )
         )
         Text(
-            text = LocalSettings.current.dataFormatter.precipitation.getVolume(
-                max(hourForecast.snow, hourForecast.rain)
-            )
+            text = LocalSettings.current.dataFormatter.precipitation.getVolume(hourForecast.precipitation)
         )
     }
 }

@@ -47,12 +47,12 @@ data class OpenWeatherForecast(
 data class OpenWeatherDayForecast(
     @SerialName("dt")
     val datetime: Long,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     @SerialName("dew_point")
     val dewPoint: Float,
     val uvi: Float,
-    val clouds: Int,
+    val clouds: Float,
     @SerialName("wind_speed")
     val windSpeed: Float,
     @SerialName("wind_deg")
@@ -74,12 +74,12 @@ data class OpenWeatherDayForecast(
 data class OpenWeatherHourForecast(
     @SerialName("dt")
     val datetime: Long,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     @SerialName("dew_point")
     val dewPoint: Float,
     val uvi: Float,
-    val clouds: Int,
+    val clouds: Float,
     @SerialName("wind_speed")
     val windSpeed: Float,
     @SerialName("wind_deg")

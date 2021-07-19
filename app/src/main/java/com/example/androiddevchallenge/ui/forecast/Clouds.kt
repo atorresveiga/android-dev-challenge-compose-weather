@@ -66,7 +66,7 @@ import com.example.androiddevchallenge.ui.theme.stormCloudColor
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Clouds(
-    cloudiness: Int,
+    cloudiness: Float,
     weatherId: Int,
     direction: Direction,
     modifier: Modifier = Modifier

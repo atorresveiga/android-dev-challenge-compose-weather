@@ -19,6 +19,8 @@ android {
         buildConfigField('String', 'OpenWeatherBaseURL', "\"https://api.openweathermap.org/data/2.5/\"")
         buildConfigField('String', 'GeoNamesUser', GeoNamesUser)
         buildConfigField('String', 'GeoNamesBaseURL', "\"http://api.geonames.org/\"")
+        buildConfigField('String', 'MetNoContact', MetNoContact)
+        buildConfigField('String', 'MetNoBaseURL', "\"https://api.met.no/weatherapi/\"")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

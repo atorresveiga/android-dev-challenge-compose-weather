@@ -40,17 +40,16 @@ data class HourForecastEntity(
     val datetime: Long,
     val temperature: Float,
     val feelsLike: Float,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     val uvi: Float,
-    val clouds: Int,
+    val clouds: Float,
     val visibility: Long,
     val windSpeed: Float,
     val windDegrees: Float,
     val weatherId: Int,
     val pop: Float,
-    val rain: Float,
-    val snow: Float,
+    val precipitation: Float,
     val latitude: Double,
     val longitude: Double
 )
@@ -61,18 +60,17 @@ data class HourForecastEntity(
 )
 data class DayForecastEntity(
     val datetime: Long,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     val uvi: Float,
     val sunrise: Long,
     val sunset: Long,
-    val clouds: Int,
+    val clouds: Float,
     val windSpeed: Float,
     val windDegrees: Float,
     val minTemperature: Float,
     val maxTemperature: Float,
-    val rain: Float = 0f,
-    val snow: Float = 0f,
+    val precipitation: Float = 0f,
     val weatherId: Int,
     val moonPhaseId: Int,
     val latitude: Double,
@@ -171,8 +169,7 @@ fun DayForecastEntity.toDayForecast() = DayForecast(
     windDegrees = windDegrees,
     minTemperature = this.minTemperature,
     maxTemperature = this.maxTemperature,
-    rain = this.rain,
-    snow = this.snow,
+    precipitation = this.precipitation,
     weatherId = this.weatherId,
     moonPhase = this.moonPhaseId
 )
@@ -189,8 +186,7 @@ fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayFo
     windDegrees = windDegrees,
     minTemperature = this.minTemperature,
     maxTemperature = this.maxTemperature,
-    rain = this.rain,
-    snow = this.snow,
+    precipitation = this.precipitation,
     weatherId = this.weatherId,
     moonPhaseId = this.moonPhase,
     latitude = latitude,
@@ -210,8 +206,7 @@ fun HourForecastEntity.toHourForecast() = HourForecast(
     windDegrees = this.windDegrees,
     weatherId = this.weatherId,
     pop = this.pop,
-    rain = this.rain,
-    snow = this.snow
+    precipitation = this.precipitation
 )
 
 fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = HourForecastEntity(
@@ -227,8 +222,7 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
     windDegrees = this.windDegrees,
     weatherId = this.weatherId,
     pop = this.pop,
-    rain = this.rain,
-    snow = this.snow,
+    precipitation = this.precipitation,
     latitude = latitude,
     longitude = longitude
 )

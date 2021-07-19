@@ -265,16 +265,16 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
         val builder = StringBuilder()
         builder.append(getWeatherWithScale(weatherId))
         if (isShowerHasThunder and 2 > 0) {
-            builder.append(" " + stringResource(R.string.showers) + " ")
+            builder.append(" " + stringResource(R.string.with_thunder) + " ")
         }
         if (isShowerHasThunder and 1 > 0) {
-            builder.append(" " + stringResource(R.string.with_thunder))
+            builder.append(" " + stringResource(R.string.showers))
         }
         return builder.toString()
     }
 
     fun hasThunders(weatherId: Int): Boolean {
-        return (weatherId % 100000 - weatherId % 10000) / 10000 and 1 > 0
+        return (weatherId % 100000 - weatherId % 10000) / 10000 and 2 > 0
     }
 }
 

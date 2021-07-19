@@ -22,12 +22,12 @@ import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.example.androiddevchallenge.ui.MoonPhaseFormatter
+import kotlin.math.min
+import kotlin.random.Random
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.min
-import kotlin.random.Random
 
 object MockDataGenerator {
 
@@ -116,11 +116,10 @@ object MockDataGenerator {
         for (day in 1..days) {
 
             var weatherId = Random.nextInt(5, 7)
-            val rain = when (weatherId) {
-                in 2..5, 7 -> Random.nextInt(0, 1000) / 100f
+            val precipitation = when (weatherId) {
+                in 2..7 -> Random.nextInt(0, 1000) / 100f
                 else -> 0f
             }
-            val snow = if (weatherId in 6..7) Random.nextInt(0, 1000) / 100f else 0f
 
             weatherId = when (weatherId) {
                 1 -> {
@@ -144,17 +143,16 @@ object MockDataGenerator {
 
             val dayForecast = DayForecast(
                 datetime = datetime,
-                pressure = Random.nextInt(1000, 3000),
-                humidity = Random.nextInt(40),
+                pressure = Random.nextInt(1000, 3000).toFloat(),
+                humidity = Random.nextInt(40).toFloat(),
                 uvi = Random.nextInt(12).toFloat(),
                 weatherId = weatherId,
-                rain = rain,
-                snow = snow,
+                precipitation = precipitation,
                 minTemperature = minTemperature,
                 maxTemperature = minTemperature + Random.nextInt(2, 4),
                 sunrise = datetime + SECONDS_IN_AN_HOUR * -8,
                 sunset = datetime + SECONDS_IN_AN_HOUR * 5,
-                clouds = Random.nextInt(100),
+                clouds = Random.nextInt(100).toFloat(),
                 windSpeed = Random.nextInt(10).toFloat(),
                 windDegrees = Random.nextInt(360).toFloat(),
                 moonPhase = MoonPhaseFormatter.encode(moonPhase, previousPhase)
@@ -195,29 +193,16 @@ object MockDataGenerator {
                 else -> weatherId
             }
 
-            val rain: Float
-            val snow: Float
+            val precipitation: Float
             val pop: Float
 
             when (weatherId) {
-                in 2..5 -> {
-                    rain = Random.nextInt(0, 1000) / 100f
-                    snow = 0f
-                    pop = 1f
-                }
-                6 -> {
-                    rain = 0f
-                    snow = Random.nextInt(0, 1000) / 100f
-                    pop = 1f
-                }
-                7 -> {
-                    rain = Random.nextInt(0, 1000) / 100f
-                    snow = Random.nextInt(0, 1000) / 100f
+                in 2..7 -> {
+                    precipitation = Random.nextInt(0, 1000) / 100f
                     pop = 1f
                 }
                 else -> {
-                    rain = Random.nextInt(0, 20) / 100f
-                    snow = 0f
+                    precipitation = Random.nextInt(0, 20) / 100f
                     pop = Random.nextInt(0, 40) / 100f
                 }
             }
@@ -226,17 +211,16 @@ object MockDataGenerator {
                 datetime = datetime,
                 temperature = temperature.toFloat(),
                 feelsLike = temperature.toFloat(),
-                pressure = Random.nextInt(1000, 3000),
-                humidity = Random.nextInt(40),
+                pressure = Random.nextInt(1000, 3000).toFloat(),
+                humidity = Random.nextInt(40).toFloat(),
                 uvi = Random.nextInt(12).toFloat(),
-                clouds = Random.nextInt(100),
+                clouds = Random.nextInt(100).toFloat(),
                 visibility = Random.nextLong(1000000),
                 windSpeed = Random.nextInt(10).toFloat(),
                 windDegrees = Random.nextInt(360).toFloat(),
                 weatherId = hourWeatherId,
                 pop = pop,
-                rain = rain,
-                snow = snow
+                precipitation = precipitation
             )
             datetime += SECONDS_IN_AN_HOUR
             result.add(hourForecast)

@@ -59,8 +59,7 @@ data class Location(
  * @param windSpeed Wind speed. Units metre/sec
  * @param windDegrees Wind direction, degrees (meteorological)
  * @param pop probability of precipitation
- * @param rain rain volume for last hour
- * @param snow snow volume for last hour
+ * @param precipitation precipitation volume for last hour
  * @param weatherId is an encoded value of [shower/thunder][scale id][scale position][2 digits weather position],
  * for example the value 32105 represents:
  * [first digit] 3 the weather is of type showers and has thunders, first digit is a binary check where
@@ -77,17 +76,16 @@ data class HourForecast(
     val datetime: Long,
     val temperature: Float,
     val feelsLike: Float,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     val uvi: Float,
-    val clouds: Int,
+    val clouds: Float,
     val visibility: Long,
     val windSpeed: Float,
     val windDegrees: Float,
     val weatherId: Int,
     val pop: Float,
-    val rain: Float,
-    val snow: Float
+    val precipitation: Float,
 )
 
 /**
@@ -103,8 +101,7 @@ data class HourForecast(
  * @param windDegrees Wind direction, degrees (meteorological)
  * @param minTemperature Min daily temperature
  * @param maxTemperature Max daily temperature
- * @param rain rain volume
- * @param snow snow volume
+ * @param precipitation precipitation volume
  * @param weatherId is an encoded value of [shower/thunder][scale id][scale position][2 digits weather position],
  * for example the value 32105 represents:
  * [first digit] 3 the weather is of type showers and has thunders, first digit is a binary check where
@@ -120,18 +117,17 @@ data class HourForecast(
  */
 data class DayForecast(
     val datetime: Long,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Float,
+    val humidity: Float,
     val uvi: Float,
     val sunrise: Long,
     val sunset: Long,
-    val clouds: Int,
+    val clouds: Float,
     val windSpeed: Float,
     val windDegrees: Float,
     val minTemperature: Float,
     val maxTemperature: Float,
-    val rain: Float = 0f,
-    val snow: Float = 0f,
+    val precipitation: Float = 0f,
     val weatherId: Int,
     val moonPhase: Int
 )
