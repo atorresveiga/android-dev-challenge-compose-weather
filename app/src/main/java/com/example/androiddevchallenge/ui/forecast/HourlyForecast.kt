@@ -125,6 +125,7 @@ fun HourlyForecastScreen(
             temperature = selectedHour.temperature,
             feelsLike = selectedHour.feelsLike,
             uvi = selectedHour.uvi,
+            humidity = selectedHour.humidity,
             minTemperature = currentDay.minTemperature,
             maxTemperature = currentDay.maxTemperature,
             timezoneId = indexForecast.location.timezoneId,

@@ -41,6 +41,7 @@ fun WeatherInformation(
     maxTemperature: Float,
     temperature: Float,
     feelsLike: Float,
+    humidity: Float,
     uvi: Float,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
@@ -71,9 +72,10 @@ fun WeatherInformation(
         )
         Text(
             text = stringResource(
-                R.string.temperature_feels_like,
+                R.string.temperature_humidity,
                 LocalSettings.current.dataFormatter.temperature.getValue(temperature),
-                LocalSettings.current.dataFormatter.temperature.getValue(feelsLike)
+                // Feels like's calculation is not accurate yet, so use humidity in the meantime
+                LocalSettings.current.dataFormatter.humidity.getValue(humidity)
             ),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.h5,
@@ -103,7 +105,8 @@ fun PreviewWeatherInformation() {
             maxTemperature = -10.30f,
             temperature = -12.56f,
             feelsLike = -18.79f,
-            uvi = 4.5f
+            uvi = 4.5f,
+            humidity = 88.5f
         )
     }
 }

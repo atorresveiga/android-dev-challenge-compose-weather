@@ -116,6 +116,7 @@
     <string name="uvi">UV %1$s</string>
 
     <string name="temperature_feels_like">%1$s / feels like %2$s</string>
+    <string name="temperature_humidity">%1$s / %2$s humidity</string>
     <string name="showers">showers</string>
     <string name="with_thunder">with thunder</string>
 

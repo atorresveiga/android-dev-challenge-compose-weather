@@ -318,6 +318,10 @@ object MoonPhaseFormatter {
     }
 }
 
+object HumidityFormatter {
+    fun getValue(value: Float): String = "${value.roundToInt()} %"
+}
+
 class DataFormatter(
     hourSystem: HourSystem,
     temperatureSystem: TemperatureSystem,
@@ -330,6 +334,7 @@ class DataFormatter(
     val weather: WeatherFormatter
     val uvi: UVFormatter = UVFormatter
     val moonPhase: MoonPhaseFormatter = MoonPhaseFormatter
+    val humidity: HumidityFormatter = HumidityFormatter
 
     init {
         val scaleFormatter = ScaleFormatter()
