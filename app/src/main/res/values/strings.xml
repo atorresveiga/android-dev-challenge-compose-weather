@@ -133,7 +133,8 @@
     <string name="update_forecast">Update forecast</string>
     <string name="default_error">Ups…Something went wrong, please try again</string>
     <string name="settings">Settings</string>
-    <string name="measurements_settings">Measurements</string>
+    <string name="measurements_settings">Measurements Settings</string>
+    <string name="general_settings">General Settings</string>
     <string name="temperature_system">Temperature System</string>
     <string name="time_format">Time Format</string>
     <string name="wind_speed_system">Wind Speed System</string>
@@ -143,5 +144,9 @@
     <string name="storm_cloud_number">Storm Clouds Number</string>
     <string name="precipitation_number">Precipitation Number</string>
     <string name="list_item_precipitation_number">List Item Precipitation Number</string>
+
+    <string name="data_sources">Data Sources</string>
+    <string name="open_weather">Open Weather</string>
+    <string name="met_no">Norwegian MET</string>
 
 </resources>

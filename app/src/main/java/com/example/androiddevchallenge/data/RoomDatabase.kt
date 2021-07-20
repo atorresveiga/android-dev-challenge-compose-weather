@@ -34,7 +34,7 @@ import kotlinx.datetime.Clock
 
 @Entity(
     tableName = "hour_forecast_table",
-    primaryKeys = ["datetime", "latitude", "longitude"]
+    primaryKeys = ["datetime", "latitude", "longitude", "dataSource"]
 )
 data class HourForecastEntity(
     val datetime: Long,
@@ -51,12 +51,13 @@ data class HourForecastEntity(
     val pop: Float,
     val precipitation: Float,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val dataSource: Int
 )
 
 @Entity(
     tableName = "day_forecast_table",
-    primaryKeys = ["datetime", "latitude", "longitude"]
+    primaryKeys = ["datetime", "latitude", "longitude", "dataSource"]
 )
 data class DayForecastEntity(
     val datetime: Long,
@@ -74,7 +75,8 @@ data class DayForecastEntity(
     val weatherId: Int,
     val moonPhaseId: Int,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
+    val dataSource: Int
 )
 
 @Entity(
@@ -92,18 +94,20 @@ data class LocationEntity(
 
 @Dao
 interface ForecastDAO {
-    @Query("SELECT * from hour_forecast_table WHERE latitude = :latitude AND longitude=:longitude AND datetime >= :startTime ORDER BY datetime ASC")
+    @Query("SELECT * from hour_forecast_table WHERE dataSource= :dataSource AND latitude = :latitude AND longitude=:longitude AND datetime >= :startTime ORDER BY datetime ASC")
     fun getHourlyForecastFrom(
         latitude: Double,
         longitude: Double,
-        startTime: Long
+        startTime: Long,
+        dataSource: Int
     ): Flow<List<HourForecastEntity>>
 
-    @Query("SELECT * from day_forecast_table WHERE latitude = :latitude AND longitude=:longitude AND datetime>= :startTime ORDER BY datetime ASC")
+    @Query("SELECT * from day_forecast_table WHERE dataSource= :dataSource AND latitude = :latitude AND longitude=:longitude AND datetime>= :startTime ORDER BY datetime ASC")
     fun getDailyForecastFrom(
         latitude: Double,
         longitude: Double,
-        startTime: Long
+        startTime: Long,
+        dataSource: Int
     ): Flow<List<DayForecastEntity>>
 
     @Query("SELECT * from location_table ORDER BY datetime DESC")
@@ -174,7 +178,7 @@ fun DayForecastEntity.toDayForecast() = DayForecast(
     moonPhase = this.moonPhaseId
 )
 
-fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayForecastEntity(
+fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double, dataSource: Int) = DayForecastEntity(
     datetime = this.datetime,
     pressure = this.pressure,
     humidity = this.humidity,
@@ -190,7 +194,8 @@ fun DayForecast.toDayForecastEntity(latitude: Double, longitude: Double) = DayFo
     weatherId = this.weatherId,
     moonPhaseId = this.moonPhase,
     latitude = latitude,
-    longitude = longitude
+    longitude = longitude,
+    dataSource = dataSource
 )
 
 fun HourForecastEntity.toHourForecast() = HourForecast(
@@ -209,7 +214,7 @@ fun HourForecastEntity.toHourForecast() = HourForecast(
     precipitation = this.precipitation
 )
 
-fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = HourForecastEntity(
+fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double, dataSource: Int) = HourForecastEntity(
     datetime = this.datetime,
     temperature = this.temperature,
     feelsLike = this.feelsLike,
@@ -224,7 +229,8 @@ fun HourForecast.toHourForecastEntity(latitude: Double, longitude: Double) = Hou
     pop = this.pop,
     precipitation = this.precipitation,
     latitude = latitude,
-    longitude = longitude
+    longitude = longitude,
+    dataSource = dataSource
 )
 
 fun Location.toLocationEntity() =

@@ -17,9 +17,11 @@ package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.ui.ForecastDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -33,7 +35,7 @@ interface LocalForecastRepository {
     fun getForecast(startTime: Long): Flow<Forecast?>
     fun getCurrentLocation(): Flow<Location?>
     suspend fun saveCurrentLocation(location: Location)
-    suspend fun saveForecast(forecast: Forecast)
+    suspend fun saveForecast(forecast: Forecast, dataSource: ForecastDataSource)
     suspend fun clearOldData(olderTime: Long)
     fun getLastSelectedLocations(): Flow<List<Location>>
 }
@@ -49,37 +51,46 @@ class LocalForecastRepositoryDefault(
     @OptIn(ExperimentalTime::class)
     override fun getForecast(startTime: Long): Flow<Forecast?> {
 
-        return dataStoreManager.currentLocation.flatMapLatest { prefLocation ->
-            val currentLocation =
-                prefLocation ?: return@flatMapLatest flow { emit(null) }
+        return dataStoreManager.currentLocation
+            .combine(
+                dataStoreManager.settings.map { it.dataSource }
+                    .distinctUntilChanged()
+            ) { location, dataSource -> Pair(location, dataSource) }
+            .flatMapLatest { pair ->
+                val currentLocation =
+                    pair.first ?: return@flatMapLatest flow { emit(null) }
 
-            val timeZone = TimeZone.of(currentLocation.timezoneId)
-            val instant = Instant.fromEpochSeconds(startTime)
-            val date = instant.toLocalDateTime(timeZone = timeZone)
+                val dataSource = pair.second
 
-            val startTimeWithoutMinutes = instant.minus(Duration.minutes((date.minute + 1)))
-            val startTimeWithoutHours = startTimeWithoutMinutes.minus(Duration.hours(date.hour))
+                val timeZone = TimeZone.of(currentLocation.timezoneId)
+                val instant = Instant.fromEpochSeconds(startTime)
+                val date = instant.toLocalDateTime(timeZone = timeZone)
 
-            forecastDAO.getHourlyForecastFrom(
-                latitude = currentLocation.latitude,
-                longitude = currentLocation.longitude,
-                startTime = startTimeWithoutMinutes.epochSeconds
-            )
-                .combine(
-                    forecastDAO.getDailyForecastFrom(
-                        latitude = currentLocation.latitude,
-                        longitude = currentLocation.longitude,
-                        startTime = startTimeWithoutHours.epochSeconds
-                    )
-                ) { hourly, daily ->
+                val startTimeWithoutMinutes = instant.minus(Duration.minutes((date.minute + 1)))
+                val startTimeWithoutHours = startTimeWithoutMinutes.minus(Duration.hours(date.hour))
 
-                    Forecast(
-                        location = currentLocation,
-                        hourly = hourly.map { it.toHourForecast() },
-                        daily = daily.map { it.toDayForecast() }
-                    )
-                }
-        }
+                forecastDAO.getHourlyForecastFrom(
+                    latitude = currentLocation.latitude,
+                    longitude = currentLocation.longitude,
+                    startTime = startTimeWithoutMinutes.epochSeconds,
+                    dataSource = dataSource.ordinal
+                )
+                    .combine(
+                        forecastDAO.getDailyForecastFrom(
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude,
+                            startTime = startTimeWithoutHours.epochSeconds,
+                            dataSource = dataSource.ordinal
+                        )
+                    ) { hourly, daily ->
+
+                        Forecast(
+                            location = currentLocation,
+                            hourly = hourly.map { it.toHourForecast() },
+                            daily = daily.map { it.toDayForecast() },
+                        )
+                    }
+            }
     }
 
     override fun getCurrentLocation() = dataStoreManager.currentLocation
@@ -89,12 +100,13 @@ class LocalForecastRepositoryDefault(
         dataStoreManager.setCurrentLocation(location)
     }
 
-    override suspend fun saveForecast(forecast: Forecast) {
+    override suspend fun saveForecast(forecast: Forecast, dataSource: ForecastDataSource) {
         forecastDAO.saveHourlyForecast(
             forecast.hourly.map {
                 it.toHourForecastEntity(
                     latitude = forecast.location.latitude,
-                    longitude = forecast.location.longitude
+                    longitude = forecast.location.longitude,
+                    dataSource = dataSource.ordinal
                 )
             }
         )
@@ -102,7 +114,8 @@ class LocalForecastRepositoryDefault(
             forecast.daily.map {
                 it.toDayForecastEntity(
                     latitude = forecast.location.latitude,
-                    longitude = forecast.location.longitude
+                    longitude = forecast.location.longitude,
+                    dataSource = dataSource.ordinal
                 )
             }
         )

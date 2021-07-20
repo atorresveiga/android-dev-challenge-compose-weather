@@ -24,6 +24,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
+import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.HourSystem
 import com.example.androiddevchallenge.ui.Settings
@@ -56,6 +57,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
     private val mutableTemperatureSystem = intPreferencesKey("temperature_system")
     private val mutableWindSpeedSystem = intPreferencesKey("wind_speed_system")
     private val mutableDefaultDisplayView = intPreferencesKey("default_view")
+    private val mutableDataSource = intPreferencesKey("data_source")
 
     suspend fun setCurrentLocation(location: Location) {
         dataStore.edit { preferences ->
@@ -82,15 +84,17 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
         )
     }
 
-    val settings: Flow<Settings?> = dataStore.data.map { preferences ->
-        val clouds = preferences[mutableClouds] ?: return@map null
-        val stormClouds = preferences[mutableStormClouds] ?: return@map null
-        val hourlyPrecipitation = preferences[mutableHourlyPrecipitation] ?: return@map null
-        val dailyPrecipitation = preferences[mutableDailyPrecipitation] ?: return@map null
-        val hourSystem = preferences[mutableHourSystem] ?: return@map null
-        val temperatureSystem = preferences[mutableTemperatureSystem] ?: return@map null
-        val windSpeedSystem = preferences[mutableWindSpeedSystem] ?: return@map null
-        val defaultDisplayView = preferences[mutableDefaultDisplayView] ?: return@map null
+    val settings: Flow<Settings> = dataStore.data.map { preferences ->
+        val default = Settings()
+        val clouds = preferences[mutableClouds] ?: return@map default
+        val stormClouds = preferences[mutableStormClouds] ?: return@map default
+        val hourlyPrecipitation = preferences[mutableHourlyPrecipitation] ?: return@map default
+        val dailyPrecipitation = preferences[mutableDailyPrecipitation] ?: return@map default
+        val hourSystem = preferences[mutableHourSystem] ?: return@map default
+        val temperatureSystem = preferences[mutableTemperatureSystem] ?: return@map default
+        val windSpeedSystem = preferences[mutableWindSpeedSystem] ?: return@map default
+        val defaultDisplayView = preferences[mutableDefaultDisplayView] ?: return@map default
+        val dataSource = preferences[mutableDataSource] ?: return@map default
 
         Settings(
             clouds = clouds,
@@ -100,7 +104,8 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             hourSystem = HourSystem.values()[hourSystem],
             temperatureSystem = TemperatureSystem.values()[temperatureSystem],
             windSpeedSystem = WindSpeedSystem.values()[windSpeedSystem],
-            defaultDisplayView = ForecastDisplayView.values()[defaultDisplayView]
+            defaultDisplayView = ForecastDisplayView.values()[defaultDisplayView],
+            dataSource = ForecastDataSource.values()[dataSource]
         )
     }
 
@@ -114,6 +119,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[mutableTemperatureSystem] = settings.temperatureSystem.ordinal
             preferences[mutableWindSpeedSystem] = settings.windSpeedSystem.ordinal
             preferences[mutableDefaultDisplayView] = settings.defaultDisplayView.ordinal
+            preferences[mutableDataSource] = settings.dataSource.ordinal
         }
     }
 }

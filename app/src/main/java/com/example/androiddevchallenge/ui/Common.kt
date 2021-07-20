@@ -65,3 +65,12 @@ fun TemperatureSystem.translatableString(): String {
         TemperatureSystem.Fahrenheit -> stringResource(R.string.fahrenheit)
     }
 }
+
+enum class ForecastDataSource { OpenWeather, MetNo }
+@Composable
+fun ForecastDataSource.translatableString(): String {
+    return when (this) {
+        ForecastDataSource.OpenWeather -> stringResource(R.string.open_weather)
+        ForecastDataSource.MetNo -> stringResource(R.string.met_no)
+    }
+}

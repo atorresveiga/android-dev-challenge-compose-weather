@@ -23,6 +23,8 @@ import com.example.androiddevchallenge.data.DataStoreManager
 import com.example.androiddevchallenge.data.GeoNamesAPI
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.LocalForecastRepositoryDefault
+import com.example.androiddevchallenge.data.MetNoAPI
+import com.example.androiddevchallenge.data.MetNoDataSource
 import com.example.androiddevchallenge.data.NetworkForecastDataSource
 import com.example.androiddevchallenge.data.OpenWeatherAPI
 import com.example.androiddevchallenge.data.OpenWeatherDataSource
@@ -37,6 +39,15 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import javax.inject.Qualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class OpenWeather
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MetNo
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -115,7 +126,40 @@ object StorageModule {
         )
     }
 
+    @OpenWeather
     @Provides
-    fun provideNetworkForecastDataSource(api: OpenWeatherAPI):
+    fun provideOpenWeatherNetworkForecastDataSource(api: OpenWeatherAPI):
         NetworkForecastDataSource = OpenWeatherDataSource(api)
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Provides
+    fun provideMetNoAPI(): MetNoAPI {
+        val appId = "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME}"
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val original = chain.request()
+            val originalHttpUrl = original.url()
+            val url = originalHttpUrl.newBuilder()
+                .build()
+            val requestBuilder = original.newBuilder()
+                .addHeader("User-Agent", appId)
+                .url(url)
+            val newRequest = requestBuilder.build()
+            chain.proceed(newRequest)
+        }.build()
+
+        val contentType = MediaType.get("application/json")
+        val format = Json { ignoreUnknownKeys = true }
+        val retrofit = Retrofit.Builder()
+            .client(client)
+            .baseUrl(BuildConfig.MetNoBaseURL)
+            .addConverterFactory(format.asConverterFactory(contentType))
+            .build()
+
+        return retrofit.create(MetNoAPI::class.java)
+    }
+
+    @MetNo
+    @Provides
+    fun provideMetNoNetworkForecastDataSource(api: MetNoAPI):
+        NetworkForecastDataSource = MetNoDataSource(api)
 }

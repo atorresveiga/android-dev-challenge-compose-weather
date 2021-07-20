@@ -23,7 +23,8 @@ data class Settings(
     val hourSystem: HourSystem = HourSystem.Twelve,
     val temperatureSystem: TemperatureSystem = TemperatureSystem.Celsius,
     val windSpeedSystem: WindSpeedSystem = WindSpeedSystem.Meters,
-    val defaultDisplayView: ForecastDisplayView = ForecastDisplayView.Hourly
+    val defaultDisplayView: ForecastDisplayView = ForecastDisplayView.Hourly,
+    val dataSource: ForecastDataSource = ForecastDataSource.OpenWeather
 ) {
     val dataFormatter = DataFormatter(
         hourSystem = hourSystem,

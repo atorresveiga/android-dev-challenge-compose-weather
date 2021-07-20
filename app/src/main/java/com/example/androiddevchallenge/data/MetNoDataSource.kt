@@ -295,7 +295,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
                 next12Hours = timeSeries.data.next12Hour?.details?.precipitation
             )
             weatherId =
-                getLongerLastingValue(
+                getMaxLongerLastingValue(
                     current = weatherId,
                     default = weatherId,
                     currentHour = date.hour,
@@ -390,7 +390,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
         return feelsLike.toFloat()
     }
 
-    private fun <T : Comparable<T>> getLongerLastingValue(
+    private fun <T : Comparable<T>> getMaxLongerLastingValue(
         current: T,
         default: T,
         currentHour: Int,
@@ -402,8 +402,8 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
         val includeNext6Hours = currentHour + 6 < 24
         val includeNext12Hours = currentHour + 12 < 24
 
-        if (includeNext12Hours && next12Hours != null) return next12Hours
-        if (includeNext6Hours && next6Hours != null) return next6Hours
+        if (includeNext12Hours && next12Hours != null) return maxOf(current, next12Hours)
+        if (includeNext6Hours && next6Hours != null) return maxOf(current, next6Hours)
 
         return maxOf(current, instant ?: default, nextHour ?: default)
     }

@@ -67,7 +67,7 @@ class ForecastViewModel @Inject constructor(
         viewModelScope.launch {
             launch {
                 getSettingsUseCase.execute().collect { prefSettings ->
-                    mutableSettings.value = prefSettings ?: Settings()
+                    mutableSettings.value = prefSettings
                 }
             }
             launch {

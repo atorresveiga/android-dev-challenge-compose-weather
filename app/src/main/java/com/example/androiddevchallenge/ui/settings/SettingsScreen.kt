@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.BlueCloudTitle
+import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.HourSystem
 import com.example.androiddevchallenge.ui.Settings
@@ -108,6 +109,13 @@ fun SettingsScreen(
                 )
 
                 VisualSettings(
+                    settings = settings,
+                    updateSettings = viewModel::updateSettings,
+                    settingModifier = settingModifier,
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                )
+                GeneralSettings(
                     settings = settings,
                     updateSettings = viewModel::updateSettings,
                     settingModifier = settingModifier,
@@ -257,6 +265,41 @@ fun VisualSettings(
                     updateSettings(settings.copy(dailyPrecipitation = value.toInt()))
                 },
                 valueRange = 25f..80f,
+                modifier = settingModifier
+            )
+        }
+    }
+}
+
+@Composable
+fun GeneralSettings(
+    settings: Settings,
+    updateSettings: (settings: Settings) -> Unit,
+    modifier: Modifier = Modifier,
+    settingModifier: Modifier = Modifier
+) {
+    val dataSources = ForecastDataSource.values().map { it.translatableString() }
+
+    Card(
+        modifier = modifier,
+        backgroundColor = MaterialTheme.colors.cardsBackground
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            SettingItem(
+                name = stringResource(R.string.general_settings),
+                modifier = settingModifier
+            ) {
+                Divider()
+            }
+            SettingSwitch(
+                name = stringResource(R.string.data_sources),
+                selected = settings.dataSource.ordinal,
+                items = dataSources,
+                onSelectionChange = { value ->
+                    updateSettings(
+                        settings.copy(dataSource = ForecastDataSource.values()[value])
+                    )
+                },
                 modifier = settingModifier
             )
         }
