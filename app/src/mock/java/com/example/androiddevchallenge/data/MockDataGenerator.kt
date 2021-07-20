@@ -22,12 +22,12 @@ import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.example.androiddevchallenge.ui.MoonPhaseFormatter
-import kotlin.math.min
-import kotlin.random.Random
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.min
+import kotlin.random.Random
 
 object MockDataGenerator {
 
