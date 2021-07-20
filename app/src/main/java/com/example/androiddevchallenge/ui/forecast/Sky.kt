@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui.forecast
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,29 +35,55 @@ import com.example.androiddevchallenge.ui.theme.overlay
 
 @Composable
 fun Sky(
-    currentDay: DayForecast,
-    currentHour: HourForecast,
+    currentDayForecast: DayForecast,
+    currentHourForecast: HourForecast,
     direction: Direction,
     timezoneId: String,
     isSouthernHemisphere: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val dateFormatter = LocalSettings.current.dataFormatter.date
+    val currentHour = dateFormatter.getHour(currentHourForecast.datetime, timezoneId)
+    val sunriseHour = dateFormatter.getHour(currentDayForecast.sunrise, timezoneId)
+    val sunsetHour = dateFormatter.getHour(currentDayForecast.sunset, timezoneId)
+    val skyState = when (currentHour) {
+        sunriseHour -> SkyState.Sunrise
+        sunsetHour -> SkyState.Sunset
+        in sunriseHour..sunsetHour -> SkyState.Day
+        else -> SkyState.Night
+    }
+    val totalClouds = LocalSettings.current.clouds
+    val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(totalClouds)) }
+    val backgroundClouds = clouds.filter { it.z <= 2 }
+    val foregroundClouds = clouds.filter { it.z > 2 }
+
     Box(modifier = modifier.fillMaxSize()) {
+        SkyBackground(state = skyState)
+        Clouds(
+            cloudiness = currentHourForecast.clouds,
+            weatherId = currentHourForecast.weatherId,
+            direction = direction,
+            clouds = backgroundClouds,
+            withStormClouds = false
+        )
         DayNight(
-            datetime = currentHour.datetime,
-            sunrise = currentDay.sunrise,
-            sunset = currentDay.sunset,
-            moonPhaseId = currentDay.moonPhase,
+            currentHour = currentHour,
+            sunriseHour = sunriseHour,
+            sunsetHour = sunsetHour,
+            moonPhaseId = currentDayForecast.moonPhase,
             isSouthernHemisphere = isSouthernHemisphere,
-            timezoneId = timezoneId
+            skyState = skyState
         )
         Clouds(
-            cloudiness = currentHour.clouds,
-            weatherId = currentHour.weatherId,
-            direction = direction
+            cloudiness = currentHourForecast.clouds,
+            weatherId = currentHourForecast.weatherId,
+            direction = direction,
+            clouds = foregroundClouds
         )
-        SkyOverlay(weatherId = currentHour.weatherId)
-        if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(currentHour.weatherId)) {
+
+        SkyOverlay(weatherId = currentHourForecast.weatherId)
+
+        if (LocalSettings.current.dataFormatter.precipitation.isPrecipitation(currentHourForecast.weatherId)) {
             val hourlyPrecipitation = LocalSettings.current.hourlyPrecipitation
             val precipitation by remember {
                 mutableStateOf(
@@ -66,14 +93,30 @@ fun Sky(
                 )
             }
             Precipitation(
-                weatherId = currentHour.weatherId,
-                windDegrees = currentHour.windDegrees,
-                windSpeed = currentHour.windSpeed,
+                weatherId = currentHourForecast.weatherId,
+                windDegrees = currentHourForecast.windDegrees,
+                windSpeed = currentHourForecast.windSpeed,
                 precipitation = precipitation,
                 modifier = Modifier.fillMaxSize()
             )
         }
     }
+}
+
+@Composable
+fun SkyBackground(state: SkyState) {
+    val background by animateColorAsState(
+        targetValue = when (state) {
+            SkyState.Day -> MaterialTheme.colors.primary
+            SkyState.Night -> MaterialTheme.colors.secondary
+            else -> MaterialTheme.colors.secondaryVariant
+        }
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = background)
+    )
 }
 
 @Composable
@@ -87,20 +130,20 @@ fun SkyOverlay(weatherId: Int) {
             else -> .5f
         }
     )
+    val brush = Brush.verticalGradient(
+        .0f to Color.Black,
+        .3f to MaterialTheme.colors.overlay,
+        .9f to Color.Black,
+        startY = 0f,
+        endY = Float.POSITIVE_INFINITY
+    )
 
     Box(
         modifier = Modifier
             .alpha(alpha)
-            .background(
-                brush = Brush
-                    .verticalGradient(
-                        .0f to Color.Black,
-                        .3f to MaterialTheme.colors.overlay,
-                        .9f to Color.Black,
-                        startY = 0f,
-                        endY = Float.POSITIVE_INFINITY
-                    )
-            )
+            .background(brush = brush)
             .fillMaxSize()
     )
 }
+
+enum class SkyState { Day, Night, Sunrise, Sunset }

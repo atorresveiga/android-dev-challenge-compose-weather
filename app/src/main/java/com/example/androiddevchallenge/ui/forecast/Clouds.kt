@@ -37,8 +37,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -58,36 +56,36 @@ import com.example.androiddevchallenge.ui.theme.stormCloudColor
 
 /**
  * Clouds representation in the sky
- * @param cloudiness cloudiness (percent)
  * @param weatherId encoded value containing if the weather has thunders. Full description in Forecast.kt.
  * @param direction in which direction the user is navigating (used in clouds visibility animation)
+ * @param cloudiness cloudiness (percent)
+ * @param clouds list of [WeatherOffset] representing the clouds
  * @param modifier Modifier
+ * @param withStormClouds boolean to indicate if we should draw storm clouds within this group of clouds if the weather has thunders
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Clouds(
-    cloudiness: Float,
     weatherId: Int,
     direction: Direction,
-    modifier: Modifier = Modifier
+    cloudiness: Float,
+    clouds: List<WeatherOffset>,
+    modifier: Modifier = Modifier,
+    withStormClouds: Boolean = true
 ) {
-
-    val totalClouds = LocalSettings.current.clouds
-    // Storm cloud only if offset > 2
-    val desireStormClouds = LocalSettings.current.stormClouds
-    val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(totalClouds)) }
     val hasThunders = LocalSettings.current.dataFormatter.weather.hasThunders(weatherId)
-
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
 
-        val total = clouds.size * cloudiness / 100
-
         val density = LocalDensity.current
+        val maxStormClouds = if (withStormClouds) LocalSettings.current.stormClouds else 0
+        val total = clouds.size * cloudiness / 100
 
         clouds.forEachIndexed { index, cloudOffset ->
 
             val isReverse = index % 3 == 0
-            val hasLightning = index > total - desireStormClouds && hasThunders && cloudOffset.z > 2
+
+            // We show storm clouds only if withStormClouds is true
+            val hasLightning = index > total - maxStormClouds && hasThunders
 
             val (width, height, alpha) = getCloudModifiers(cloudOffset.z)
 

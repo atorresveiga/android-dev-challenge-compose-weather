@@ -17,7 +17,6 @@ package com.example.androiddevchallenge.ui.forecast
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -30,7 +29,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,51 +54,21 @@ import com.example.androiddevchallenge.ui.theme.sunColor
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DayNight(
-    datetime: Long,
-    sunrise: Long,
-    sunset: Long,
+    currentHour: Int,
+    sunriseHour: Int,
+    sunsetHour: Int,
     moonPhaseId: Int,
-    timezoneId: String,
+    skyState: SkyState,
     isSouthernHemisphere: Boolean
 ) {
-
-    val dateFormatter = LocalSettings.current.dataFormatter.date
-    val currentHour = dateFormatter.getHour(datetime, timezoneId)
-    val sunriseHour = dateFormatter.getHour(sunrise, timezoneId)
-    val sunsetHour = dateFormatter.getHour(sunset, timezoneId)
-
     val density = LocalDensity.current
-
-    val state = when (currentHour) {
-        sunriseHour -> DayNightState.Sunrise
-        sunsetHour -> DayNightState.Sunset
-        in sunriseHour..sunsetHour -> DayNightState.Day
-        else -> DayNightState.Night
-    }
-
-    val background by animateColorAsState(
-        targetValue = when (state) {
-            DayNightState.Day -> {
-                MaterialTheme.colors.primary
-            }
-            DayNightState.Night -> {
-                MaterialTheme.colors.secondary
-            }
-            else -> {
-                MaterialTheme.colors.secondaryVariant
-            }
-        }
-    )
-
     BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = background)
+        modifier = Modifier.fillMaxSize()
     ) {
         val smallSide = min(maxWidth, maxHeight)
 
         AnimatedVisibility(
-            visible = state == DayNightState.Night,
+            visible = skyState == SkyState.Night,
             enter = slideInVertically(
                 initialOffsetY = { with(density) { (maxWidth * 1.5f).toPx().toInt() } },
                 animationSpec = tween(
@@ -146,7 +114,7 @@ fun DayNight(
         }
 
         AnimatedVisibility(
-            visible = state != DayNightState.Night,
+            visible = skyState != SkyState.Night,
             enter = slideInVertically(
                 initialOffsetY = { with(density) { (maxHeight * 1.5f).toPx().toInt() } },
                 animationSpec = tween(
@@ -189,8 +157,6 @@ fun DayNight(
         }
     }
 }
-
-enum class DayNightState { Day, Night, Sunrise, Sunset }
 
 @Composable
 fun Sun(color: Color, modifier: Modifier = Modifier, animate: Boolean = true) {

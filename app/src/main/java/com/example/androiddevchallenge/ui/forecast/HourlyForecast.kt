@@ -98,8 +98,8 @@ fun HourlyForecastScreen(
         )
 
         Sky(
-            currentDay = currentDay,
-            currentHour = selectedHour,
+            currentDayForecast = currentDay,
+            currentHourForecast = selectedHour,
             direction = direction,
             timezoneId = indexForecast.location.timezoneId,
             isSouthernHemisphere = indexForecast.location.latitude < 0,
