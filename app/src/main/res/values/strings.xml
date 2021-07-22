@@ -9,7 +9,7 @@
       or implied. See the License for the specific language governing permissions and limitations under
       the License.
       -->
-    <string name="app_name">BlueCloud</string>
+    <string name="app_name" translatable="false">Blue Cloud</string>
 
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
@@ -22,13 +22,13 @@
     <string name="wind_direction">From %1$s ( %2$s )</string>
 
     <!-- Measure Systems -->
-    <string name="celsius">C°</string>
-    <string name="fahrenheit">F°</string>
-    <string name="meters">m/s</string>
-    <string name="kilometers">km/h</string>
-    <string name="miles">mph</string>
-    <string name="millimeters">mm</string>
-    <string name="inches">in</string>
+    <string name="celsius" translatable="false">C°</string>
+    <string name="fahrenheit" translatable="false">F°</string>
+    <string name="meters" translatable="false">m/s</string>
+    <string name="kilometers" translatable="false">km/h</string>
+    <string name="miles" translatable="false">mph</string>
+    <string name="millimeters" translatable="false">mm</string>
+    <string name="inches" translatable="false">in</string>
 
     <string name="n_ne">N/NE</string>
     <string name="ne">NE</string>
@@ -109,16 +109,12 @@
         <item>thunderstorm</item>
     </string-array>
 
-
-    <string name="rain">rain</string>
-    <string name="snow">snow</string>
-
     <string name="uvi">UV %1$s</string>
-
     <string name="temperature_feels_like">%1$s / feels like %2$s</string>
     <string name="temperature_humidity">%1$s / %2$s humidity</string>
     <string name="showers">showers</string>
     <string name="with_thunder">with thunder</string>
+    <string name="weather_with_scale">%1$s %2$s</string>
 
     <string name="select_location">"Where would you like to know\nthe weather from?"</string>
     <string name="without_location">"Start by selecting a location\nto check the weather"</string>
@@ -126,7 +122,7 @@
     <string name="finding_location">"Finding your location"</string>
     <string name="finding_timezone">"Completing location data"</string>
     <string name="location_not_found">We couldn\'t find your location, please try again</string>
-    <string name="find_your_location">Your location</string>
+    <string name="find_your_location">My location</string>
     <string name="last_selected_locations">Last selected locations</string>
     <string name="loading_forecast">Loading the forecast\nfor your location</string>
     <string name="initializing">Initializing</string>

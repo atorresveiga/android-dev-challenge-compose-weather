@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="today">Hoy</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="daily">Días</string>
+    <string name="hourly">Horas</string>
+    <string name="twelve">12 horas</string>
+    <string name="twenty_four">24 horas</string>
+    <string name="midnight">Medianoche</string>
+    <string name="noon">Mediodía</string>
+    <string name="wind_direction">Del %1$s ( %2$s )</string>
+
+    <string name="n_ne">N/NE</string>
+    <string name="ne">NE</string>
+    <string name="e_ne">E/NE</string>
+    <string name="e">E</string>
+    <string name="e_se">E/SE</string>
+    <string name="se">SE</string>
+    <string name="s_se">S/SE</string>
+    <string name="s">S</string>
+    <string name="s_sw">S/SO</string>
+    <string name="sw">SO</string>
+    <string name="w_sw">O/SO</string>
+    <string name="w">O</string>
+    <string name="w_nw">O/NO</string>
+    <string name="nw">NO</string>
+    <string name="n_nw">N/NO</string>
+    <string name="n">N</string>
+
+    <string name="calm_still">Calma</string>
+    <string name="light_winds">Aire ligero</string>
+    <string name="light_breeze">Brisa ligera</string>
+    <string name="gentle_breeze">Brisa suave</string>
+    <string name="fresh_breeze">Brisa fresca</string>
+    <string name="strong_breeze">Brisa fuerte</string>
+    <string name="moderate_gale">Vendaval cercano</string>
+    <string name="fresh_gale">Vendaval</string>
+    <string name="strong_gale">Vendaval fuerte</string>
+    <string name="whole_gale">Tormenta</string>
+    <string name="storm">Tormenta violenta</string>
+    <string name="hurricane">Huracán</string>
+
+    <string name="no_precipitation">Sin precipitaciones</string>
+    <string name="chance_precipitation">Con probabilidad de precipitaciones</string>
+
+    <string-array name="cloud_scale">
+        <item>baja nubosidad</item>
+        <item>parcialmente nublado</item>
+        <item>nublado</item>
+        <item>totalmente nublado</item>
+    </string-array>
+
+    <string-array name="precipitation_scale">
+        <item>dispersa</item>
+        <item>leve</item>
+        <item>fuerte</item>
+        <item>muy fuerte</item>
+        <item>intensa</item>
+    </string-array>
+
+    <string-array name="uv_scale">
+        <item>bajo</item>
+        <item>elevado</item>
+        <item>muy elevado</item>
+        <item>extremo</item>
+    </string-array>
+
+    <string-array name="weather">
+        <item>cielo despejado</item>
+        <item> </item> <!--the string was moved to the scale, this feels hacky though, we should find a better way-->
+        <!--Precipitations-->
+        <item>llovizna</item>
+        <item>lluvia</item>
+        <item>lluvia helada</item>
+        <item>aguanieve</item>
+        <item>nieve</item>
+        <item>lluvia y nieve</item>
+        <!--Precipitations-->
+        <item>niebla</item>
+        <item>neblina</item>
+        <item>humo</item>
+        <item>calima</item>
+        <item>remolinos de arena / polvo</item>
+        <item>arena</item>
+        <item>polvo</item>
+        <item>ceniza volcánica</item>
+        <item>borrascas</item>
+        <item>tornado</item>
+        <item>tormenta</item>
+    </string-array>
+
+    <string name="uvi">UV %1$s</string>
+
+    <string name="temperature_feels_like">%1$s / sensación %2$s</string>
+    <string name="temperature_humidity">%1$s / %2$s humedad</string>
+    <string name="showers">intermitente</string>
+    <string name="with_thunder">con truenos</string>
+    <string name="weather_with_scale">%2$s %1$s</string>
+
+    <string name="select_location">"De que lugar te gustaría\nconocer el clima?"</string>
+    <string name="without_location">"Primero selecciona la ubicación\nde donde deseas conocer el clima"</string>
+    <string name="select_location_action">"Selecionar ubicación"</string>
+    <string name="finding_location">"Buscando tu ubicación"</string>
+    <string name="finding_timezone">"Completando datos de la ubicación"</string>
+    <string name="location_not_found">No pudimos encontrar tu ubicación, por favor inténtalo nuevamente</string>
+    <string name="find_your_location">Mi ubicación</string>
+    <string name="last_selected_locations">Seleccionados anteriormente</string>
+    <string name="loading_forecast">Cargando el pronóstico\npara tu ubicación</string>
+    <string name="initializing">Iniciando</string>
+    <string name="loading_forecast_error">Ups…Algo salió mal descargando el pronóstico meteorológico</string>
+    <string name="update_forecast">Actualiza el pronóstico</string>
+    <string name="default_error">Ups…Algo salió mal, por favor inténtalo nuevamente</string>
+    <string name="settings">Configuración</string>
+    <string name="measurements_settings">Unidades de medida</string>
+    <string name="general_settings">General</string>
+    <string name="temperature_system">Temperatura</string>
+    <string name="time_format">Sistema horario</string>
+    <string name="wind_speed_system">Sistema de velocidad del viento</string>
+    <string name="visual_settings">Visuales</string>
+    <string name="default_view">Vista por defecto</string>
+    <string name="cloud_number">Número de nubes</string>
+    <string name="storm_cloud_number">Número de nubes de tormenta</string>
+    <string name="precipitation_number">Cantidad de precipitación (vista hora)</string>
+    <string name="list_item_precipitation_number">Cantidad de precipitación (vista día)</string>
+
+    <string name="data_sources">Origen de los datos</string>
+    <string name="open_weather">Open Weather</string>
+    <string name="met_no">MET de Noruega</string>
+</resources>

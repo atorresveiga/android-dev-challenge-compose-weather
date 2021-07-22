@@ -256,7 +256,7 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
         val scalePos = (weatherId % 1000 - weatherId % 100) / 100
         // Scale Id in weatherId is encode form 1..n, 0 is without scale
         val scale = scaleFormatter.getScale(scaleId, scalePos)
-        return if (scale.isEmpty()) weather[weatherPos] else "$scale ${weather[weatherPos]}"
+        return stringResource(R.string.weather_with_scale, scale, weather[weatherPos]).trimStart()
     }
 
     @Composable
