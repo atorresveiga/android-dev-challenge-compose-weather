@@ -4,8 +4,7 @@
     <string name="tomorrow">Mañana</string>
     <string name="daily">Días</string>
     <string name="hourly">Horas</string>
-    <string name="twelve">12 horas</string>
-    <string name="twenty_four">24 horas</string>
+
     <string name="midnight">Medianoche</string>
     <string name="noon">Mediodía</string>
     <string name="wind_direction">Del %1$s ( %2$s )</string>
@@ -42,52 +41,6 @@
 
     <string name="no_precipitation">Sin precipitaciones</string>
     <string name="chance_precipitation">Con probabilidad de precipitaciones</string>
-
-    <string-array name="cloud_scale">
-        <item>baja nubosidad</item>
-        <item>parcialmente nublado</item>
-        <item>nublado</item>
-        <item>totalmente nublado</item>
-    </string-array>
-
-    <string-array name="precipitation_scale">
-        <item>dispersa</item>
-        <item>leve</item>
-        <item>fuerte</item>
-        <item>muy fuerte</item>
-        <item>intensa</item>
-    </string-array>
-
-    <string-array name="uv_scale">
-        <item>bajo</item>
-        <item>elevado</item>
-        <item>muy elevado</item>
-        <item>extremo</item>
-    </string-array>
-
-    <string-array name="weather">
-        <item>cielo despejado</item>
-        <item> </item> <!--the string was moved to the scale, this feels hacky though, we should find a better way-->
-        <!--Precipitations-->
-        <item>llovizna</item>
-        <item>lluvia</item>
-        <item>lluvia helada</item>
-        <item>aguanieve</item>
-        <item>nieve</item>
-        <item>lluvia y nieve</item>
-        <!--Precipitations-->
-        <item>niebla</item>
-        <item>neblina</item>
-        <item>humo</item>
-        <item>calima</item>
-        <item>remolinos de arena / polvo</item>
-        <item>arena</item>
-        <item>polvo</item>
-        <item>ceniza volcánica</item>
-        <item>borrascas</item>
-        <item>tornado</item>
-        <item>tormenta</item>
-    </string-array>
 
     <string name="uvi">UV %1$s</string>
 

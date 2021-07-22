@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.booleanResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +55,6 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.ForecastDisplayView
-import com.example.androiddevchallenge.ui.HourSystem
 import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.TemperatureSystem
 import com.example.androiddevchallenge.ui.WindSpeedSystem
@@ -135,7 +135,7 @@ fun MeasurementSettings(
     modifier: Modifier = Modifier,
     settingModifier: Modifier = Modifier
 ) {
-    val timeSystems = HourSystem.values().map { it.translatableString() }
+    val timeSystems = stringArrayResource(id = R.array.hour_system).toList()
     val temperatureSystems = TemperatureSystem.values().map { it.translatableString() }
     val windSpeedSystems = WindSpeedSystem.values().map { it.translatableString() }
 
@@ -163,11 +163,11 @@ fun MeasurementSettings(
             )
             SettingSwitch(
                 name = stringResource(R.string.time_format),
-                selected = settings.hourSystem.ordinal,
+                selected = settings.hourSystem,
                 items = timeSystems,
                 onSelectionChange = { value ->
                     updateSettings(
-                        settings.copy(hourSystem = HourSystem.values()[value])
+                        settings.copy(hourSystem = value)
                     )
                 },
                 modifier = settingModifier

@@ -22,6 +22,7 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.RAIN
 import com.example.androiddevchallenge.RAIN_AND_SNOW
 import com.example.androiddevchallenge.SNOW
+import com.example.androiddevchallenge.TWENTY_FOUR
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -322,7 +323,7 @@ object HumidityFormatter {
 }
 
 class DataFormatter(
-    hourSystem: HourSystem,
+    hourSystem: Int,
     temperatureSystem: TemperatureSystem,
     windSpeedSystem: WindSpeedSystem
 ) {
@@ -342,8 +343,8 @@ class DataFormatter(
             TemperatureSystem.Fahrenheit -> FahrenheitTemperatureFormatter()
         }
         val hour = when (hourSystem) {
-            HourSystem.Twelve -> TwelveHourSystemFormatter()
-            HourSystem.TwentyFour -> TwentyFourHourSystemFormatter()
+            TWENTY_FOUR -> TwentyFourHourSystemFormatter()
+            else -> TwelveHourSystemFormatter()
         }
         val windMeasurement = when (windSpeedSystem) {
             WindSpeedSystem.Meters -> MetersWindMeasurement()

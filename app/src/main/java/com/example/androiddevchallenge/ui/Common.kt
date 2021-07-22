@@ -19,16 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 
-enum class HourSystem { Twelve, TwentyFour }
-
-@Composable
-fun HourSystem.translatableString(): String {
-    return when (this) {
-        HourSystem.Twelve -> stringResource(R.string.twelve)
-        HourSystem.TwentyFour -> stringResource(R.string.twenty_four)
-    }
-}
-
 enum class ForecastDisplayView { Hourly, Daily }
 
 @Composable

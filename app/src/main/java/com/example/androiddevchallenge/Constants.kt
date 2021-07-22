@@ -29,3 +29,7 @@ const val WANING_CRESCENT = 8
 const val RAIN = 101
 const val SNOW = 102
 const val RAIN_AND_SNOW = 103
+
+// Hour System
+const val TWELVE = 0
+const val TWENTY_FOUR = 1

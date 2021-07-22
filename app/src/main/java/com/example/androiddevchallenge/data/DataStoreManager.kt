@@ -26,7 +26,6 @@ import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.ForecastDisplayView
-import com.example.androiddevchallenge.ui.HourSystem
 import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.TemperatureSystem
 import com.example.androiddevchallenge.ui.WindSpeedSystem
@@ -101,7 +100,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             stormClouds = stormClouds,
             hourlyPrecipitation = hourlyPrecipitation,
             dailyPrecipitation = dailyPrecipitation,
-            hourSystem = HourSystem.values()[hourSystem],
+            hourSystem = hourSystem,
             temperatureSystem = TemperatureSystem.values()[temperatureSystem],
             windSpeedSystem = WindSpeedSystem.values()[windSpeedSystem],
             defaultDisplayView = ForecastDisplayView.values()[defaultDisplayView],
@@ -115,7 +114,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[mutableStormClouds] = settings.stormClouds
             preferences[mutableHourlyPrecipitation] = settings.hourlyPrecipitation
             preferences[mutableDailyPrecipitation] = settings.dailyPrecipitation
-            preferences[mutableHourSystem] = settings.hourSystem.ordinal
+            preferences[mutableHourSystem] = settings.hourSystem
             preferences[mutableTemperatureSystem] = settings.temperatureSystem.ordinal
             preferences[mutableWindSpeedSystem] = settings.windSpeedSystem.ordinal
             preferences[mutableDefaultDisplayView] = settings.defaultDisplayView.ordinal

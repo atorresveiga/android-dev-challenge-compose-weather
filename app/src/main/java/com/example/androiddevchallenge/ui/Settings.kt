@@ -15,12 +15,14 @@
  */
 package com.example.androiddevchallenge.ui
 
+import com.example.androiddevchallenge.TWELVE
+
 data class Settings(
     val clouds: Int = 30,
     val stormClouds: Int = 5,
     val hourlyPrecipitation: Int = 150,
     val dailyPrecipitation: Int = 85,
-    val hourSystem: HourSystem = HourSystem.Twelve,
+    val hourSystem: Int = TWELVE,
     val temperatureSystem: TemperatureSystem = TemperatureSystem.Celsius,
     val windSpeedSystem: WindSpeedSystem = WindSpeedSystem.Meters,
     val defaultDisplayView: ForecastDisplayView = ForecastDisplayView.Hourly,

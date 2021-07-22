@@ -15,8 +15,7 @@
     <string name="tomorrow">Tomorrow</string>
     <string name="daily">Daily</string>
     <string name="hourly">Hourly</string>
-    <string name="twelve">12 hours</string>
-    <string name="twenty_four">24 hours</string>
+
     <string name="midnight">Midnight</string>
     <string name="noon">Noon</string>
     <string name="wind_direction">From %1$s ( %2$s )</string>
@@ -62,52 +61,6 @@
 
     <string name="no_precipitation">No precipitation</string>
     <string name="chance_precipitation">Chance of precipitation</string>
-
-    <string-array name="cloud_scale">
-        <item>few</item>
-        <item>scattered</item>
-        <item>broken</item>
-        <item>overcast</item>
-    </string-array>
-
-    <string-array name="precipitation_scale">
-        <item>ragged</item>
-        <item>light</item>
-        <item>heavy</item>
-        <item>very heavy</item>
-        <item>violent</item>
-    </string-array>
-
-    <string-array name="uv_scale">
-        <item>low</item>
-        <item>high</item>
-        <item>very high</item>
-        <item>extreme</item>
-    </string-array>
-
-    <string-array name="weather">
-        <item>clear sky</item>
-        <item>clouds</item>
-        <!--Precipitations-->
-        <item>drizzle</item>
-        <item>rain</item>
-        <item>freezing rain</item>
-        <item>sleet</item>
-        <item>snow</item>
-        <item>rain and snow</item>
-        <!--Precipitations-->
-        <item>fog</item>
-        <item>mist</item>
-        <item>smoke</item>
-        <item>haze</item>
-        <item>sand/ dust whirls</item>
-        <item>sand</item>
-        <item>dust</item>
-        <item>volcanic ash</item>
-        <item>squalls</item>
-        <item>tornado</item>
-        <item>thunderstorm</item>
-    </string-array>
 
     <string name="uvi">UV %1$s</string>
     <string name="temperature_feels_like">%1$s / feels like %2$s</string>
