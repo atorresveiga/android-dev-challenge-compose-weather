@@ -15,8 +15,8 @@
  */
 package com.example.androiddevchallenge.di
 
-import com.example.androiddevchallenge.data.MockSearchLocationDataSource
-import com.example.androiddevchallenge.data.MockUserLocationDataSource
+import com.example.androiddevchallenge.data.FakeSearchLocationDataSource
+import com.example.androiddevchallenge.data.FakeUserLocationDataSource
 import com.example.androiddevchallenge.data.SearchLocationDataSource
 import com.example.androiddevchallenge.data.UserLocationDataSource
 import dagger.Binds
@@ -29,11 +29,11 @@ import dagger.hilt.android.components.ViewModelComponent
 abstract class LocationModule {
     @Binds
     abstract fun bindFindUserLocationService(
-        userLocationDataSource: MockUserLocationDataSource
+        userLocationDataSource: FakeUserLocationDataSource
     ): UserLocationDataSource
 
     @Binds
     abstract fun bindSearchLocationService(
-        searchLocationDataSource: MockSearchLocationDataSource
+        searchLocationDataSource: FakeSearchLocationDataSource
     ): SearchLocationDataSource
 }

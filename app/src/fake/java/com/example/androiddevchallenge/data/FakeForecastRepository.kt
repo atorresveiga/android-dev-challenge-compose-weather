@@ -20,7 +20,7 @@ import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
+class FakeForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
 
     private val mutableForecast: MutableStateFlow<Forecast?> = MutableStateFlow(null)
     private val mutableLocation: MutableStateFlow<Location?> = MutableStateFlow(null)
@@ -48,7 +48,7 @@ class MockForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override fun getLastSelectedLocations(): Flow<List<Location>> = mutableLocations
 
     override suspend fun getForecast(location: Location): Forecast {
-        return MockDataGenerator.createForecast(
+        return RandomFakeData.createForecast(
             location = mutableLocation.value!!,
             startEpoch = 1621609658L
         )

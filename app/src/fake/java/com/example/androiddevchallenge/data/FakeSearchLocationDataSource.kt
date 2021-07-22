@@ -21,18 +21,17 @@ import kotlinx.datetime.TimeZone
 import java.util.Locale
 import javax.inject.Inject
 
-class MockSearchLocationDataSource @Inject constructor() : SearchLocationDataSource {
+class FakeSearchLocationDataSource @Inject constructor() : SearchLocationDataSource {
     override suspend fun searchLocation(query: String): List<Location> {
         delay(1000)
-        return MockDataGenerator.locations.filter {
+        return RandomFakeData.locations.filter {
             it.name.lowercase(Locale.getDefault())
-                .replace("_", "")
                 .contains(query.lowercase(Locale.getDefault()).trim())
         }
     }
 
     override suspend fun findNearby(latitude: Double, longitude: Double): Location {
-        return MockDataGenerator.locations.first()
+        return RandomFakeData.locations.first()
             .copy(timezoneId = timezone(latitude = latitude, longitude = longitude))
     }
 

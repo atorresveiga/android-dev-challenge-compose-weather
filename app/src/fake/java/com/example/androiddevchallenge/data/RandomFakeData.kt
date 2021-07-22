@@ -29,7 +29,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.math.min
 import kotlin.random.Random
 
-object MockDataGenerator {
+object RandomFakeData {
 
     val locations = arrayOf(
         Location(
@@ -115,7 +115,7 @@ object MockDataGenerator {
         var previousPhase = -1
         for (day in 1..days) {
 
-            var weatherId = Random.nextInt(5, 7)
+            var weatherId = Random.nextInt(1, 19)
             val precipitation = when (weatherId) {
                 in 2..7 -> Random.nextInt(0, 1000) / 100f
                 else -> 0f
@@ -123,8 +123,8 @@ object MockDataGenerator {
 
             weatherId = when (weatherId) {
                 1 -> {
-                    val pos = Random.nextInt(-1, 3)
-                    if (pos >= 0) 1 * 1000 + pos * 100 + weatherId else weatherId
+                    val pos = Random.nextInt(0, 4)
+                    1 * 1000 + pos * 100 + weatherId
                 }
                 in 2..7 -> {
                     val pos = Random.nextInt(-1, 4)

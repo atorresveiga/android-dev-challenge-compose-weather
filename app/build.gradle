@@ -48,10 +48,10 @@ android {
     flavorDimensions "version"
 
     productFlavors {
-        mock {
+        fake {
             dimension "version"
-            applicationIdSuffix ".mock"
-            versionNameSuffix "-mock"
+            applicationIdSuffix ".fake"
+            versionNameSuffix "-fake"
         }
         network {
             dimension "version"
