@@ -47,7 +47,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import com.example.androiddevchallenge.ui.MoonPhase
+import com.example.androiddevchallenge.FIRST_QUARTER
+import com.example.androiddevchallenge.FULL_MOON
+import com.example.androiddevchallenge.NEW_MOON
+import com.example.androiddevchallenge.THIRD_QUARTER
+import com.example.androiddevchallenge.WANING_CRESCENT
+import com.example.androiddevchallenge.WANING_GIBBOUS
+import com.example.androiddevchallenge.WAXING_CRESCENT
+import com.example.androiddevchallenge.WAXING_GIBBOUS
 import com.example.androiddevchallenge.ui.theme.moonColor
 import com.example.androiddevchallenge.ui.theme.sunColor
 
@@ -196,7 +203,7 @@ fun SunPreview() {
 }
 
 @Composable
-fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPhase.FullMoon) {
+fun Moon(modifier: Modifier = Modifier, color: Color, phase: Int = FULL_MOON) {
     Canvas(modifier = modifier) {
 
         val h70 = size.height * .7f
@@ -219,45 +226,45 @@ fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPha
         val shadow = Color(0x22000000)
 
         val brush = when (phase) {
-            MoonPhase.NewMoon -> {
+            NEW_MOON -> {
                 Brush.radialGradient(
                     .65f to shadow,
                     .66f to color,
                     center = Offset(w50, h50)
                 )
             }
-            MoonPhase.WaxingCrescent -> Brush.radialGradient(
+            WAXING_CRESCENT -> Brush.radialGradient(
                 .6f to shadow,
                 .61f to color,
                 radius = w50,
                 center = Offset(w35, h50)
             )
-            MoonPhase.FirstQuarter -> Brush.horizontalGradient(
+            FIRST_QUARTER -> Brush.horizontalGradient(
                 .5f to shadow,
                 .51f to color,
                 startX = 0f,
                 endX = Float.POSITIVE_INFINITY
             )
-            MoonPhase.WaxingGibbous -> Brush.radialGradient(
+            WAXING_GIBBOUS -> Brush.radialGradient(
                 .6f to color,
                 .61f to shadow,
                 radius = w55,
                 center = Offset(w65, h50)
             )
-            MoonPhase.FullMoon -> SolidColor(color)
-            MoonPhase.WaningGibbous -> Brush.radialGradient(
+            FULL_MOON -> SolidColor(color)
+            WANING_GIBBOUS -> Brush.radialGradient(
                 .6f to color,
                 .61f to shadow,
                 radius = w60,
                 center = Offset(w35, h50)
             )
-            MoonPhase.ThirdQuarter -> Brush.horizontalGradient(
+            THIRD_QUARTER -> Brush.horizontalGradient(
                 .49f to color,
                 .5f to shadow,
                 startX = 0f,
                 endX = Float.POSITIVE_INFINITY
             )
-            MoonPhase.WaningCrescent -> Brush.radialGradient(
+            else -> Brush.radialGradient( // WANING_CRESCENT
                 .6f to shadow,
                 .61f to color,
                 radius = w55,
@@ -312,20 +319,20 @@ fun Moon(modifier: Modifier = Modifier, color: Color, phase: MoonPhase = MoonPha
 @Composable
 fun MoonPreview() {
     Row {
-        Moon(color = Color.Yellow, phase = MoonPhase.NewMoon, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = NEW_MOON, modifier = Modifier.size(80.dp))
         Moon(
             color = Color.Yellow,
-            phase = MoonPhase.WaxingCrescent,
+            phase = WAXING_CRESCENT,
             modifier = Modifier.size(80.dp)
         )
-        Moon(color = Color.Yellow, phase = MoonPhase.FirstQuarter, modifier = Modifier.size(80.dp))
-        Moon(color = Color.Yellow, phase = MoonPhase.WaxingGibbous, modifier = Modifier.size(80.dp))
-        Moon(color = Color.Yellow, phase = MoonPhase.FullMoon, modifier = Modifier.size(80.dp))
-        Moon(color = Color.Yellow, phase = MoonPhase.WaningGibbous, modifier = Modifier.size(80.dp))
-        Moon(color = Color.Yellow, phase = MoonPhase.ThirdQuarter, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = FIRST_QUARTER, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = WAXING_GIBBOUS, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = FULL_MOON, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = WANING_GIBBOUS, modifier = Modifier.size(80.dp))
+        Moon(color = Color.Yellow, phase = THIRD_QUARTER, modifier = Modifier.size(80.dp))
         Moon(
             color = Color.Yellow,
-            phase = MoonPhase.WaningCrescent,
+            phase = WANING_CRESCENT,
             modifier = Modifier.size(80.dp)
         )
     }

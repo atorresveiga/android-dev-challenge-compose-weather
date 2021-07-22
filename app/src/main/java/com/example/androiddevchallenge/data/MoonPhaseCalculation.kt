@@ -15,7 +15,14 @@
  */
 package com.example.androiddevchallenge.data
 
-import com.example.androiddevchallenge.ui.MoonPhase
+import com.example.androiddevchallenge.FIRST_QUARTER
+import com.example.androiddevchallenge.FULL_MOON
+import com.example.androiddevchallenge.NEW_MOON
+import com.example.androiddevchallenge.THIRD_QUARTER
+import com.example.androiddevchallenge.WANING_CRESCENT
+import com.example.androiddevchallenge.WANING_GIBBOUS
+import com.example.androiddevchallenge.WAXING_CRESCENT
+import com.example.androiddevchallenge.WAXING_GIBBOUS
 import kotlinx.datetime.LocalDate
 import kotlin.math.PI
 import kotlin.math.abs
@@ -116,18 +123,18 @@ fun getMoonPhase(date: LocalDate): Int {
     val lpp = lp + variation
 
     val moonAge = lpp - lambdaSun
-    return fromPhase(fixAngle(moonAge) / 360.0).ordinal
+    return fromPhase(fixAngle(moonAge) / 360.0)
 }
 
-fun fromPhase(phase: Double): MoonPhase {
+fun fromPhase(phase: Double): Int {
     return when (phase) {
-        in 0.0625..0.1876 -> MoonPhase.WaxingCrescent
-        in 0.1876..0.3126 -> MoonPhase.FirstQuarter
-        in 0.3126..0.4376 -> MoonPhase.WaxingGibbous
-        in 0.4376..0.5626 -> MoonPhase.FullMoon
-        in 0.5626..0.6876 -> MoonPhase.WaningGibbous
-        in 0.6876..0.8126 -> MoonPhase.ThirdQuarter
-        in 0.8126..0.9376 -> MoonPhase.WaningCrescent
-        else -> MoonPhase.NewMoon
+        in 0.0625..0.1876 -> WAXING_CRESCENT
+        in 0.1876..0.3126 -> FIRST_QUARTER
+        in 0.3126..0.4376 -> WAXING_GIBBOUS
+        in 0.4376..0.5626 -> FULL_MOON
+        in 0.5626..0.6876 -> WANING_GIBBOUS
+        in 0.6876..0.8126 -> THIRD_QUARTER
+        in 0.8126..0.9376 -> WANING_CRESCENT
+        else -> NEW_MOON
     }
 }

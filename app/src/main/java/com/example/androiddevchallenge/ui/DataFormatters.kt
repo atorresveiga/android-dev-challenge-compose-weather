@@ -298,15 +298,11 @@ object UVFormatter {
 
 object MoonPhaseFormatter {
 
-    private fun fromIndex(i: Int): MoonPhase {
-        return MoonPhase.values()[i]
-    }
-
-    fun decode(moonPhaseId: Int, isBeforeSunrise: Boolean): MoonPhase {
+    fun decode(moonPhaseId: Int, isBeforeSunrise: Boolean): Int {
         return when {
-            moonPhaseId < 8 -> fromIndex(moonPhaseId)
-            isBeforeSunrise -> fromIndex(moonPhaseId / 10)
-            else -> fromIndex(moonPhaseId % 10)
+            moonPhaseId < 8 -> moonPhaseId
+            isBeforeSunrise -> moonPhaseId / 10
+            else -> moonPhaseId % 10
         }
     }
 

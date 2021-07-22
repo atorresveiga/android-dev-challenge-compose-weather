@@ -19,10 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 
-enum class MoonPhase {
-    NewMoon, WaxingCrescent, FirstQuarter, WaxingGibbous, FullMoon, WaningGibbous, ThirdQuarter, WaningCrescent;
-}
-
 enum class PrecipitationForm { Rain, Snow, RainAndSnow }
 
 enum class HourSystem { Twelve, TwentyFour }

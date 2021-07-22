@@ -193,7 +193,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
                         previousMoonPhase = previousMoonPhase
                     )
                     daily.add(day)
-                    previousMoonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0).ordinal
+                    previousMoonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0)
                     currentDayDateTime = dayDateTime
                     currentDayTimeSeries.clear()
                 }
@@ -314,7 +314,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
         val windDegrees = windDirectionSum / dayTimeSeries.size
         val sunrise = sunriseMoonPhaseInfo.sunrise!!.time.toInstant().epochSeconds
         val sunset = sunriseMoonPhaseInfo.sunset!!.time.toInstant().epochSeconds
-        val moonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0).ordinal
+        val moonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0)
         val encodedMoonPhase = MoonPhaseFormatter.encode(moonPhase, previousMoonPhase)
 
         return DayForecast(
