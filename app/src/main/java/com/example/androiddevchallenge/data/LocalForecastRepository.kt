@@ -17,11 +17,11 @@ package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.ui.ForecastDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -35,7 +35,7 @@ interface LocalForecastRepository {
     fun getForecast(startTime: Long): Flow<Forecast?>
     fun getCurrentLocation(): Flow<Location?>
     suspend fun saveCurrentLocation(location: Location)
-    suspend fun saveForecast(forecast: Forecast, dataSource: ForecastDataSource)
+    suspend fun saveForecast(forecast: Forecast)
     suspend fun clearOldData(olderTime: Long)
     fun getLastSelectedLocations(): Flow<List<Location>>
 }
@@ -100,7 +100,8 @@ class LocalForecastRepositoryDefault(
         dataStoreManager.setCurrentLocation(location)
     }
 
-    override suspend fun saveForecast(forecast: Forecast, dataSource: ForecastDataSource) {
+    override suspend fun saveForecast(forecast: Forecast) {
+        val dataSource = dataStoreManager.settings.first().dataSource
         forecastDAO.saveHourlyForecast(
             forecast.hourly.map {
                 it.toHourForecastEntity(

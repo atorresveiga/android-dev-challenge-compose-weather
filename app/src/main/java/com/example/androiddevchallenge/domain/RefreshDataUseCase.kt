@@ -15,13 +15,9 @@
  */
 package com.example.androiddevchallenge.domain
 
-import com.example.androiddevchallenge.data.DataStoreManager
 import com.example.androiddevchallenge.data.LocalForecastRepository
 import com.example.androiddevchallenge.data.NetworkForecastDataSource
 import com.example.androiddevchallenge.di.IoDispatcher
-import com.example.androiddevchallenge.di.MetNo
-import com.example.androiddevchallenge.di.OpenWeather
-import com.example.androiddevchallenge.ui.ForecastDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -30,23 +26,14 @@ import javax.inject.Inject
 class RefreshDataUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val localForecastRepository: LocalForecastRepository,
-    private val dataStoreManager: DataStoreManager,
-    @OpenWeather private val openWeatherDataSource: NetworkForecastDataSource,
-    @MetNo private val metNoDataSource: NetworkForecastDataSource
+    private val networkForecastDataSource: NetworkForecastDataSource
 ) {
     suspend fun execute() {
         withContext(ioDispatcher) {
-
             localForecastRepository.getCurrentLocation().first()?.let { location ->
-                // Get dataSource selected in settings
-                val dataSource = dataStoreManager.settings.first().dataSource
-                val source = when (dataSource) {
-                    ForecastDataSource.OpenWeather -> openWeatherDataSource
-                    ForecastDataSource.MetNo -> metNoDataSource
-                }
                 // Get updated forecast from the network
-                source.getForecast(location).also { forecast ->
-                    localForecastRepository.saveForecast(forecast, dataSource)
+                networkForecastDataSource.getForecast(location).also { forecast ->
+                    localForecastRepository.saveForecast(forecast)
                 }
             }
         }

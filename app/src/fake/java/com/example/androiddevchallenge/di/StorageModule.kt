@@ -15,8 +15,8 @@
  */
 package com.example.androiddevchallenge.di
 
+import com.example.androiddevchallenge.data.FakeForecastRepository
 import com.example.androiddevchallenge.data.LocalForecastRepository
-import com.example.androiddevchallenge.data.MockForecastRepository
 import com.example.androiddevchallenge.data.NetworkForecastDataSource
 import dagger.Module
 import dagger.Provides
@@ -27,11 +27,11 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object StorageModule {
 
-    private val mockForecastRepository = MockForecastRepository()
+    private val fakeForecastRepository = FakeForecastRepository()
 
     @Provides
-    fun provideLocalForecastRepository(): LocalForecastRepository = mockForecastRepository
+    fun provideLocalForecastRepository(): LocalForecastRepository = fakeForecastRepository
 
     @Provides
-    fun provideNetworkForecastDataSource(): NetworkForecastDataSource = mockForecastRepository
+    fun provideNetworkForecastDataSource(): NetworkForecastDataSource = fakeForecastRepository
 }
