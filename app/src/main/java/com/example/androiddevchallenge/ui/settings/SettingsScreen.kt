@@ -54,7 +54,6 @@ import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.ForecastDataSource
-import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.TemperatureSystem
 import com.example.androiddevchallenge.ui.WindSpeedSystem
@@ -195,7 +194,7 @@ fun VisualSettings(
     settingModifier: Modifier = Modifier
 ) {
 
-    val defaultDisplayViews = ForecastDisplayView.values().map { it.translatableString() }
+    val defaultDisplayViews = stringArrayResource(id = R.array.display_forecast).toList()
     val clouds = remember { mutableStateOf(settings.clouds.toFloat()) }
     val stormClouds = remember { mutableStateOf(settings.stormClouds.toFloat()) }
     val hourlyPrecipitation =
@@ -218,11 +217,11 @@ fun VisualSettings(
             }
             SettingSwitch(
                 name = stringResource(R.string.default_view),
-                selected = settings.defaultDisplayView.ordinal,
+                selected = settings.defaultDisplayView,
                 items = defaultDisplayViews,
                 onSelectionChange = { value ->
                     updateSettings(
-                        settings.copy(defaultDisplayView = ForecastDisplayView.values()[value])
+                        settings.copy(defaultDisplayView = value)
                     )
                 },
                 modifier = settingModifier

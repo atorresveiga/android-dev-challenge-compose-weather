@@ -33,3 +33,7 @@ const val RAIN_AND_SNOW = 103
 // Hour System
 const val TWELVE = 0
 const val TWENTY_FOUR = 1
+
+// Display Forecast
+const val HOURLY = 0
+const val DAILY = 1

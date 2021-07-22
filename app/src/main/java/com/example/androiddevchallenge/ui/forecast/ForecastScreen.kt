@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.booleanResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -62,16 +63,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.example.androiddevchallenge.DAILY
+import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.BlueCloudTitle
-import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.Information
 import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.getLocationShortValue
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
-import com.example.androiddevchallenge.ui.translatableString
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -182,10 +183,11 @@ fun SelectLocation(
 
 @Composable
 fun SmallSelectDailyHourlyForecast(
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val displayViews = stringArrayResource(id = R.array.display_forecast)
     var expanded by remember { mutableStateOf(false) }
     val dismiss = { expanded = false }
 
@@ -197,7 +199,7 @@ fun SmallSelectDailyHourlyForecast(
             verticalAlignment = Alignment.CenterVertically
         ) { // Anchor view
             Text(
-                text = forecastDisplayView.translatableString(),
+                text = displayViews[forecastDisplayView],
                 style = MaterialTheme.typography.h6
             ) // City name label
             Icon(
@@ -215,11 +217,11 @@ fun SmallSelectDailyHourlyForecast(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.align(Alignment.Center)
                 ) {
-                    ForecastDisplayView.values()
-                        .forEach { item ->
+                    displayViews
+                        .forEachIndexed { index, item ->
                             Text(
-                                text = item.translatableString(),
-                                style = if (item == forecastDisplayView)
+                                text = item,
+                                style = if (index == forecastDisplayView)
                                     MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
                                 else
                                     MaterialTheme.typography.h5,
@@ -227,7 +229,7 @@ fun SmallSelectDailyHourlyForecast(
                                 modifier = Modifier
                                     .clickable {
                                         expanded = false
-                                        onDisplayViewChange(item)
+                                        onDisplayViewChange(index)
                                     }
                                     .padding(8.dp)
                             )
@@ -255,22 +257,23 @@ fun SmallSelectDailyHourlyForecast(
 
 @Composable
 fun LargeSelectDailyHourlyForecast(
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val displayViews = stringArrayResource(id = R.array.display_forecast)
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(R.string.hourly),
+            text = displayViews[HOURLY],
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { onDisplayViewChange(ForecastDisplayView.Hourly) }
+                .clickable { onDisplayViewChange(HOURLY) }
                 .padding(8.dp)
-                .alpha(if (forecastDisplayView == ForecastDisplayView.Hourly) 1f else .5f)
+                .alpha(if (forecastDisplayView == HOURLY) 1f else .5f)
         )
         Text(
             text = "/",
@@ -278,20 +281,20 @@ fun LargeSelectDailyHourlyForecast(
             modifier = Modifier.alpha(.5f)
         )
         Text(
-            text = stringResource(R.string.daily),
+            text = displayViews[DAILY],
             style = MaterialTheme.typography.h5,
             modifier = Modifier
-                .clickable { onDisplayViewChange(ForecastDisplayView.Daily) }
+                .clickable { onDisplayViewChange(DAILY) }
                 .padding(8.dp)
-                .alpha(if (forecastDisplayView == ForecastDisplayView.Daily) 1f else .5f)
+                .alpha(if (forecastDisplayView == DAILY) 1f else .5f)
         )
     }
 }
 
 @Composable
 fun DailyHourlyForecast(
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (booleanResource(id = R.bool.is_large_display)) {
@@ -313,8 +316,8 @@ fun DailyHourlyForecast(
 fun DisplayForecast(
     isRefreshing: Boolean,
     forecast: Forecast?,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     onRefresh: () -> Unit,
     updateForecast: () -> Unit,
     onSelectLocation: () -> Unit,
@@ -351,7 +354,7 @@ fun DisplayForecast(
             }
 
             when (forecastDisplayView) {
-                ForecastDisplayView.Daily -> {
+                DAILY -> {
                     DailyForecastScreen(
                         forecast = forecast,
                         onSelectLocation = onSelectLocation,
@@ -361,7 +364,7 @@ fun DisplayForecast(
                         onDisplayViewChange = onDisplayViewChange
                     )
                 }
-                ForecastDisplayView.Hourly -> {
+                else -> {
                     HourlyForecastScreen(
                         forecast = forecast,
                         onSelectLocation = onSelectLocation,

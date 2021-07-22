@@ -13,8 +13,6 @@
 
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-    <string name="daily">Daily</string>
-    <string name="hourly">Hourly</string>
 
     <string name="midnight">Midnight</string>
     <string name="noon">Noon</string>

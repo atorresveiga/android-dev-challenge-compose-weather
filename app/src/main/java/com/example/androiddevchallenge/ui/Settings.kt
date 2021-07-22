@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui
 
+import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.TWELVE
 
 data class Settings(
@@ -25,7 +26,7 @@ data class Settings(
     val hourSystem: Int = TWELVE,
     val temperatureSystem: TemperatureSystem = TemperatureSystem.Celsius,
     val windSpeedSystem: WindSpeedSystem = WindSpeedSystem.Meters,
-    val defaultDisplayView: ForecastDisplayView = ForecastDisplayView.Hourly,
+    val defaultDisplayView: Int = HOURLY,
     val dataSource: ForecastDataSource = ForecastDataSource.OpenWeather
 ) {
     val dataFormatter = DataFormatter(

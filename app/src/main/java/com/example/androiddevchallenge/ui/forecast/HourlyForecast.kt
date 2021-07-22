@@ -37,7 +37,6 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
-import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.datetime.Instant
@@ -50,8 +49,8 @@ fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
     updateSettings: () -> Unit,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
 ) {
     val indexForecast = IndexForecast(forecast)
 

@@ -19,16 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 
-enum class ForecastDisplayView { Hourly, Daily }
-
-@Composable
-fun ForecastDisplayView.translatableString(): String {
-    return when (this) {
-        ForecastDisplayView.Daily -> stringResource(R.string.daily)
-        ForecastDisplayView.Hourly -> stringResource(R.string.hourly)
-    }
-}
-
 enum class WindSpeedSystem { Meters, Kilometers, Miles }
 
 @Composable

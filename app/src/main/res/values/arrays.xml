@@ -51,5 +51,9 @@
         <item>24 hours</item>
     </string-array>
 
+    <string-array name="display_forecast">
+        <item>Hourly</item>
+        <item>Daily</item>
+    </string-array>
 
 </resources>

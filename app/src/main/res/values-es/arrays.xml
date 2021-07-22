@@ -47,7 +47,12 @@
     </string-array>
 
     <string-array name="hour_system">
-        <item name="twelve">12 horas</item>
-        <item name="twenty_four">24 horas</item>
+        <item>12 horas</item>
+        <item>24 horas</item>
+    </string-array>
+
+    <string-array name="display_forecast">
+        <item>Horas</item>
+        <item>Días</item>
     </string-array>
 </resources>

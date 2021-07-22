@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
-import com.example.androiddevchallenge.ui.ForecastDisplayView
 import com.example.androiddevchallenge.ui.theme.cloudColor
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.overlay
@@ -63,8 +62,8 @@ fun DailyForecastScreen(
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
     updateSettings: () -> Unit,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val sceneHeight = with(LocalDensity.current) { maxHeight.toPx() }
@@ -374,8 +373,8 @@ fun DailyForecastTopBar(
     currentLocation: String,
     onSelectLocation: () -> Unit,
     updateSettings: () -> Unit,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -403,8 +402,8 @@ fun SmallDailyForecastTopBar(
     currentLocation: String,
     onSelectLocation: () -> Unit,
     updateSettings: () -> Unit,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -450,8 +449,8 @@ fun LargeDailyForecastTopBar(
     currentLocation: String,
     onSelectLocation: () -> Unit,
     updateSettings: () -> Unit,
-    forecastDisplayView: ForecastDisplayView,
-    onDisplayViewChange: (view: ForecastDisplayView) -> Unit,
+    forecastDisplayView: Int,
+    onDisplayViewChange: (view: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
