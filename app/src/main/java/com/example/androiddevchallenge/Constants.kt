@@ -24,3 +24,8 @@ const val FULL_MOON = 5
 const val WANING_GIBBOUS = 6
 const val THIRD_QUARTER = 7
 const val WANING_CRESCENT = 8
+
+// Precipitation Form
+const val RAIN = 101
+const val SNOW = 102
+const val RAIN_AND_SNOW = 103

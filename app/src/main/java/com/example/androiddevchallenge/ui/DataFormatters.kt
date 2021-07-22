@@ -19,6 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.RAIN
+import com.example.androiddevchallenge.RAIN_AND_SNOW
+import com.example.androiddevchallenge.SNOW
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -209,12 +212,12 @@ class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
         }
     }
 
-    fun getForm(weatherId: Int): PrecipitationForm {
+    fun getForm(weatherId: Int): Int {
         if (!isPrecipitation(weatherId)) throw IllegalArgumentException("$weatherId is not a precipitation id")
         return when (weatherId % 100) {
-            6 -> PrecipitationForm.Snow
-            7 -> PrecipitationForm.RainAndSnow
-            else -> PrecipitationForm.Rain
+            6 -> SNOW
+            7 -> RAIN_AND_SNOW
+            else -> RAIN
         }
     }
 

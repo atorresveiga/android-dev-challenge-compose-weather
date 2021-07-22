@@ -33,7 +33,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.androiddevchallenge.ui.PrecipitationForm
+import com.example.androiddevchallenge.RAIN_AND_SNOW
+import com.example.androiddevchallenge.SNOW
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -151,15 +152,15 @@ fun Precipitation(
         val precipitationToDisplay = precipitation.take(amount)
         precipitationToDisplay.forEachIndexed { index, p ->
             when (form) {
-                PrecipitationForm.Snow -> SnowFlake(p, sceneHeight)
-                PrecipitationForm.Rain -> RainDrop(p, sceneHeight)
-                PrecipitationForm.RainAndSnow -> {
+                SNOW -> SnowFlake(p, sceneHeight)
+                RAIN_AND_SNOW -> {
                     if (index < precipitationToDisplay.size / 2) {
                         RainDrop(p, sceneHeight)
                     } else {
                         SnowFlake(p, sceneHeight)
                     }
                 }
+                else -> RainDrop(p, sceneHeight)
             }
         }
     }
