@@ -90,8 +90,10 @@ fun HourNavigation(
                 }
                 else -> {
                     onHourNavigationInteractionChange(HourNavigationInteractionState.ACTIVE)
-                    delay(5000)
+                    delay(2000)
                     onHourNavigationInteractionChange(HourNavigationInteractionState.INACTIVE)
+                    delay(4000)
+                    onHourNavigationInteractionChange(HourNavigationInteractionState.IDLE)
                 }
             }
         }
@@ -114,7 +116,7 @@ fun HourNavigation(
     )
 }
 
-enum class HourNavigationInteractionState { ACTIVE, INACTIVE }
+enum class HourNavigationInteractionState { ACTIVE, INACTIVE, IDLE }
 enum class Direction { FORWARD, BACKWARD }
 class OnStart : Interaction
 
