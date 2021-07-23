@@ -16,39 +16,34 @@
 package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.LocalForecastRepository
-import com.example.androiddevchallenge.data.MockDataGenerator
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class FakeLocalForecastRepository : LocalForecastRepository {
+class FakeTestLocalForecastRepository : LocalForecastRepository {
 
-    private var fail: Exception? = null
-    var currentLocation: Location? = null
-    private var lastSelectedLocations = emptyList<Location>()
+    private var currentLocation: Location? = null
 
-    override fun getForecast(startTime: Long): Flow<Forecast?> = flow {
-        fail?.let { throw it }
-        currentLocation?.let {
-            val forecast = MockDataGenerator.createForecast(it)
-            emit(forecast)
-        } ?: emit(null)
+    override fun getForecast(startTime: Long): Flow<Forecast?> {
+        TODO("Not yet implemented")
     }
 
-    override fun getCurrentLocation(): Flow<Location?> = flow {
-        emit(currentLocation)
-    }
+    override fun getCurrentLocation(): Flow<Location?> = flow { emit(currentLocation) }
 
     override suspend fun saveCurrentLocation(location: Location) {
         currentLocation = location
     }
 
-    override suspend fun saveForecast(forecast: Forecast) {}
+    override suspend fun saveForecast(forecast: Forecast) {
+        TODO("Not yet implemented")
+    }
 
-    override suspend fun clearOldData(olderTime: Long) {}
+    override suspend fun clearOldData(olderTime: Long) {
+        TODO("Not yet implemented")
+    }
 
-    override fun getLastSelectedLocations(): Flow<List<Location>> = flow {
-        emit(lastSelectedLocations)
+    override fun getLastSelectedLocations(): Flow<List<Location>> {
+        TODO("Not yet implemented")
     }
 }

@@ -17,22 +17,22 @@ package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.SearchLocationDataSource
 import com.example.androiddevchallenge.model.Location
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
 
-class FakeSearchLocation : SearchLocationDataSource {
+class SuccessTestSearchLocation : SearchLocationDataSource {
+
     override suspend fun searchLocation(query: String): List<Location> {
-        return emptyList()
+        TODO("Not yet implemented")
     }
+
     override suspend fun findNearby(latitude: Double, longitude: Double): Location {
         return Location(
-            name = "Test",
+            name = "Test Location",
             latitude = latitude,
             longitude = longitude,
             timezoneId = timezone(latitude, longitude),
-            lastUpdated = Clock.System.now().epochSeconds
+            lastUpdated = 1616407200L
         )
     }
-    override suspend fun timezone(latitude: Double, longitude: Double): String =
-        TimeZone.currentSystemDefault().id
+
+    override suspend fun timezone(latitude: Double, longitude: Double): String = "test_timezone"
 }

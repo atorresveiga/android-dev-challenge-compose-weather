@@ -16,13 +16,16 @@
 package com.example.androiddevchallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.androiddevchallenge.data.LocalForecastRepository
+import com.example.androiddevchallenge.data.UserLocationDataSource
 import com.example.androiddevchallenge.domain.FindUserLocationUseCase
 import com.example.androiddevchallenge.domain.LocationNotFoundException
-import com.example.androiddevchallenge.fake.FakeLocalForecastRepository
-import com.example.androiddevchallenge.fake.FakeSearchLocation
-import com.example.androiddevchallenge.fake.FakeUserLocationDataSource
+import com.example.androiddevchallenge.fake.FakeTestLocalForecastRepository
+import com.example.androiddevchallenge.fake.SuccessTestSearchLocation
+import com.example.androiddevchallenge.fake.SuccessUserLocationDataSource
+import com.example.androiddevchallenge.fake.UserLocationNotFoundDataSource
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
+import kotlinx.coroutines.flow.first
 import org.junit.Rule
 import org.junit.Test
 
@@ -35,26 +38,23 @@ class FindUserLocationUseCaseTest {
     var coroutineRule = MainCoroutineRule()
 
     private lateinit var useCase: FindUserLocationUseCase
-    private lateinit var locationDataSource: FakeUserLocationDataSource
-    private lateinit var localRepository: FakeLocalForecastRepository
-
-    @Before
-    fun setup() {
-        locationDataSource = FakeUserLocationDataSource()
-        localRepository = FakeLocalForecastRepository()
-        useCase = FindUserLocationUseCase(
-            defaultDispatcher = coroutineRule.testDispatcher,
-            userLocationDataSource = locationDataSource,
-            localForecastRepository = localRepository,
-            searchLocationDataSource = FakeSearchLocation()
-        )
-    }
+    private lateinit var locationDataSource: UserLocationDataSource
+    private lateinit var localRepository: LocalForecastRepository
+    private val searchLocationDataSource = SuccessTestSearchLocation()
 
     @Test
     fun `When Location not found THEN throw LocationNotFoundException`() =
         coroutineRule.runBlockingTest {
             // WHEN location datasource can't access user location
-            locationDataSource.location = null
+            locationDataSource = UserLocationNotFoundDataSource()
+            localRepository = FakeTestLocalForecastRepository()
+            useCase = FindUserLocationUseCase(
+                defaultDispatcher = coroutineRule.testDispatcher,
+                userLocationDataSource = locationDataSource,
+                localForecastRepository = localRepository,
+                searchLocationDataSource = searchLocationDataSource
+            )
+
             try {
                 useCase.execute()
             } catch (exception: Exception) {
@@ -68,10 +68,17 @@ class FindUserLocationUseCaseTest {
         coroutineRule.runBlockingTest {
             // WHEN found user location
             val location = Pair(0.0, 0.0)
-            locationDataSource.location = location
+            locationDataSource = SuccessUserLocationDataSource(location)
+            localRepository = FakeTestLocalForecastRepository()
+            useCase = FindUserLocationUseCase(
+                defaultDispatcher = coroutineRule.testDispatcher,
+                userLocationDataSource = locationDataSource,
+                localForecastRepository = localRepository,
+                searchLocationDataSource = searchLocationDataSource
+            )
             useCase.execute()
             // THEN saved it locally
-            val savedLocation = localRepository.currentLocation
+            val savedLocation = localRepository.getCurrentLocation().first()
             assertThat(savedLocation).isNotNull()
             assertThat(savedLocation?.latitude).isEqualTo(location.first)
             assertThat(savedLocation?.longitude).isEqualTo(location.second)

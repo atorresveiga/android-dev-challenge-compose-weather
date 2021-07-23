@@ -17,11 +17,10 @@ package com.example.androiddevchallenge.fake
 
 import com.example.androiddevchallenge.data.UserLocationDataSource
 
-class FakeUserLocationDataSource() : UserLocationDataSource {
-    var location: Pair<Double, Double>? = null
-    var fail: Exception? = null
-    override suspend fun getLocation(): Pair<Double, Double>? {
-        fail?.let { throw it }
-        return location
-    }
+class UserLocationNotFoundDataSource() : UserLocationDataSource {
+    override suspend fun getLocation(): Pair<Double, Double>? = null
+}
+
+class SuccessUserLocationDataSource(private val location: Pair<Double, Double>) : UserLocationDataSource {
+    override suspend fun getLocation(): Pair<Double, Double> = location
 }
