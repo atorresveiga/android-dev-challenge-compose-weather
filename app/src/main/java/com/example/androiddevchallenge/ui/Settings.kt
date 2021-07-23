@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui
 
+import com.example.androiddevchallenge.CELSIUS
 import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.METERS
 import com.example.androiddevchallenge.TWELVE
@@ -25,7 +26,7 @@ data class Settings(
     val hourlyPrecipitation: Int = 150,
     val dailyPrecipitation: Int = 85,
     val hourSystem: Int = TWELVE,
-    val temperatureSystem: TemperatureSystem = TemperatureSystem.Celsius,
+    val temperatureSystem: Int = CELSIUS,
     val windSpeedSystem: Int = METERS,
     val defaultDisplayView: Int = HOURLY,
     val dataSource: ForecastDataSource = ForecastDataSource.OpenWeather

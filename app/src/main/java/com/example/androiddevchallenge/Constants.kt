@@ -42,3 +42,7 @@ const val DAILY = 1
 const val METERS = 0
 const val KILOMETERS = 1
 const val MILES = 2
+
+// Temperature System
+const val CELSIUS = 0
+const val FAHRENHEIT = 1

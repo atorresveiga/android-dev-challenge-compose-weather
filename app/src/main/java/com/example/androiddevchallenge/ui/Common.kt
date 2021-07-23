@@ -19,16 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 
-enum class TemperatureSystem { Celsius, Fahrenheit }
-
-@Composable
-fun TemperatureSystem.translatableString(): String {
-    return when (this) {
-        TemperatureSystem.Celsius -> stringResource(R.string.celsius)
-        TemperatureSystem.Fahrenheit -> stringResource(R.string.fahrenheit)
-    }
-}
-
 enum class ForecastDataSource { OpenWeather, MetNo }
 @Composable
 fun ForecastDataSource.translatableString(): String {

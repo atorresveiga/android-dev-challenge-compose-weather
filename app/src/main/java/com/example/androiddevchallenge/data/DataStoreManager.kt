@@ -26,7 +26,6 @@ import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.Settings
-import com.example.androiddevchallenge.ui.TemperatureSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -99,7 +98,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             hourlyPrecipitation = hourlyPrecipitation,
             dailyPrecipitation = dailyPrecipitation,
             hourSystem = hourSystem,
-            temperatureSystem = TemperatureSystem.values()[temperatureSystem],
+            temperatureSystem = temperatureSystem,
             windSpeedSystem = windSpeedSystem,
             defaultDisplayView = defaultDisplayView,
             dataSource = ForecastDataSource.values()[dataSource]
@@ -113,7 +112,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[mutableHourlyPrecipitation] = settings.hourlyPrecipitation
             preferences[mutableDailyPrecipitation] = settings.dailyPrecipitation
             preferences[mutableHourSystem] = settings.hourSystem
-            preferences[mutableTemperatureSystem] = settings.temperatureSystem.ordinal
+            preferences[mutableTemperatureSystem] = settings.temperatureSystem
             preferences[mutableWindSpeedSystem] = settings.windSpeedSystem
             preferences[mutableDefaultDisplayView] = settings.defaultDisplayView
             preferences[mutableDataSource] = settings.dataSource.ordinal

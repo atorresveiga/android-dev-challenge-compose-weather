@@ -62,4 +62,9 @@
         <item>mph</item>
     </string-array>
 
+    <string-array name="temperature_system">
+        <item>C°</item>
+        <item>F°</item>
+    </string-array>
+
 </resources>

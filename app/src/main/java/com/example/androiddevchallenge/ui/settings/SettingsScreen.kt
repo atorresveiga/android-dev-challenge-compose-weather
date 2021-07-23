@@ -55,7 +55,6 @@ import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.ForecastDataSource
 import com.example.androiddevchallenge.ui.Settings
-import com.example.androiddevchallenge.ui.TemperatureSystem
 import com.example.androiddevchallenge.ui.theme.cardsBackground
 import com.example.androiddevchallenge.ui.translatableString
 import com.google.accompanist.insets.navigationBarsPadding
@@ -134,7 +133,7 @@ fun MeasurementSettings(
     settingModifier: Modifier = Modifier
 ) {
     val timeSystems = stringArrayResource(id = R.array.hour_system).toList()
-    val temperatureSystems = TemperatureSystem.values().map { it.translatableString() }
+    val temperatureSystems = stringArrayResource(id = R.array.temperature_system).toList()
     val windSpeedSystems = stringArrayResource(id = R.array.wind_speed_system).toList()
 
     Card(
@@ -150,11 +149,11 @@ fun MeasurementSettings(
             }
             SettingSwitch(
                 name = stringResource(R.string.temperature_system),
-                selected = settings.temperatureSystem.ordinal,
+                selected = settings.temperatureSystem,
                 items = temperatureSystems,
                 onSelectionChange = { value ->
                     updateSettings(
-                        settings.copy(temperatureSystem = TemperatureSystem.values()[value])
+                        settings.copy(temperatureSystem = value)
                     )
                 },
                 modifier = settingModifier

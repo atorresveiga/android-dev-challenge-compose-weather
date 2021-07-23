@@ -19,9 +19,6 @@
     <string name="wind_direction">From %1$s ( %2$s )</string>
 
     <!-- Measure Systems -->
-    <string name="celsius" translatable="false">C°</string>
-    <string name="fahrenheit" translatable="false">F°</string>
-
     <string name="millimeters" translatable="false">mm</string>
     <string name="inches" translatable="false">in</string>
 

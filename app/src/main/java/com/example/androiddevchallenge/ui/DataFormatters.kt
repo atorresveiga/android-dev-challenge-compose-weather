@@ -18,6 +18,7 @@ package com.example.androiddevchallenge.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import com.example.androiddevchallenge.FAHRENHEIT
 import com.example.androiddevchallenge.KILOMETERS
 import com.example.androiddevchallenge.METERS
 import com.example.androiddevchallenge.MILES
@@ -330,7 +331,7 @@ object HumidityFormatter {
 
 class DataFormatter(
     hourSystem: Int,
-    temperatureSystem: TemperatureSystem,
+    temperatureSystem: Int,
     windSpeedSystem: Int
 ) {
     val temperature: TemperatureFormatter
@@ -345,8 +346,8 @@ class DataFormatter(
     init {
         val scaleFormatter = ScaleFormatter()
         temperature = when (temperatureSystem) {
-            TemperatureSystem.Celsius -> CelsiusTemperatureFormatter()
-            TemperatureSystem.Fahrenheit -> FahrenheitTemperatureFormatter()
+            FAHRENHEIT -> FahrenheitTemperatureFormatter()
+            else -> CelsiusTemperatureFormatter()
         }
         val hour = when (hourSystem) {
             TWENTY_FOUR -> TwentyFourHourSystemFormatter()
