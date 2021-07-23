@@ -17,6 +17,7 @@ package com.example.androiddevchallenge.ui.forecast
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.domain.GetCurrentLocationUseCase
 import com.example.androiddevchallenge.domain.GetForecastUseCase
 import com.example.androiddevchallenge.domain.GetSettingsUseCase
@@ -24,7 +25,6 @@ import com.example.androiddevchallenge.domain.RefreshDataUseCase
 import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
-import com.example.androiddevchallenge.ui.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow

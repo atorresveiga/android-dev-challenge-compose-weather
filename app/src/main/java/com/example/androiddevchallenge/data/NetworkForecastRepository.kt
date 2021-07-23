@@ -15,9 +15,9 @@
  */
 package com.example.androiddevchallenge.data
 
+import com.example.androiddevchallenge.MET_NO
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.ui.ForecastDataSource
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -28,8 +28,8 @@ class NetworkForecastRepository @Inject constructor(
 ) : NetworkForecastDataSource {
     override suspend fun getForecast(location: Location): Forecast {
         val source = when (dataStoreManager.settings.first().dataSource) {
-            ForecastDataSource.OpenWeather -> openWeatherDataSource
-            ForecastDataSource.MetNo -> metNoDataSource
+            MET_NO -> metNoDataSource
+            else -> openWeatherDataSource
         }
         // Get updated forecast from the network
         return source.getForecast(location)

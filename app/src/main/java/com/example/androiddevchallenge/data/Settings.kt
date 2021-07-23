@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge.ui
+package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.CELSIUS
 import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.METERS
+import com.example.androiddevchallenge.OPEN_WEATHER
 import com.example.androiddevchallenge.TWELVE
+import com.example.androiddevchallenge.ui.DataFormatter
 
 data class Settings(
     val clouds: Int = 30,
@@ -29,7 +31,7 @@ data class Settings(
     val temperatureSystem: Int = CELSIUS,
     val windSpeedSystem: Int = METERS,
     val defaultDisplayView: Int = HOURLY,
-    val dataSource: ForecastDataSource = ForecastDataSource.OpenWeather
+    val dataSource: Int = OPEN_WEATHER
 ) {
     val dataFormatter = DataFormatter(
         hourSystem = hourSystem,

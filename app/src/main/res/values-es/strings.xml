@@ -73,8 +73,5 @@
     <string name="storm_cloud_number">Número de nubes de tormenta</string>
     <string name="precipitation_number">Cantidad de precipitación (vista hora)</string>
     <string name="list_item_precipitation_number">Cantidad de precipitación (vista día)</string>
-
     <string name="data_sources">Origen de los datos</string>
-    <string name="open_weather">Open Weather</string>
-    <string name="met_no">MET de Noruega</string>
 </resources>

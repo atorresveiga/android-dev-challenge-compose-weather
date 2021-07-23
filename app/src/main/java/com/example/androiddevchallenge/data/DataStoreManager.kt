@@ -24,8 +24,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.androiddevchallenge.model.EMPTY_TIME
 import com.example.androiddevchallenge.model.Location
-import com.example.androiddevchallenge.ui.ForecastDataSource
-import com.example.androiddevchallenge.ui.Settings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -101,7 +99,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             temperatureSystem = temperatureSystem,
             windSpeedSystem = windSpeedSystem,
             defaultDisplayView = defaultDisplayView,
-            dataSource = ForecastDataSource.values()[dataSource]
+            dataSource = dataSource
         )
     }
 
@@ -115,7 +113,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[mutableTemperatureSystem] = settings.temperatureSystem
             preferences[mutableWindSpeedSystem] = settings.windSpeedSystem
             preferences[mutableDefaultDisplayView] = settings.defaultDisplayView
-            preferences[mutableDataSource] = settings.dataSource.ordinal
+            preferences[mutableDataSource] = settings.dataSource
         }
     }
 }

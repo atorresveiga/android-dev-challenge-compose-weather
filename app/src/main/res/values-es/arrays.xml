@@ -55,4 +55,10 @@
         <item>Horas</item>
         <item>Días</item>
     </string-array>
+
+    <string-array name="data_source">
+        <item>Open Weather</item>
+        <item>MET de Noruega</item>
+    </string-array>
+
 </resources>

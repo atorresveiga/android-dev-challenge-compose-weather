@@ -66,11 +66,11 @@ import androidx.navigation.NavController
 import com.example.androiddevchallenge.DAILY
 import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations
 import com.example.androiddevchallenge.ui.BlueCloudTitle
 import com.example.androiddevchallenge.ui.Information
-import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.getLocationShortValue
 import com.example.androiddevchallenge.ui.location.BlueCloudButton
 import com.google.accompanist.swiperefresh.SwipeRefresh

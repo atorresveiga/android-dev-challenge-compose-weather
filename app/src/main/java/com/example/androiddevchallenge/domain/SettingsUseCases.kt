@@ -16,8 +16,8 @@
 package com.example.androiddevchallenge.domain
 
 import com.example.androiddevchallenge.data.DataStoreManager
+import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.di.DefaultDispatcher
-import com.example.androiddevchallenge.ui.Settings
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext

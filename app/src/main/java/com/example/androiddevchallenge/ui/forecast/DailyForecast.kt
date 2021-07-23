@@ -374,8 +374,7 @@ fun DailyForecastTopBar(
     onSelectLocation: () -> Unit,
     updateSettings: () -> Unit,
     forecastDisplayView: Int,
-    onDisplayViewChange: (view: Int) -> Unit,
-    modifier: Modifier = Modifier
+    onDisplayViewChange: (view: Int) -> Unit
 ) {
 
     if (booleanResource(id = R.bool.is_large_display)) {

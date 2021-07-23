@@ -17,9 +17,9 @@ package com.example.androiddevchallenge.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.domain.GetSettingsUseCase
 import com.example.androiddevchallenge.domain.UpdateSettingsUseCase
-import com.example.androiddevchallenge.ui.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +43,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            mutableSettings.value = getSettingsUseCase.execute().first() ?: Settings()
+            mutableSettings.value = getSettingsUseCase.execute().first()
             mutableSettings.drop(1).filterNotNull().collectLatest {
                 updateSettingsUseCase.execute(it)
             }

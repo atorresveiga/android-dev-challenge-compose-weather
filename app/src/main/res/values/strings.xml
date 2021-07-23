@@ -87,9 +87,5 @@
     <string name="storm_cloud_number">Storm Clouds Number</string>
     <string name="precipitation_number">Precipitation Number</string>
     <string name="list_item_precipitation_number">List Item Precipitation Number</string>
-
     <string name="data_sources">Data Sources</string>
-    <string name="open_weather">Open Weather</string>
-    <string name="met_no">Norwegian MET</string>
-
 </resources>

@@ -52,11 +52,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.ui.BlueCloudTitle
-import com.example.androiddevchallenge.ui.ForecastDataSource
-import com.example.androiddevchallenge.ui.Settings
 import com.example.androiddevchallenge.ui.theme.cardsBackground
-import com.example.androiddevchallenge.ui.translatableString
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
 
@@ -132,9 +130,9 @@ fun MeasurementSettings(
     modifier: Modifier = Modifier,
     settingModifier: Modifier = Modifier
 ) {
-    val timeSystems = stringArrayResource(id = R.array.hour_system).toList()
-    val temperatureSystems = stringArrayResource(id = R.array.temperature_system).toList()
-    val windSpeedSystems = stringArrayResource(id = R.array.wind_speed_system).toList()
+    val timeSystems = stringArrayResource(id = R.array.hour_system)
+    val temperatureSystems = stringArrayResource(id = R.array.temperature_system)
+    val windSpeedSystems = stringArrayResource(id = R.array.wind_speed_system)
 
     Card(
         modifier = modifier,
@@ -192,7 +190,7 @@ fun VisualSettings(
     settingModifier: Modifier = Modifier
 ) {
 
-    val defaultDisplayViews = stringArrayResource(id = R.array.display_forecast).toList()
+    val defaultDisplayViews = stringArrayResource(id = R.array.display_forecast)
     val clouds = remember { mutableStateOf(settings.clouds.toFloat()) }
     val stormClouds = remember { mutableStateOf(settings.stormClouds.toFloat()) }
     val hourlyPrecipitation =
@@ -275,7 +273,7 @@ fun GeneralSettings(
     modifier: Modifier = Modifier,
     settingModifier: Modifier = Modifier
 ) {
-    val dataSources = ForecastDataSource.values().map { it.translatableString() }
+    val dataSources = stringArrayResource(id = R.array.data_source)
 
     Card(
         modifier = modifier,
@@ -290,11 +288,11 @@ fun GeneralSettings(
             }
             SettingSwitch(
                 name = stringResource(R.string.data_sources),
-                selected = settings.dataSource.ordinal,
+                selected = settings.dataSource,
                 items = dataSources,
                 onSelectionChange = { value ->
                     updateSettings(
-                        settings.copy(dataSource = ForecastDataSource.values()[value])
+                        settings.copy(dataSource = value)
                     )
                 },
                 modifier = settingModifier
@@ -378,7 +376,7 @@ fun SettingText(
 fun SettingSwitch(
     name: String,
     selected: Int,
-    items: List<String>,
+    items: Array<String>,
     onSelectionChange: (value: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -438,7 +436,7 @@ fun SettingNumberPreview() {
 @Composable
 fun SettingSwitchPreview() {
     val (value, onChange) = remember { mutableStateOf(0) }
-    val items = listOf("First", "Second", "Third")
+    val items = arrayOf("First", "Second", "Third")
     SettingSwitch(
         name = "Switch",
         selected = value,

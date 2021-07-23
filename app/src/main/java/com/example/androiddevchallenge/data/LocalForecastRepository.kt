@@ -73,14 +73,14 @@ class LocalForecastRepositoryDefault(
                     latitude = currentLocation.latitude,
                     longitude = currentLocation.longitude,
                     startTime = startTimeWithoutMinutes.epochSeconds,
-                    dataSource = dataSource.ordinal
+                    dataSource = dataSource
                 )
                     .combine(
                         forecastDAO.getDailyForecastFrom(
                             latitude = currentLocation.latitude,
                             longitude = currentLocation.longitude,
                             startTime = startTimeWithoutHours.epochSeconds,
-                            dataSource = dataSource.ordinal
+                            dataSource = dataSource
                         )
                     ) { hourly, daily ->
 
@@ -107,7 +107,7 @@ class LocalForecastRepositoryDefault(
                 it.toHourForecastEntity(
                     latitude = forecast.location.latitude,
                     longitude = forecast.location.longitude,
-                    dataSource = dataSource.ordinal
+                    dataSource = dataSource
                 )
             }
         )
@@ -116,7 +116,7 @@ class LocalForecastRepositoryDefault(
                 it.toDayForecastEntity(
                     latitude = forecast.location.latitude,
                     longitude = forecast.location.longitude,
-                    dataSource = dataSource.ordinal
+                    dataSource = dataSource
                 )
             }
         )

@@ -46,3 +46,7 @@ const val MILES = 2
 // Temperature System
 const val CELSIUS = 0
 const val FAHRENHEIT = 1
+
+// Data Source
+const val OPEN_WEATHER = 0
+const val MET_NO = 1
