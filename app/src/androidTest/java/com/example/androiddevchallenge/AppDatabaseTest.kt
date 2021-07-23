@@ -20,14 +20,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.androiddevchallenge.data.AppDatabase
+import com.example.androiddevchallenge.data.DayForecastEntity
 import com.example.androiddevchallenge.data.ForecastDAO
+import com.example.androiddevchallenge.data.HourForecastEntity
 import com.example.androiddevchallenge.data.LocationEntity
-import com.example.androiddevchallenge.data.MockDataGenerator
-import com.example.androiddevchallenge.data.toDayForecast
-import com.example.androiddevchallenge.data.toDayForecastEntity
-import com.example.androiddevchallenge.data.toHourForecast
-import com.example.androiddevchallenge.data.toHourForecastEntity
-import com.example.androiddevchallenge.model.Location
 import com.example.androiddevchallenge.model.SECONDS_IN_AN_HOUR
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -47,14 +43,60 @@ import java.io.IOException
 class AppDatabaseTest {
     private lateinit var forecastDAO: ForecastDAO
     private lateinit var db: AppDatabase
+    private lateinit var hourlyForecastEntities: List<HourForecastEntity>
+    private lateinit var dailyForecastEntities: List<DayForecastEntity>
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java
-        ).build()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         forecastDAO = db.forecastDAO()
+
+        hourlyForecastEntities = List(size = 5) { index ->
+            HourForecastEntity(
+                datetime = 1616407200L + SECONDS_IN_AN_HOUR * index,
+                temperature = 20f,
+                feelsLike = 20f,
+                pressure = 10f,
+                humidity = 90f,
+                uvi = 1f,
+                clouds = 10f,
+                visibility = 1000,
+                windSpeed = 6f,
+                windDegrees = 45f,
+                weatherId = 0,
+                pop = 0f,
+                precipitation = 0f,
+                latitude = 0.0,
+                longitude = 0.0,
+                dataSource = 0
+            )
+        }
+
+        dailyForecastEntities = List(size = 5) { index ->
+            val datetime = 1616407200L + 86400 * index
+            val sunrise = datetime + SECONDS_IN_AN_HOUR * 6
+            val sunset = sunrise + SECONDS_IN_AN_HOUR * 12
+            DayForecastEntity(
+                datetime = datetime,
+                minTemperature = 10f,
+                maxTemperature = 25f,
+                pressure = 10f,
+                humidity = 90f,
+                uvi = 1f,
+                clouds = 10f,
+                windSpeed = 6f,
+                windDegrees = 45f,
+                weatherId = 0,
+                precipitation = 0f,
+                moonPhaseId = 1,
+                latitude = 0.0,
+                longitude = 0.0,
+                dataSource = 0,
+                sunrise = sunrise,
+                sunset = sunset
+            )
+        }
     }
 
     @After
@@ -66,104 +108,87 @@ class AppDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun getHourlyForecastFromLocation() = runBlocking {
+        // When hourlyForecastEntities are saved
+        forecastDAO.saveHourlyForecast(hourlyForecastEntities)
 
-        val latitude = 0.0
-        val longitude = 0.0
-
-        val locationForecast = MockDataGenerator
-            .createHourlyForecast(startEpoch = 1616407200, hours = 5, weatherId = 0)
-            .map { it.toHourForecastEntity(latitude, longitude) }
-
-        forecastDAO.saveHourlyForecast(locationForecast)
-
-        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0, 1616407200).first()
-        val rightLocation = forecastDAO.getHourlyForecastFrom(0.0, 0.0, 1616407200).first()
-
+        // Then hourlyForecastEntities are indexed by location and data source
+        val wrongLocation = forecastDAO.getHourlyForecastFrom(100.0, 100.0, 1616407200, 0).first()
+        val wrongDataSource = forecastDAO.getHourlyForecastFrom(0.0, 0.0, 1616407200, 1).first()
+        val right = forecastDAO.getHourlyForecastFrom(0.0, 0.0, 1616407200, 0).first()
         assertThat(wrongLocation).isEmpty()
-        assertThat(rightLocation).isEqualTo(locationForecast)
+        assertThat(wrongDataSource).isEmpty()
+        assertThat(right).isEqualTo(hourlyForecastEntities)
     }
 
     @Test
     @Throws(Exception::class)
     fun getDailyForecastFromLocation() = runBlocking {
+        // When dailyForecastEntities are saved
+        forecastDAO.saveDailyForecast(dailyForecastEntities)
 
-        val latitude = 0.0
-        val longitude = 0.0
-
-        val locationForecast = MockDataGenerator
-            .createDailyForecast(startEpoch = 1616407200, days = 5)
-            .map { it.toDayForecastEntity(latitude, longitude) }
-
-        forecastDAO.saveDailyForecast(locationForecast)
-
-        val wrongLocation = forecastDAO.getDailyForecastFrom(100.0, 100.0, 1616407200).first()
-        val rightLocation = forecastDAO.getDailyForecastFrom(0.0, 0.0, 1616407200).first()
-
+        // Then dailyForecastEntities are indexed by location and data source
+        val wrongLocation = forecastDAO.getDailyForecastFrom(100.0, 100.0, 1616407200, 0).first()
+        val wrongDataSource = forecastDAO.getDailyForecastFrom(100.0, 100.0, 1616407200, 1).first()
+        val right = forecastDAO.getDailyForecastFrom(0.0, 0.0, 1616407200, 0).first()
         assertThat(wrongLocation).isEmpty()
-        assertThat(rightLocation).isEqualTo(locationForecast)
+        assertThat(wrongDataSource).isEmpty()
+        assertThat(right).isEqualTo(dailyForecastEntities)
     }
 
     @Test
     @Throws(Exception::class)
     fun clearHourlyForecastOlderThanTest() = runBlocking {
 
-        val location = Location("test_timezone", 0.0, 0.0, "timezone", 1616407200)
+        val index = 3
+        val hour = hourlyForecastEntities[index]
+        forecastDAO.saveHourlyForecast(hourlyForecastEntities)
 
-        val oldForecast = MockDataGenerator
-            .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
-
-        val newDatetime = oldForecast.hourly.last().datetime + SECONDS_IN_AN_HOUR
-
-        val newForecast = MockDataGenerator
-            .createForecast(startEpoch = newDatetime, days = 5, hours = 5, location = location)
-
-        val hourlyEntities = (oldForecast.hourly + newForecast.hourly)
-            .map {
-                it.toHourForecastEntity(
-                    location.latitude,
-                    location.longitude
-                )
-            }
-
-        forecastDAO.saveHourlyForecast(hourlyEntities)
-
-        forecastDAO.clearOlderThan(newDatetime)
-
+        // When clearOlderThan is called
+        forecastDAO.clearOlderThan(hour.datetime)
         val currentHourlyForecast =
-            forecastDAO.getHourlyForecastFrom(location.latitude, location.longitude, 1616407200).first()
+            forecastDAO.getHourlyForecastFrom(
+                hour.latitude,
+                hour.longitude,
+                1616407200,
+                hour.dataSource
+            )
+                .first()
 
-        assertThat(currentHourlyForecast.map { it.toHourForecast() }).isEqualTo(newForecast.hourly)
+        // Then all older hourlyForecastEntities are dropped
+        assertThat(currentHourlyForecast).isEqualTo(
+            hourlyForecastEntities.subList(
+                index - 1,
+                hourlyForecastEntities.size
+            )
+        )
     }
 
     @Test
     @Throws(Exception::class)
     fun clearDailyForecastOlderThanTest() = runBlocking {
 
-        val location = Location("test_timezone", 0.0, 0.0, "timezone", 1616407200)
+        val index = 3
+        val day = dailyForecastEntities[index]
+        forecastDAO.saveDailyForecast(dailyForecastEntities)
 
-        val oldForecast = MockDataGenerator
-            .createForecast(startEpoch = 1616407200, days = 5, hours = 5, location = location)
-
-        val newDatetime = 1616407200 + 86400 * 8L
-
-        val newForecast = MockDataGenerator
-            .createForecast(startEpoch = newDatetime, days = 5, hours = 5, location = location)
-
-        val dailyEntities = (oldForecast.daily + newForecast.daily)
-            .map {
-                it.toDayForecastEntity(
-                    location.latitude,
-                    location.longitude
-                )
-            }
-
-        forecastDAO.saveDailyForecast(dailyEntities)
-        forecastDAO.clearOlderThan(newDatetime)
+        // When clearOlderThan is called
+        forecastDAO.clearOlderThan(day.datetime)
 
         val currentDailyForecast =
-            forecastDAO.getDailyForecastFrom(location.latitude, location.longitude, 1616407200).first()
+            forecastDAO.getDailyForecastFrom(
+                day.latitude,
+                day.longitude,
+                1616407200,
+                day.dataSource
+            ).first()
 
-        assertThat(currentDailyForecast.map { it.toDayForecast() }).isEqualTo(newForecast.daily)
+        // Then all older dailyForecastEntities are dropped
+        assertThat(currentDailyForecast).isEqualTo(
+            dailyForecastEntities.subList(
+                index - 1,
+                dailyForecastEntities.size
+            )
+        )
     }
 
     @Test
@@ -182,7 +207,11 @@ class AppDatabaseTest {
                 )
             )
         }
+
+        // When getLocations is called
         val selectedLocations = forecastDAO.getLocations().first()
+
+        // Then only the last 5 selected location are returned
         assertThat(selectedLocations.size).isEqualTo(5)
     }
 
@@ -204,8 +233,11 @@ class AppDatabaseTest {
             locations.add(entity)
         }
 
+        // When getLocations is called
         forecastDAO.clearOlderThan(datetime)
         val selectedLocations = forecastDAO.getLocations().first()
+
+        // Then only the last 5 selected location are returned
         assertThat(selectedLocations).containsNoneIn(locations.take(3))
     }
 }

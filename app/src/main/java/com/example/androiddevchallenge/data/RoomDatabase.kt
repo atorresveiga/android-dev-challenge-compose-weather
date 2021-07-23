@@ -110,7 +110,7 @@ interface ForecastDAO {
         dataSource: Int
     ): Flow<List<DayForecastEntity>>
 
-    @Query("SELECT * from location_table ORDER BY datetime DESC")
+    @Query("SELECT * from location_table ORDER BY datetime DESC LIMIT 5")
     fun getLocations(): Flow<List<LocationEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
