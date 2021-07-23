@@ -18,6 +18,9 @@ package com.example.androiddevchallenge.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import com.example.androiddevchallenge.KILOMETERS
+import com.example.androiddevchallenge.METERS
+import com.example.androiddevchallenge.MILES
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.RAIN
 import com.example.androiddevchallenge.RAIN_AND_SNOW
@@ -123,21 +126,24 @@ class MetersWindMeasurement : WindMeasurement {
     override fun getValue(windSpeed: Float) = windSpeed
 
     @Composable
-    override fun getMeasurement(): String = stringResource(id = R.string.meters)
+    override fun getMeasurement(): String =
+        stringArrayResource(id = R.array.wind_speed_system)[METERS]
 }
 
 class KilometersWindMeasurement : WindMeasurement {
     override fun getValue(windSpeed: Float) = windSpeed * 3.6f
 
     @Composable
-    override fun getMeasurement(): String = stringResource(id = R.string.kilometers)
+    override fun getMeasurement(): String =
+        stringArrayResource(id = R.array.wind_speed_system)[KILOMETERS]
 }
 
 class MilesWindMeasurement : WindMeasurement {
     override fun getValue(windSpeed: Float) = windSpeed * 2.237f
 
     @Composable
-    override fun getMeasurement(): String = stringResource(id = R.string.miles)
+    override fun getMeasurement(): String =
+        stringArrayResource(id = R.array.wind_speed_system)[MILES]
 }
 
 class WindFormatter(windMeasurement: WindMeasurement) : WindMeasurement by windMeasurement {
@@ -325,7 +331,7 @@ object HumidityFormatter {
 class DataFormatter(
     hourSystem: Int,
     temperatureSystem: TemperatureSystem,
-    windSpeedSystem: WindSpeedSystem
+    windSpeedSystem: Int
 ) {
     val temperature: TemperatureFormatter
     val date: DateFormatter
@@ -347,9 +353,9 @@ class DataFormatter(
             else -> TwelveHourSystemFormatter()
         }
         val windMeasurement = when (windSpeedSystem) {
-            WindSpeedSystem.Meters -> MetersWindMeasurement()
-            WindSpeedSystem.Kilometers -> KilometersWindMeasurement()
-            WindSpeedSystem.Miles -> MilesWindMeasurement()
+            KILOMETERS -> KilometersWindMeasurement()
+            MILES -> MilesWindMeasurement()
+            else -> MetersWindMeasurement()
         }
         wind = WindFormatter(windMeasurement)
         date = DateFormatter(hour)

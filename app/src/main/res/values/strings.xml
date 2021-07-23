@@ -21,9 +21,7 @@
     <!-- Measure Systems -->
     <string name="celsius" translatable="false">C°</string>
     <string name="fahrenheit" translatable="false">F°</string>
-    <string name="meters" translatable="false">m/s</string>
-    <string name="kilometers" translatable="false">km/h</string>
-    <string name="miles" translatable="false">mph</string>
+
     <string name="millimeters" translatable="false">mm</string>
     <string name="inches" translatable="false">in</string>
 

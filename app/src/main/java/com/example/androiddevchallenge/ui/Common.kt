@@ -19,17 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.androiddevchallenge.R
 
-enum class WindSpeedSystem { Meters, Kilometers, Miles }
-
-@Composable
-fun WindSpeedSystem.translatableString(): String {
-    return when (this) {
-        WindSpeedSystem.Meters -> stringResource(R.string.meters)
-        WindSpeedSystem.Kilometers -> stringResource(R.string.kilometers)
-        WindSpeedSystem.Miles -> stringResource(R.string.miles)
-    }
-}
-
 enum class TemperatureSystem { Celsius, Fahrenheit }
 
 @Composable

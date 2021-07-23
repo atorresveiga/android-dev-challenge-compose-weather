@@ -56,4 +56,10 @@
         <item>Daily</item>
     </string-array>
 
+    <string-array name="wind_speed_system">
+        <item>m/s</item>
+        <item>km/h</item>
+        <item>mph</item>
+    </string-array>
+
 </resources>

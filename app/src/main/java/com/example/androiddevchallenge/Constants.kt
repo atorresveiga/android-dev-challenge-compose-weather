@@ -37,3 +37,8 @@ const val TWENTY_FOUR = 1
 // Display Forecast
 const val HOURLY = 0
 const val DAILY = 1
+
+// Wind Speed System
+const val METERS = 0
+const val KILOMETERS = 1
+const val MILES = 2
