@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'kotlinx-serialization'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -50,7 +52,6 @@ android {
     productFlavors {
         fake {
             dimension "version"
-            applicationIdSuffix ".fake"
             versionNameSuffix "-fake"
         }
         network {
@@ -155,6 +156,11 @@ dependencies {
     // Swipe refresh
     implementation "com.google.accompanist:accompanist-swiperefresh:0.11.1"
     implementation 'com.google.accompanist:accompanist-insets:0.11.1'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:28.3.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
     // Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
