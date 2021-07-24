@@ -233,7 +233,6 @@ class PrecipitationFormatter(private val weatherFormatter: WeatherFormatter) {
 }
 
 class ScaleFormatter {
-    private val scales: HashMap<Int, Array<String>> = hashMapOf()
 
     private fun getResId(id: Int): Int? {
         return when (id) {
@@ -245,23 +244,19 @@ class ScaleFormatter {
 
     @Composable
     fun getScale(id: Int, pos: Int): String {
-        if (!scales.containsKey(id)) {
-            val resId = getResId(id) ?: return ""
-            scales[id] = stringArrayResource(resId)
-        }
-        return scales[id]?.getOrElse(pos) { "" } ?: ""
+        val resId = getResId(id) ?: return ""
+        val scales = stringArrayResource(resId)
+        return scales.getOrElse(pos) { "" }
     }
 }
 
 class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
 
-    private lateinit var weather: Array<String>
-
     @Composable
     fun getWeatherWithScale(weatherId: Int): String {
-        if (!this::weather.isInitialized) {
-            weather = stringArrayResource(R.array.weather)
-        }
+
+        val weather = stringArrayResource(R.array.weather)
+
         val weatherPos = weatherId % 100
         val scaleId = (weatherId % 10000 - weatherId % 1000) / 1000
         val scalePos = (weatherId % 1000 - weatherId % 100) / 100
@@ -290,13 +285,9 @@ class WeatherFormatter(private val scaleFormatter: ScaleFormatter) {
 }
 
 object UVFormatter {
-    private lateinit var uvScale: Array<String>
-
     @Composable
     fun getValue(uvi: Float): String {
-        if (!this::uvScale.isInitialized) {
-            uvScale = stringArrayResource(R.array.uv_scale)
-        }
+        val uvScale = stringArrayResource(R.array.uv_scale)
         val pos = when (uvi) {
             in 0f..2.99f -> 0
             in 2.99f..4.99f -> 1
