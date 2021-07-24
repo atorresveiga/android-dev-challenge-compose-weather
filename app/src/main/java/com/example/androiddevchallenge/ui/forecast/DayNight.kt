@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.min
 import com.example.androiddevchallenge.data.FIRST_QUARTER
 import com.example.androiddevchallenge.data.FULL_MOON
 import com.example.androiddevchallenge.data.NEW_MOON
+import com.example.androiddevchallenge.data.NIGHT
 import com.example.androiddevchallenge.data.THIRD_QUARTER
 import com.example.androiddevchallenge.data.WANING_CRESCENT
 import com.example.androiddevchallenge.data.WANING_GIBBOUS
@@ -65,7 +66,7 @@ fun DayNight(
     sunriseHour: Int,
     sunsetHour: Int,
     moonPhaseId: Int,
-    skyState: SkyState,
+    skyState: Int,
     isSouthernHemisphere: Boolean
 ) {
     val density = LocalDensity.current
@@ -75,7 +76,7 @@ fun DayNight(
         val smallSide = min(maxWidth, maxHeight)
 
         AnimatedVisibility(
-            visible = skyState == SkyState.Night,
+            visible = skyState == NIGHT,
             enter = slideInVertically(
                 initialOffsetY = { with(density) { (maxWidth * 1.5f).toPx().toInt() } },
                 animationSpec = tween(
@@ -121,7 +122,7 @@ fun DayNight(
         }
 
         AnimatedVisibility(
-            visible = skyState != SkyState.Night,
+            visible = skyState != NIGHT,
             enter = slideInVertically(
                 initialOffsetY = { with(density) { (maxHeight * 1.5f).toPx().toInt() } },
                 animationSpec = tween(

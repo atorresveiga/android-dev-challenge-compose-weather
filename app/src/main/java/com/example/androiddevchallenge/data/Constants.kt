@@ -59,3 +59,9 @@ const val IDLE = 203
 // Direction
 const val FORWARD = 301
 const val BACKWARD = 302
+
+// Sky
+const val DAY = 401
+const val NIGHT = 402
+const val SUNRISE = 403
+const val SUNSET = 404

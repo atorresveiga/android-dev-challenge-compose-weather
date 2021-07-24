@@ -29,6 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.example.androiddevchallenge.data.DAY
+import com.example.androiddevchallenge.data.NIGHT
+import com.example.androiddevchallenge.data.SUNRISE
+import com.example.androiddevchallenge.data.SUNSET
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.HourForecast
 import com.example.androiddevchallenge.ui.theme.overlay
@@ -47,10 +51,10 @@ fun Sky(
     val sunriseHour = dateFormatter.getHour(currentDayForecast.sunrise, timezoneId)
     val sunsetHour = dateFormatter.getHour(currentDayForecast.sunset, timezoneId)
     val skyState = when (currentHour) {
-        sunriseHour -> SkyState.Sunrise
-        sunsetHour -> SkyState.Sunset
-        in sunriseHour..sunsetHour -> SkyState.Day
-        else -> SkyState.Night
+        sunriseHour -> SUNRISE
+        sunsetHour -> SUNSET
+        in sunriseHour..sunsetHour -> DAY
+        else -> NIGHT
     }
     val totalClouds = LocalSettings.current.clouds
     val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(totalClouds)) }
@@ -104,11 +108,11 @@ fun Sky(
 }
 
 @Composable
-fun SkyBackground(state: SkyState) {
+fun SkyBackground(state: Int) {
     val background by animateColorAsState(
         targetValue = when (state) {
-            SkyState.Day -> MaterialTheme.colors.primary
-            SkyState.Night -> MaterialTheme.colors.secondary
+            DAY -> MaterialTheme.colors.primary
+            NIGHT -> MaterialTheme.colors.secondary
             else -> MaterialTheme.colors.secondaryVariant
         }
     )
@@ -145,5 +149,3 @@ fun SkyOverlay(weatherId: Int) {
             .fillMaxSize()
     )
 }
-
-enum class SkyState { Day, Night, Sunrise, Sunset }
