@@ -39,6 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.data.ACTIVE
+import com.example.androiddevchallenge.data.BACKWARD
+import com.example.androiddevchallenge.data.FORWARD
+import com.example.androiddevchallenge.data.IDLE
+import com.example.androiddevchallenge.data.INACTIVE
 import com.example.androiddevchallenge.model.HourForecast
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -53,8 +58,8 @@ fun HourNavigation(
     hourlyForecast: List<HourForecast>,
     selected: Int,
     onSelectedChange: (index: Int) -> Unit,
-    onDirectionChange: (direction: Direction) -> Unit,
-    onHourNavigationInteractionChange: (state: HourNavigationInteractionState) -> Unit
+    onDirectionChange: (direction: Int) -> Unit,
+    onHourNavigationInteractionChange: (state: Int) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -74,7 +79,7 @@ fun HourNavigation(
 
         val index = (-1 * (hourlyForecast.size - 1) * offset / screenWidthPx).roundToInt()
 
-        val direction = if (delta < 0) Direction.FORWARD else Direction.BACKWARD
+        val direction = if (delta < 0) FORWARD else BACKWARD
 
         onSelectedChange(index)
         onDirectionChange(direction)
@@ -86,14 +91,14 @@ fun HourNavigation(
             Log.d("Interaction", interaction.toString())
             when (interaction) {
                 is PressInteraction.Press -> {
-                    onHourNavigationInteractionChange(HourNavigationInteractionState.ACTIVE)
+                    onHourNavigationInteractionChange(ACTIVE)
                 }
                 else -> {
-                    onHourNavigationInteractionChange(HourNavigationInteractionState.ACTIVE)
+                    onHourNavigationInteractionChange(ACTIVE)
                     delay(2000)
-                    onHourNavigationInteractionChange(HourNavigationInteractionState.INACTIVE)
+                    onHourNavigationInteractionChange(INACTIVE)
                     delay(4000)
-                    onHourNavigationInteractionChange(HourNavigationInteractionState.IDLE)
+                    onHourNavigationInteractionChange(IDLE)
                 }
             }
         }
@@ -116,8 +121,6 @@ fun HourNavigation(
     )
 }
 
-enum class HourNavigationInteractionState { ACTIVE, INACTIVE, IDLE }
-enum class Direction { FORWARD, BACKWARD }
 class OnStart : Interaction
 
 @Stable

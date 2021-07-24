@@ -33,8 +33,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.androiddevchallenge.RAIN_AND_SNOW
-import com.example.androiddevchallenge.SNOW
+import com.example.androiddevchallenge.data.RAIN_AND_SNOW
+import com.example.androiddevchallenge.data.SNOW
 import kotlin.math.roundToInt
 import kotlin.random.Random
 

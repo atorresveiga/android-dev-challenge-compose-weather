@@ -47,14 +47,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import com.example.androiddevchallenge.FIRST_QUARTER
-import com.example.androiddevchallenge.FULL_MOON
-import com.example.androiddevchallenge.NEW_MOON
-import com.example.androiddevchallenge.THIRD_QUARTER
-import com.example.androiddevchallenge.WANING_CRESCENT
-import com.example.androiddevchallenge.WANING_GIBBOUS
-import com.example.androiddevchallenge.WAXING_CRESCENT
-import com.example.androiddevchallenge.WAXING_GIBBOUS
+import com.example.androiddevchallenge.data.FIRST_QUARTER
+import com.example.androiddevchallenge.data.FULL_MOON
+import com.example.androiddevchallenge.data.NEW_MOON
+import com.example.androiddevchallenge.data.THIRD_QUARTER
+import com.example.androiddevchallenge.data.WANING_CRESCENT
+import com.example.androiddevchallenge.data.WANING_GIBBOUS
+import com.example.androiddevchallenge.data.WAXING_CRESCENT
+import com.example.androiddevchallenge.data.WAXING_GIBBOUS
 import com.example.androiddevchallenge.ui.theme.moonColor
 import com.example.androiddevchallenge.ui.theme.sunColor
 

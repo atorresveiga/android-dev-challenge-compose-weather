@@ -51,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.data.FORWARD
 import com.example.androiddevchallenge.ui.theme.lightningColor
 import com.example.androiddevchallenge.ui.theme.stormCloudColor
 
@@ -67,7 +68,7 @@ import com.example.androiddevchallenge.ui.theme.stormCloudColor
 @Composable
 fun Clouds(
     weatherId: Int,
-    direction: Direction,
+    direction: Int,
     cloudiness: Float,
     clouds: List<WeatherOffset>,
     modifier: Modifier = Modifier,
@@ -101,8 +102,8 @@ fun Clouds(
                 cloudModifier = cloudModifier.graphicsLayer(rotationY = 180f)
             }
 
-            val enterDirection = if (direction == Direction.FORWARD) 2 else -2
-            val exitDirection = if (direction == Direction.FORWARD) -1 else 1
+            val enterDirection = if (direction == FORWARD) 2 else -2
+            val exitDirection = if (direction == FORWARD) -1 else 1
 
             AnimatedVisibility(
                 visible = index < total,

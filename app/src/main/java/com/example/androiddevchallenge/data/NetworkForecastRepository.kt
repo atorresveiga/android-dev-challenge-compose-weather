@@ -15,7 +15,6 @@
  */
 package com.example.androiddevchallenge.data
 
-import com.example.androiddevchallenge.MET_NO
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.Location
 import kotlinx.coroutines.flow.first

@@ -63,9 +63,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
-import com.example.androiddevchallenge.DAILY
-import com.example.androiddevchallenge.HOURLY
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.data.DAILY
+import com.example.androiddevchallenge.data.HOURLY
 import com.example.androiddevchallenge.data.Settings
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.ui.BlueCloudDestinations

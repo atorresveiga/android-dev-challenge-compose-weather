@@ -37,7 +37,7 @@ import com.example.androiddevchallenge.ui.theme.overlay
 fun Sky(
     currentDayForecast: DayForecast,
     currentHourForecast: HourForecast,
-    direction: Direction,
+    direction: Int,
     timezoneId: String,
     isSouthernHemisphere: Boolean,
     modifier: Modifier = Modifier

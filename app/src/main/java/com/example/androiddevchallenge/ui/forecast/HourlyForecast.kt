@@ -34,6 +34,10 @@ import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
+import com.example.androiddevchallenge.data.ACTIVE
+import com.example.androiddevchallenge.data.FORWARD
+import com.example.androiddevchallenge.data.IDLE
+import com.example.androiddevchallenge.data.INACTIVE
 import com.example.androiddevchallenge.model.DayForecast
 import com.example.androiddevchallenge.model.Forecast
 import com.example.androiddevchallenge.model.HourForecast
@@ -57,9 +61,9 @@ fun HourlyForecastScreen(
     Box(modifier = modifier.fillMaxSize()) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
-        val (direction, onDirectionChange) = remember { mutableStateOf(Direction.FORWARD) }
+        val (direction, onDirectionChange) = remember { mutableStateOf(FORWARD) }
         val (hourNavigationInteractionState, onHourNavigationInteractionChange) = remember {
-            mutableStateOf(HourNavigationInteractionState.ACTIVE)
+            mutableStateOf(ACTIVE)
         }
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
@@ -74,15 +78,15 @@ fun HourlyForecastScreen(
 
         val controlsAlpha by animateFloatAsState(
             targetValue = when (hourNavigationInteractionState) {
-                HourNavigationInteractionState.INACTIVE -> .4f
-                HourNavigationInteractionState.IDLE -> .1f
+                INACTIVE -> .4f
+                IDLE -> .1f
                 else -> .6f
             }
         )
 
         val skyAlpha by animateFloatAsState(
             targetValue = when (hourNavigationInteractionState) {
-                HourNavigationInteractionState.ACTIVE -> .4f
+                ACTIVE -> .4f
                 else -> 1f
             }
         )

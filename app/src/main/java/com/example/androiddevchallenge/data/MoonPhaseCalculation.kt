@@ -15,14 +15,6 @@
  */
 package com.example.androiddevchallenge.data
 
-import com.example.androiddevchallenge.FIRST_QUARTER
-import com.example.androiddevchallenge.FULL_MOON
-import com.example.androiddevchallenge.NEW_MOON
-import com.example.androiddevchallenge.THIRD_QUARTER
-import com.example.androiddevchallenge.WANING_CRESCENT
-import com.example.androiddevchallenge.WANING_GIBBOUS
-import com.example.androiddevchallenge.WAXING_CRESCENT
-import com.example.androiddevchallenge.WAXING_GIBBOUS
 import kotlinx.datetime.LocalDate
 import kotlin.math.PI
 import kotlin.math.abs

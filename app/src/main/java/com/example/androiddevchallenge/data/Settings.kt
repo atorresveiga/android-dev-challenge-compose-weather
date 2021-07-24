@@ -15,11 +15,6 @@
  */
 package com.example.androiddevchallenge.data
 
-import com.example.androiddevchallenge.CELSIUS
-import com.example.androiddevchallenge.HOURLY
-import com.example.androiddevchallenge.METERS
-import com.example.androiddevchallenge.OPEN_WEATHER
-import com.example.androiddevchallenge.TWELVE
 import com.example.androiddevchallenge.ui.DataFormatter
 
 data class Settings(

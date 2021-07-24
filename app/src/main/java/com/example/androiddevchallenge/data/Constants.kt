@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.androiddevchallenge
+package com.example.androiddevchallenge.data
 
 // Moon phase
 const val NEW_MOON = 1
@@ -50,3 +50,12 @@ const val FAHRENHEIT = 1
 // Data Source
 const val OPEN_WEATHER = 0
 const val MET_NO = 1
+
+// Interaction State
+const val ACTIVE = 201
+const val INACTIVE = 202
+const val IDLE = 203
+
+// Direction
+const val FORWARD = 301
+const val BACKWARD = 302
