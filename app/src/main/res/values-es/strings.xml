@@ -38,13 +38,13 @@
     <string name="hurricane">Huracán</string>
 
     <string name="no_precipitation">Sin precipitaciones</string>
-    <string name="chance_precipitation">Con probabilidad de precipitaciones</string>
+    <string name="chance_precipitation">Probabilidad de\nprecipitaciones</string>
 
     <string name="uvi">UV %1$s</string>
 
     <string name="temperature_feels_like">%1$s / sensación %2$s</string>
     <string name="temperature_humidity">%1$s / %2$s humedad</string>
-    <string name="showers">intermitente</string>
+    <string name="showers">irregular</string>
     <string name="with_thunder">con truenos</string>
     <string name="weather_with_scale">%2$s %1$s</string>
 
