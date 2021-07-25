@@ -96,6 +96,13 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+        if(variant.buildType.name == 'release' && names.contains("fake")) {
+            setIgnore(true)
+        }
+    }
 }
 
 dependencies {
