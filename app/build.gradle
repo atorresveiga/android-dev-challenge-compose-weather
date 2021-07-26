@@ -6,7 +6,13 @@ plugins {
     id 'kotlinx-serialization'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'com.google.firebase.appdistribution'
 }
+
+// Load keystore
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdkVersion 30
@@ -35,27 +41,42 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            firebaseAppDistribution {
+                releaseNotes = "Debug version"
+                groups = "debug"
+            }
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            firebaseAppDistribution {
+                releaseNotes = "Release version"
+                groups = "release"
+            }
+            signingConfig signingConfigs.release
         }
     }
 
-    flavorDimensions "version"
+    flavorDimensions "data"
 
     productFlavors {
         fake {
-            dimension "version"
+            dimension "data"
             versionNameSuffix "-fake"
         }
         network {
-            dimension "version"
+            dimension "data"
         }
     }
 
@@ -95,13 +116,6 @@ android {
     }
     testOptions {
         unitTests.returnDefaultValues = true
-    }
-
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-        if(variant.buildType.name == 'release' && names.contains("fake")) {
-            setIgnore(true)
-        }
     }
 }
 
