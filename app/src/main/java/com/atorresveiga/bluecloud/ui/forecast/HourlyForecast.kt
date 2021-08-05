@@ -56,7 +56,7 @@ fun HourlyForecastScreen(
     forecastDisplayView: Int,
     onDisplayViewChange: (view: Int) -> Unit,
 ) {
-    val indexForecast = IndexForecast(forecast)
+    val indexForecast by remember { mutableStateOf(IndexForecast(forecast)) }
 
     Box(modifier = modifier.fillMaxSize()) {
 
