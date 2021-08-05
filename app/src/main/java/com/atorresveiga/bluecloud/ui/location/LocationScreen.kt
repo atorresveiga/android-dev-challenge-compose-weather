@@ -140,7 +140,9 @@ fun LocationScreen(
                 )
             }
         }
-        LocationSelected -> { navController.popBackStack() }
+        LocationSelected -> {
+            LaunchedEffect(true) { navController.popBackStack() }
+        }
     }
 }
 
