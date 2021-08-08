@@ -8,4 +8,5 @@
     <dimen name="horizontal_padding">16dp</dimen>
     <dimen name="small_horizontal_padding">8dp</dimen>
     <dimen name="size_splash_icon">300dp</dimen>
+    <dimen name="hour_navigation_icon">48dp</dimen>
 </resources>

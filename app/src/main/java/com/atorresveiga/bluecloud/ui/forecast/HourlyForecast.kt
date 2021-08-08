@@ -16,6 +16,9 @@
 package com.atorresveiga.bluecloud.ui.forecast
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +27,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,9 +48,17 @@ import com.atorresveiga.bluecloud.model.Forecast
 import com.atorresveiga.bluecloud.model.HourForecast
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+
+const val InactiveDelay = 5000L
+const val IdleDelay = 5000L
 
 @Composable
 fun HourlyForecastScreen(
@@ -65,8 +78,21 @@ fun HourlyForecastScreen(
         val (hourNavigationInteractionState, onHourNavigationInteractionChange) = remember {
             mutableStateOf(ACTIVE)
         }
+        val interactionSource = remember { MutableNavigationInteractionSource() }
         val selectedHour = indexForecast.hourly[index]
         val currentDay = indexForecast.getDayForecast(selectedHour.datetime)
+        val hasNextHour = index != indexForecast.hourly.lastIndex
+        val hasPreviousHour = index != 0
+        val onMoveNextHour: () -> Unit = {
+            if (hasNextHour) {
+                onIndexChange(index + 1)
+            }
+        }
+        val onMovePreviousHour: () -> Unit = {
+            if (hasPreviousHour) {
+                onIndexChange(index - 1)
+            }
+        }
 
         val weatherInfoModifier = if (booleanResource(id = R.bool.is_large_display)) {
             Modifier.align(Alignment.Center)
@@ -91,12 +117,29 @@ fun HourlyForecastScreen(
             }
         )
 
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collectLatest { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> {
+                        onHourNavigationInteractionChange(ACTIVE)
+                    }
+                    else -> {
+                        onHourNavigationInteractionChange(ACTIVE)
+                        delay(InactiveDelay)
+                        onHourNavigationInteractionChange(INACTIVE)
+                        delay(IdleDelay)
+                        onHourNavigationInteractionChange(IDLE)
+                    }
+                }
+            }
+        }
+
         HourNavigation(
             hourlyForecast = indexForecast.hourly,
             selected = index,
             onSelectedChange = onIndexChange,
             onDirectionChange = onDirectionChange,
-            onHourNavigationInteractionChange = onHourNavigationInteractionChange
+            interactionSource = interactionSource
         )
 
         Sky(
@@ -132,7 +175,12 @@ fun HourlyForecastScreen(
             maxTemperature = currentDay.maxTemperature,
             timezoneId = indexForecast.location.timezoneId,
             modifier = weatherInfoModifier.alpha(controlsAlpha),
-            onSelectLocation = onSelectLocation
+            onSelectLocation = onSelectLocation,
+            hasNextHour = hasNextHour,
+            hasPreviousHour = hasPreviousHour,
+            onMoveNextHour = onMoveNextHour,
+            onMovePreviousHour = onMovePreviousHour,
+            interactionSource = interactionSource
         )
 
         PrecipitationInformation(
@@ -187,6 +235,27 @@ fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Mo
         Text(
             text = LocalSettings.current.dataFormatter.precipitation.getVolume(hourForecast.precipitation)
         )
+    }
+}
+
+class OnStart : Interaction
+
+@Stable
+class MutableNavigationInteractionSource : MutableInteractionSource {
+
+    private val mutableInteractions = MutableSharedFlow<Interaction>(
+        extraBufferCapacity = 16,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    override val interactions = mutableInteractions.onSubscription { emit(OnStart()) }
+
+    override suspend fun emit(interaction: Interaction) {
+        mutableInteractions.emit(interaction)
+    }
+
+    override fun tryEmit(interaction: Interaction): Boolean {
+        return mutableInteractions.tryEmit(interaction)
     }
 }
 
