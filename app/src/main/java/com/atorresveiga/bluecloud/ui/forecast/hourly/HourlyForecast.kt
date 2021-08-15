@@ -217,7 +217,7 @@ fun HourlyForecastScreen(
         )
 
         UpdateSettingsButton(
-            onUpdateSettings = onUpdateSettings,
+            onClick = onUpdateSettings,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(

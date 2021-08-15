@@ -29,16 +29,16 @@ import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 
 /**
  * UpdateSettingsButton composable used to change the app settings
- * @param onUpdateSettings command to change app settings
+ * @param onClick command to execute when the button is clicked
  * @param modifier Modifier
  */
 @Composable
-fun UpdateSettingsButton(onUpdateSettings: () -> Unit, modifier: Modifier = Modifier) {
+fun UpdateSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Icon(
         imageVector = Icons.Rounded.Settings,
         contentDescription = null,
         modifier = modifier
-            .clickable { onUpdateSettings() }
+            .clickable { onClick() }
             .padding(8.dp)
     )
 }
@@ -48,7 +48,7 @@ fun UpdateSettingsButton(onUpdateSettings: () -> Unit, modifier: Modifier = Modi
 fun UpdateSettingsButtonPreview() {
     BlueCloudTheme {
         Surface {
-            UpdateSettingsButton(onUpdateSettings = {})
+            UpdateSettingsButton(onClick = {})
         }
     }
 }

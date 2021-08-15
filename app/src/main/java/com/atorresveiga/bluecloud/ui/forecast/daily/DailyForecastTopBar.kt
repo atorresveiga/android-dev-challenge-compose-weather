@@ -97,7 +97,7 @@ fun SmallDailyForecastTopBar(
                         .align(Alignment.CenterStart)
                 )
                 UpdateSettingsButton(
-                    onUpdateSettings = onUpdateSettings,
+                    onClick = onUpdateSettings,
                     modifier = Modifier
                         .padding(end = 4.dp)
                         .size(48.dp)
@@ -147,7 +147,7 @@ fun LargeDailyForecastTopBar(
                 modifier = Modifier.align(Alignment.Center)
             )
             UpdateSettingsButton(
-                onUpdateSettings = onUpdateSettings,
+                onClick = onUpdateSettings,
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .size(48.dp)
