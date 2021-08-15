@@ -4,7 +4,6 @@
     <dimen name="cloud3">180dp</dimen>
     <dimen name="cloud2">150dp</dimen>
     <dimen name="cloud1">125dp</dimen>
-    <bool name="is_large_display">false</bool>
     <dimen name="horizontal_padding">16dp</dimen>
     <dimen name="small_horizontal_padding">8dp</dimen>
     <dimen name="size_splash_icon">300dp</dimen>

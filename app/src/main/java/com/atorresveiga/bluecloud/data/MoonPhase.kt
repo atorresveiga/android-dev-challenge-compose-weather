@@ -25,36 +25,47 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
+enum class MoonPhase {
+    NewMoon,
+    WaxingCrescent,
+    FirstQuarter,
+    WaxingGibbous,
+    FullMoon,
+    WaningGibbous,
+    ThirdQuarter,
+    WaningCrescent
+}
+
 /**
  * 1980 January 0.0 in JDN
  */
-const val EPOCH = 2444238.5
+const val Epoch = 2444238.5
 
 /**
  * Ecliptic longitude of the Sun at epoch 1980.0
  */
-const val ECLIPTIC_LONGITUDE_EPOCH = 278.833540
+const val EclipticLongitudeEpoch = 278.833540
 
 /**
  * Ecliptic longitude of the Sun at perigee
  */
-const val ECLIPTIC_LONGITUDE_PERIGEE = 282.596403
+const val EclipticLongitudePerigee = 282.596403
 
 /**
  * Eccentricity of Earth's orbit
  */
-const val ECCENTRICITY = 0.016718
+const val Eccentricity = 0.016718
 
 // Elements of the Moon's orbit, epoch 1980.0
 /**
  * Moon's mean longitude at the epoch
  */
-const val MOON_MEAN_LONGITUDE_EPOCH = 64.975464
+const val MoonMeanLongitudeEpoch = 64.975464
 
 /**
  * Mean longitude of the perigee at the epoch
  */
-const val MOON_MEAN_PERIGEE_EPOCH = 349.383063
+const val MoonMeanPerigeeEpoch = 349.383063
 
 /**
  * Convert date to julian date
@@ -86,19 +97,19 @@ fun kepler(m: Double, ecc: Double): Double {
  * http://bazaar.launchpad.net/~keturn/py-moon-phase/trunk/annotate/head:/moon.py
  * The result is the moon phase position in MoonPhase enum
  */
-fun getMoonPhase(date: LocalDate): Int {
-    val day = date.toJDN() - EPOCH
+fun getMoonPhase(date: LocalDate): MoonPhase {
+    val day = date.toJDN() - Epoch
     val n = fixAngle((360 / 365.2422) * day)
-    val m = fixAngle(n + ECLIPTIC_LONGITUDE_EPOCH - ECLIPTIC_LONGITUDE_PERIGEE)
+    val m = fixAngle(n + EclipticLongitudeEpoch - EclipticLongitudePerigee)
 
-    var ec = kepler(m, ECCENTRICITY)
-    ec = sqrt((1 + ECCENTRICITY) / (1 - ECCENTRICITY)) * tan(ec / 2.0)
+    var ec = kepler(m, Eccentricity)
+    ec = sqrt((1 + Eccentricity) / (1 - Eccentricity)) * tan(ec / 2.0)
     ec = 2 * toDeg(atan(ec))
 
-    val lambdaSun = fixAngle(ec + ECLIPTIC_LONGITUDE_PERIGEE)
+    val lambdaSun = fixAngle(ec + EclipticLongitudePerigee)
 
-    val moonLongitude = fixAngle(13.1763966 * day + MOON_MEAN_LONGITUDE_EPOCH)
-    val mm = fixAngle(moonLongitude - 0.1114041 * day - MOON_MEAN_PERIGEE_EPOCH)
+    val moonLongitude = fixAngle(13.1763966 * day + MoonMeanLongitudeEpoch)
+    val mm = fixAngle(moonLongitude - 0.1114041 * day - MoonMeanPerigeeEpoch)
 
     val evection = 1.2739 * sin(toRad(2 * (moonLongitude - lambdaSun) - mm))
     val annualEq = 0.1858 * sin(toRad(m))
@@ -118,15 +129,15 @@ fun getMoonPhase(date: LocalDate): Int {
     return fromPhase(fixAngle(moonAge) / 360.0)
 }
 
-fun fromPhase(phase: Double): Int {
+fun fromPhase(phase: Double): MoonPhase {
     return when (phase) {
-        in 0.0625..0.1876 -> WAXING_CRESCENT
-        in 0.1876..0.3126 -> FIRST_QUARTER
-        in 0.3126..0.4376 -> WAXING_GIBBOUS
-        in 0.4376..0.5626 -> FULL_MOON
-        in 0.5626..0.6876 -> WANING_GIBBOUS
-        in 0.6876..0.8126 -> THIRD_QUARTER
-        in 0.8126..0.9376 -> WANING_CRESCENT
-        else -> NEW_MOON
+        in 0.0625..0.1876 -> MoonPhase.WaxingCrescent
+        in 0.1876..0.3126 -> MoonPhase.FirstQuarter
+        in 0.3126..0.4376 -> MoonPhase.WaxingGibbous
+        in 0.4376..0.5626 -> MoonPhase.FullMoon
+        in 0.5626..0.6876 -> MoonPhase.WaningGibbous
+        in 0.6876..0.8126 -> MoonPhase.ThirdQuarter
+        in 0.8126..0.9376 -> MoonPhase.WaningCrescent
+        else -> MoonPhase.NewMoon
     }
 }

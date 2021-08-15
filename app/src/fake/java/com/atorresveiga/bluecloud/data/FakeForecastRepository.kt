@@ -19,6 +19,7 @@ import com.atorresveiga.bluecloud.model.Forecast
 import com.atorresveiga.bluecloud.model.Location
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.Clock
 
 class FakeForecastRepository : LocalForecastRepository, NetworkForecastDataSource {
 
@@ -32,12 +33,14 @@ class FakeForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
     override fun getCurrentLocation(): Flow<Location?> = mutableLocation
 
     override suspend fun saveCurrentLocation(location: Location) {
-        mutableLocation.value = location
         val locations = mutableLocations.value
         if (locations.contains(location)) {
             locations.remove(location)
         }
         locations.add(0, location)
+        mutableLocation.value = location.copy(lastUpdated = Clock.System.now().epochSeconds)
+        val forecast = getForecast(location)
+        saveForecast(forecast)
     }
 
     override suspend fun saveForecast(forecast: Forecast) {
@@ -49,8 +52,8 @@ class FakeForecastRepository : LocalForecastRepository, NetworkForecastDataSourc
 
     override suspend fun getForecast(location: Location): Forecast {
         return RandomFakeData.createForecast(
-            location = mutableLocation.value!!,
-            startEpoch = 1621609658L
+            location = location,
+            startEpoch = location.lastUpdated
         )
     }
 }

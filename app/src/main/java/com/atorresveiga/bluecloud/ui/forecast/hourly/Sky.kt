@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atorresveiga.bluecloud.ui.forecast
+package com.atorresveiga.bluecloud.ui.forecast.hourly
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,7 +21,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,19 +31,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.atorresveiga.bluecloud.data.DAY
-import com.atorresveiga.bluecloud.data.NIGHT
-import com.atorresveiga.bluecloud.data.SUNRISE
-import com.atorresveiga.bluecloud.data.SUNSET
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import com.atorresveiga.bluecloud.model.DayForecast
 import com.atorresveiga.bluecloud.model.HourForecast
+import com.atorresveiga.bluecloud.ui.common.day
+import com.atorresveiga.bluecloud.ui.common.hour1
+import com.atorresveiga.bluecloud.ui.common.location1
+import com.atorresveiga.bluecloud.ui.common.settings
+import com.atorresveiga.bluecloud.ui.forecast.LocalSettings
+import com.atorresveiga.bluecloud.ui.forecast.Precipitation
+import com.atorresveiga.bluecloud.ui.forecast.generateRandomWeatherOffsets
+import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 import com.atorresveiga.bluecloud.ui.theme.overlay
 
+enum class Sky { Day, Sunrise, Sunset, Night }
+
+/**
+ * Sky representation based on the forecast and the day light
+ * @param currentDayForecast current day's forecast
+ * @param currentHourForecast hour to represent
+ * @param direction user's navigation direction (to animate the clouds)
+ * @param timezoneId current location timezone id
+ * @param isSouthernHemisphere if the current location is in the south hemisphere (some moon phases
+ * are shown differently in each hemisphere)
+ * @param modifier Modifier
+ */
 @Composable
 fun Sky(
     currentDayForecast: DayForecast,
     currentHourForecast: HourForecast,
-    direction: Int,
+    direction: NavigationDirection,
     timezoneId: String,
     isSouthernHemisphere: Boolean,
     modifier: Modifier = Modifier
@@ -50,11 +70,11 @@ fun Sky(
     val currentHour = dateFormatter.getHour(currentHourForecast.datetime, timezoneId)
     val sunriseHour = dateFormatter.getHour(currentDayForecast.sunrise, timezoneId)
     val sunsetHour = dateFormatter.getHour(currentDayForecast.sunset, timezoneId)
-    val skyState = when (currentHour) {
-        sunriseHour -> SUNRISE
-        sunsetHour -> SUNSET
-        in sunriseHour..sunsetHour -> DAY
-        else -> NIGHT
+    val sky = when (currentHour) {
+        sunriseHour -> Sky.Sunrise
+        sunsetHour -> Sky.Sunset
+        in sunriseHour..sunsetHour -> Sky.Day
+        else -> Sky.Night
     }
     val totalClouds = LocalSettings.current.clouds
     val clouds by remember { mutableStateOf(generateRandomWeatherOffsets(totalClouds)) }
@@ -62,7 +82,7 @@ fun Sky(
     val foregroundClouds = clouds.filter { it.z > 2 }
 
     Box(modifier = modifier.fillMaxSize()) {
-        SkyBackground(state = skyState)
+        SkyBackground(sky = sky)
         Clouds(
             cloudiness = currentHourForecast.clouds,
             weatherId = currentHourForecast.weatherId,
@@ -76,7 +96,7 @@ fun Sky(
             sunsetHour = sunsetHour,
             moonPhaseId = currentDayForecast.moonPhase,
             isSouthernHemisphere = isSouthernHemisphere,
-            skyState = skyState
+            sky = sky
         )
         Clouds(
             cloudiness = currentHourForecast.clouds,
@@ -107,12 +127,16 @@ fun Sky(
     }
 }
 
+/**
+ * SkyBackground background color from sky's state
+ * @param sky current [Sky] state
+ */
 @Composable
-fun SkyBackground(state: Int) {
+fun SkyBackground(sky: Sky) {
     val background by animateColorAsState(
-        targetValue = when (state) {
-            DAY -> MaterialTheme.colors.primary
-            NIGHT -> MaterialTheme.colors.secondary
+        targetValue = when (sky) {
+            Sky.Day -> MaterialTheme.colors.primary
+            Sky.Night -> MaterialTheme.colors.secondary
             else -> MaterialTheme.colors.secondaryVariant
         }
     )
@@ -123,6 +147,10 @@ fun SkyBackground(state: Int) {
     )
 }
 
+/**
+ * SkyOverlay overlay from current hour's weatherId
+ * @param weatherId current hour's weatherId
+ */
 @Composable
 fun SkyOverlay(weatherId: Int) {
     val precipitation = LocalSettings.current.dataFormatter.precipitation
@@ -148,4 +176,22 @@ fun SkyOverlay(weatherId: Int) {
             .background(brush = brush)
             .fillMaxSize()
     )
+}
+
+@Preview(showSystemUi = true, device = Devices.PIXEL_4)
+@Composable
+fun SkyPreview() {
+    BlueCloudTheme {
+        Surface {
+            CompositionLocalProvider(LocalSettings provides settings) {
+                Sky(
+                    currentDayForecast = day,
+                    currentHourForecast = hour1.copy(weatherId = 20005),
+                    direction = NavigationDirection.Forward,
+                    timezoneId = location1.timezoneId,
+                    isSouthernHemisphere = false
+                )
+            }
+        }
+    }
 }

@@ -13,70 +13,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atorresveiga.bluecloud.ui.forecast
+package com.atorresveiga.bluecloud.ui.forecast.hourly
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.atorresveiga.bluecloud.R
-import com.atorresveiga.bluecloud.data.ACTIVE
-import com.atorresveiga.bluecloud.data.FORWARD
-import com.atorresveiga.bluecloud.data.IDLE
-import com.atorresveiga.bluecloud.data.INACTIVE
-import com.atorresveiga.bluecloud.model.DayForecast
 import com.atorresveiga.bluecloud.model.Forecast
-import com.atorresveiga.bluecloud.model.HourForecast
+import com.atorresveiga.bluecloud.ui.common.ScreenSize
+import com.atorresveiga.bluecloud.ui.common.forecast
+import com.atorresveiga.bluecloud.ui.common.getScreenSize
+import com.atorresveiga.bluecloud.ui.common.settings
+import com.atorresveiga.bluecloud.ui.forecast.ForecastView
+import com.atorresveiga.bluecloud.ui.forecast.LocalSettings
+import com.atorresveiga.bluecloud.ui.forecast.SelectForecastView
+import com.atorresveiga.bluecloud.ui.settings.UpdateSettingsButton
+import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onSubscription
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 const val InactiveDelay = 5000L
 const val IdleDelay = 5000L
 
+enum class UserInteraction { Active, Inactive, Idle }
+
+/**
+ * HourlyForecastScreen hourly view of the selected forecast
+ * @param forecast forecast to to display
+ * @param modifier Modifier
+ * @param onSelectLocation command to select a new location
+ * @param onUpdateSettings command to change app settings
+ * @param onForecastViewChange the callback that is triggered when the forecast display view change.
+ * An updated [ForecastView] comes as a parameter of the callback
+ * @param screenSize user device's [ScreenSize]
+ */
 @Composable
 fun HourlyForecastScreen(
     forecast: Forecast,
     modifier: Modifier = Modifier,
     onSelectLocation: () -> Unit = {},
-    updateSettings: () -> Unit,
-    forecastDisplayView: Int,
-    onDisplayViewChange: (view: Int) -> Unit,
+    onUpdateSettings: () -> Unit = {},
+    onForecastViewChange: (view: ForecastView) -> Unit = {},
+    screenSize: ScreenSize = getScreenSize()
 ) {
     val indexForecast by remember { mutableStateOf(IndexForecast(forecast)) }
 
     Box(modifier = modifier.fillMaxSize()) {
 
         val (index, onIndexChange) = remember { mutableStateOf(0) }
-        val (direction, onDirectionChange) = remember { mutableStateOf(FORWARD) }
+        val (direction, onDirectionChange) = remember { mutableStateOf(NavigationDirection.Forward) }
         val (hourNavigationInteractionState, onHourNavigationInteractionChange) = remember {
-            mutableStateOf(ACTIVE)
+            mutableStateOf(UserInteraction.Active)
         }
         val interactionSource = remember { MutableNavigationInteractionSource() }
         val selectedHour = indexForecast.hourly[index]
@@ -94,25 +101,25 @@ fun HourlyForecastScreen(
             }
         }
 
-        val weatherInfoModifier = if (booleanResource(id = R.bool.is_large_display)) {
+        val weatherInfoModifier = if (screenSize == ScreenSize.Large) {
             Modifier.align(Alignment.Center)
         } else {
             Modifier
-                .padding(top = 160.dp)
                 .align(Alignment.TopCenter)
+                .padding(top = 100.dp)
         }
 
         val controlsAlpha by animateFloatAsState(
             targetValue = when (hourNavigationInteractionState) {
-                INACTIVE -> .4f
-                IDLE -> .1f
+                UserInteraction.Inactive -> .4f
+                UserInteraction.Idle -> .1f
                 else -> .6f
             }
         )
 
         val skyAlpha by animateFloatAsState(
             targetValue = when (hourNavigationInteractionState) {
-                ACTIVE -> .4f
+                UserInteraction.Active -> .4f
                 else -> 1f
             }
         )
@@ -121,14 +128,14 @@ fun HourlyForecastScreen(
             interactionSource.interactions.collectLatest { interaction ->
                 when (interaction) {
                     is PressInteraction.Press -> {
-                        onHourNavigationInteractionChange(ACTIVE)
+                        onHourNavigationInteractionChange(UserInteraction.Active)
                     }
                     else -> {
-                        onHourNavigationInteractionChange(ACTIVE)
+                        onHourNavigationInteractionChange(UserInteraction.Active)
                         delay(InactiveDelay)
-                        onHourNavigationInteractionChange(INACTIVE)
+                        onHourNavigationInteractionChange(UserInteraction.Inactive)
                         delay(IdleDelay)
-                        onHourNavigationInteractionChange(IDLE)
+                        onHourNavigationInteractionChange(UserInteraction.Idle)
                     }
                 }
             }
@@ -151,9 +158,9 @@ fun HourlyForecastScreen(
             modifier = Modifier.alpha(skyAlpha)
         )
 
-        DailyHourlyForecast(
-            forecastDisplayView = forecastDisplayView,
-            onDisplayViewChange = onDisplayViewChange,
+        SelectForecastView(
+            forecastView = ForecastView.HourlyView,
+            onForecastViewChange = onForecastViewChange,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(
@@ -210,7 +217,7 @@ fun HourlyForecastScreen(
         )
 
         UpdateSettingsButton(
-            updateSettings = updateSettings,
+            onUpdateSettings = onUpdateSettings,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(
@@ -224,63 +231,14 @@ fun HourlyForecastScreen(
     }
 }
 
+@Preview(showSystemUi = true, device = Devices.PIXEL_4)
 @Composable
-fun PrecipitationInformation(hourForecast: HourForecast, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = LocalSettings.current.dataFormatter.precipitation.getIntensityString(
-                hourForecast.weatherId, hourForecast.pop
-            )
-        )
-        Text(
-            text = LocalSettings.current.dataFormatter.precipitation.getVolume(hourForecast.precipitation)
-        )
-    }
-}
-
-class OnStart : Interaction
-
-@Stable
-class MutableNavigationInteractionSource : MutableInteractionSource {
-
-    private val mutableInteractions = MutableSharedFlow<Interaction>(
-        extraBufferCapacity = 16,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-
-    override val interactions = mutableInteractions.onSubscription { emit(OnStart()) }
-
-    override suspend fun emit(interaction: Interaction) {
-        mutableInteractions.emit(interaction)
-    }
-
-    override fun tryEmit(interaction: Interaction): Boolean {
-        return mutableInteractions.tryEmit(interaction)
-    }
-}
-
-class IndexForecast(forecast: Forecast) {
-    val location = forecast.location
-    private val daily = forecast.daily
-    val hourly = forecast.hourly
-
-    private val dayIndex: HashMap<Long, Int> = hashMapOf()
-
-    init {
-        daily.forEachIndexed { index, dayForecast ->
-            val timezone = TimeZone.of(location.timezoneId)
-            val date = Instant.fromEpochSeconds(dayForecast.datetime).toLocalDateTime(timezone).date
-            for (hour in hourly) {
-                val hourDate =
-                    Instant.fromEpochSeconds(hour.datetime).toLocalDateTime(timezone).date
-                if (date == hourDate) {
-                    dayIndex[hour.datetime] = index
-                }
+fun HourlyForecastScreenPreview() {
+    BlueCloudTheme {
+        Surface {
+            CompositionLocalProvider(LocalSettings provides settings) {
+                HourlyForecastScreen(forecast = forecast, screenSize = ScreenSize.Small)
             }
         }
     }
-
-    fun getDayForecast(hourDatetime: Long): DayForecast =
-        dayIndex[hourDatetime]?.let { daily[it] }
-            ?: throw IllegalArgumentException("Hour not belongs to current forecast")
 }

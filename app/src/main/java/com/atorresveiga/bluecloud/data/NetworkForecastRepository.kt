@@ -26,8 +26,9 @@ class NetworkForecastRepository @Inject constructor(
     private val metNoDataSource: MetNoDataSource
 ) : NetworkForecastDataSource {
     override suspend fun getForecast(location: Location): Forecast {
-        val source = when (dataStoreManager.settings.first().dataSource) {
-            MET_NO -> metNoDataSource
+        val dataSourceId = dataStoreManager.settings.first().dataSource
+        val source = when (ForecastDataSource.values()[dataSourceId]) {
+            ForecastDataSource.MetNo -> metNoDataSource
             else -> openWeatherDataSource
         }
         // Get updated forecast from the network

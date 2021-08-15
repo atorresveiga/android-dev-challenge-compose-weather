@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atorresveiga.bluecloud.ui.main
+package com.atorresveiga.bluecloud.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -22,8 +22,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowCompat
 import com.atorresveiga.bluecloud.R
-import com.atorresveiga.bluecloud.ui.NavGraph
-import com.atorresveiga.bluecloud.ui.theme.MyTheme
+import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            MyTheme {
+            BlueCloudTheme {
                 ProvideWindowInsets {
                     BlueCloudApp()
                 }

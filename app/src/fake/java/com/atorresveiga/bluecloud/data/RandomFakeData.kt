@@ -21,7 +21,7 @@ import com.atorresveiga.bluecloud.model.Forecast
 import com.atorresveiga.bluecloud.model.HourForecast
 import com.atorresveiga.bluecloud.model.Location
 import com.atorresveiga.bluecloud.model.SECONDS_IN_AN_HOUR
-import com.atorresveiga.bluecloud.ui.MoonPhaseFormatter
+import com.atorresveiga.bluecloud.ui.formatter.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -139,7 +139,7 @@ object RandomFakeData {
             val date = Instant.fromEpochSeconds(datetime)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
 
-            val moonPhase = getMoonPhase(date.date)
+            val moonPhase = getMoonPhase(date.date).ordinal
 
             val dayForecast = DayForecast(
                 datetime = datetime,

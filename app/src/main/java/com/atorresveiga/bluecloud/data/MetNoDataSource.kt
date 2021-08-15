@@ -19,7 +19,7 @@ import com.atorresveiga.bluecloud.model.DayForecast
 import com.atorresveiga.bluecloud.model.Forecast
 import com.atorresveiga.bluecloud.model.HourForecast
 import com.atorresveiga.bluecloud.model.Location
-import com.atorresveiga.bluecloud.ui.MoonPhaseFormatter
+import com.atorresveiga.bluecloud.ui.formatter.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
@@ -193,7 +193,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
                         previousMoonPhase = previousMoonPhase
                     )
                     daily.add(day)
-                    previousMoonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0)
+                    previousMoonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0).ordinal
                     currentDayDateTime = dayDateTime
                     currentDayTimeSeries.clear()
                 }
@@ -314,7 +314,7 @@ class MetNoDataSource @Inject constructor(private val api: MetNoAPI) : NetworkFo
         val windDegrees = windDirectionSum / dayTimeSeries.size
         val sunrise = sunriseMoonPhaseInfo.sunrise!!.time.toInstant().epochSeconds
         val sunset = sunriseMoonPhaseInfo.sunset!!.time.toInstant().epochSeconds
-        val moonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0)
+        val moonPhase = fromPhase(sunriseMoonPhaseInfo.moon.phase.toDouble() / 100.0).ordinal
         val encodedMoonPhase = MoonPhaseFormatter.encode(moonPhase, previousMoonPhase)
 
         return DayForecast(

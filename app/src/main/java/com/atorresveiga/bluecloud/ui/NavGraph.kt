@@ -31,33 +31,33 @@ import com.atorresveiga.bluecloud.ui.settings.SettingsViewModel
  * Destinations used in the BlueCloudApp.
  */
 object BlueCloudDestinations {
-    const val LOCATION_ROUTE = "location"
-    const val FORECAST_ROUTE = "forecast"
-    const val SETTINGS_ROUTE = "settings"
+    const val LocationRoute = "location"
+    const val ForecastRoute = "forecast"
+    const val SettingsRoute = "settings"
 }
 
 @Composable
-fun NavGraph(startDestination: String = BlueCloudDestinations.FORECAST_ROUTE) {
+fun NavGraph(startDestination: String = BlueCloudDestinations.ForecastRoute) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(BlueCloudDestinations.LOCATION_ROUTE) {
+        composable(BlueCloudDestinations.LocationRoute) {
             val locationViewModel = hiltViewModel<LocationViewModel>()
             LocationScreen(
                 viewModel = locationViewModel,
                 navController = navController
             )
         }
-        composable(BlueCloudDestinations.FORECAST_ROUTE) {
+        composable(BlueCloudDestinations.ForecastRoute) {
             val forecastViewModel = hiltViewModel<ForecastViewModel>()
             ForecastScreen(
                 viewModel = forecastViewModel,
                 navController = navController
             )
         }
-        composable(BlueCloudDestinations.SETTINGS_ROUTE) {
+        composable(BlueCloudDestinations.SettingsRoute) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(
                 viewModel = settingsViewModel,

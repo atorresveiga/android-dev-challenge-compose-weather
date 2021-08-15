@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hourly">Hourly</string>
+    <string name="daily">Daily</string>
+    <string name="celsius" translatable="false">C°</string>
+    <string name="fahrenheit" translatable="false">F°</string>
+    <string name="hour_system_12">12 hours</string>
+    <string name="hour_system_24">24 hours</string>
+    <string name="meters" translatable="false">m/s</string>
+    <string name="kilometers" translatable="false">km/h</string>
+    <string name="miles" translatable="false">mph</string>
+    <string name="open_weather">Open Weather</string>
+    <string name="met_no">Norwegian MET</string>
+</resources>

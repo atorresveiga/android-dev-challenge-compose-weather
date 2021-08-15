@@ -19,17 +19,13 @@ import com.atorresveiga.bluecloud.model.DayForecast
 import com.atorresveiga.bluecloud.model.Forecast
 import com.atorresveiga.bluecloud.model.HourForecast
 import com.atorresveiga.bluecloud.model.Location
-import com.atorresveiga.bluecloud.ui.MoonPhaseFormatter
+import com.atorresveiga.bluecloud.ui.formatter.MoonPhaseFormatter
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 import kotlin.math.max
-
-interface NetworkForecastDataSource {
-    suspend fun getForecast(location: Location): Forecast
-}
 
 class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI) :
     NetworkForecastDataSource {
@@ -130,7 +126,7 @@ class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI)
             val date = Instant.fromEpochSeconds(day.datetime)
                 .toLocalDateTime(timezone).date
 
-            val moonPhase = getMoonPhase(date)
+            val moonPhase = getMoonPhase(date).ordinal
             val dayForecast = DayForecast(
                 datetime = day.datetime,
                 pressure = day.pressure,

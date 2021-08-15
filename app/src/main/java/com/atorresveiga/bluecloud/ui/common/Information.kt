@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atorresveiga.bluecloud.ui
+package com.atorresveiga.bluecloud.ui.common
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -24,22 +24,28 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.atorresveiga.bluecloud.R
 import com.atorresveiga.bluecloud.ui.forecast.Cloud
 import com.atorresveiga.bluecloud.ui.forecast.Sun
+import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 import com.atorresveiga.bluecloud.ui.theme.cloudColor
 import com.atorresveiga.bluecloud.ui.theme.sunColor
 import com.google.accompanist.insets.systemBarsPadding
 
+/**
+ * Information is a full screen window with a sun and cloud on top of it.
+ * @param modifier Modifier
+ * @param content composable function
+ */
 @Composable
 fun Information(modifier: Modifier = Modifier, content: @Composable () -> Unit = {}) {
     Column(
@@ -75,21 +81,14 @@ fun Information(modifier: Modifier = Modifier, content: @Composable () -> Unit =
     }
 }
 
+@Preview(showSystemUi = true, device = Devices.PIXEL_4)
 @Composable
-fun BlueCloudTitle(
-    text: String,
-    modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.Start
-) {
-    val style = if (booleanResource(id = R.bool.is_large_display)) {
-        MaterialTheme.typography.h4
-    } else {
-        MaterialTheme.typography.h5
+fun InformationPreview() {
+    BlueCloudTheme {
+        Surface {
+            Information {
+                BlueCloudTitle("This is an information")
+            }
+        }
     }
-    Text(
-        modifier = modifier,
-        text = text,
-        style = style,
-        textAlign = textAlign
-    )
 }

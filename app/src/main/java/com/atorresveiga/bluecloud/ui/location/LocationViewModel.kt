@@ -48,7 +48,7 @@ class LocationViewModel @Inject constructor(
     private val mutableQuery = MutableStateFlow("")
     private var foundLocations: List<Location> = emptyList()
     private val mutableUiState: MutableStateFlow<LocationViewState> = MutableStateFlow(
-        SelectLocation(
+        SelectLocationState(
             lastSelectedLocations = lastSelectedLocations,
             query = mutableQuery.value,
             isSearching = false,
@@ -63,7 +63,7 @@ class LocationViewModel @Inject constructor(
         mutableQuery.mapLatest { searchQuery ->
             if (searchQuery.length < 3) {
                 foundLocations = emptyList()
-                (mutableUiState.value as? SelectLocation)?.let {
+                (mutableUiState.value as? SelectLocationState)?.let {
                     mutableUiState.value = it.copy(
                         isSearching = false,
                         query = searchQuery,
@@ -72,7 +72,7 @@ class LocationViewModel @Inject constructor(
                     )
                 }
             } else {
-                (mutableUiState.value as? SelectLocation)?.let {
+                (mutableUiState.value as? SelectLocationState)?.let {
                     mutableUiState.value = it.copy(
                         isSearching = true,
                         query = searchQuery
@@ -86,7 +86,7 @@ class LocationViewModel @Inject constructor(
                     // We don't care about exception, we must recover with a new query
                     emptyList()
                 }
-                (mutableUiState.value as? SelectLocation)?.let {
+                (mutableUiState.value as? SelectLocationState)?.let {
                     mutableUiState.value =
                         it.copy(
                             foundLocations = foundLocations,
@@ -100,7 +100,7 @@ class LocationViewModel @Inject constructor(
         viewModelScope.launch {
             getLastSelectedLocationsUseCase.execute().collect { cachedSelectedLocations ->
                 lastSelectedLocations = cachedSelectedLocations
-                (mutableUiState.value as? SelectLocation)?.let {
+                (mutableUiState.value as? SelectLocationState)?.let {
                     mutableUiState.value = it.copy(lastSelectedLocations = lastSelectedLocations)
                 }
             }
@@ -108,7 +108,7 @@ class LocationViewModel @Inject constructor(
     }
 
     private fun showError(e: Exception) {
-        mutableUiState.value = SelectLocation(
+        mutableUiState.value = SelectLocationState(
             lastSelectedLocations = lastSelectedLocations,
             query = mutableQuery.value,
             isSearching = false,
@@ -118,11 +118,11 @@ class LocationViewModel @Inject constructor(
     }
 
     fun findUserLocation() {
-        mutableUiState.value = FindingUserLocation
+        mutableUiState.value = FindingUserLocationState
         viewModelScope.launch {
             try {
                 findUserLocationUseCase.execute()
-                mutableUiState.value = LocationSelected
+                mutableUiState.value = LocationSelectedState
             } catch (e: Exception) {
                 showError(e)
             }
@@ -137,13 +137,13 @@ class LocationViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val selectedLocation = if (location.timezoneId.isEmpty()) {
-                    mutableUiState.value = FindingLocationTimeZone
+                    mutableUiState.value = FindingLocationTimeZoneState
                     findLocationTimezone.execute(location)
                 } else {
                     location
                 }
                 updateCurrentLocationUseCase.execute(selectedLocation)
-                mutableUiState.value = LocationSelected
+                mutableUiState.value = LocationSelectedState
             } catch (e: Exception) {
                 showError(e)
             }
@@ -152,10 +152,10 @@ class LocationViewModel @Inject constructor(
 }
 
 sealed class LocationViewState
-object FindingUserLocation : LocationViewState()
-object FindingLocationTimeZone : LocationViewState()
-object LocationSelected : LocationViewState()
-data class SelectLocation(
+object FindingUserLocationState : LocationViewState()
+object FindingLocationTimeZoneState : LocationViewState()
+object LocationSelectedState : LocationViewState()
+data class SelectLocationState(
     val lastSelectedLocations: List<Location>,
     val query: String,
     val isSearching: Boolean,

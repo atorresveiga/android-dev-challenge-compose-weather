@@ -33,14 +33,15 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.atorresveiga.bluecloud.data.RAIN_AND_SNOW
-import com.atorresveiga.bluecloud.data.SNOW
+import com.atorresveiga.bluecloud.ui.formatter.PrecipitationForm
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 /**
  * This composable is the representation of a raindrop
  * @param weatherOffset the position of this raindrop in the screen
+ * @param sceneHeight height in pixel of the desire scene to be used when calculating the RainDrop size,
+ * if no sceneHeight is passed it will use the canvas height
  */
 @Composable
 fun RainDrop(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
@@ -78,6 +79,8 @@ fun RainDrop(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
 /**
  * This composable is the representation of a snowflake
  * @param weatherOffset the position of this raindrop in the screen
+ * @param sceneHeight height in pixel of the desire scene to be used when calculating the SnowFlake size,
+ * if no sceneHeight is passed it will use the canvas height
  */
 @Composable
 fun SnowFlake(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
@@ -122,9 +125,12 @@ fun SnowFlake(weatherOffset: WeatherOffset, sceneHeight: Float = -1f) {
 /**
  * This composable is the representation of a precipitation (rain,snow,etc)
  * @param weatherId encoded value containing precipitation form and intensity. Full description in Forecast.kt
- * @param windDegrees wind direction, degrees (meteorological)
  * @param windSpeed wind speed.
+ * @param windDegrees wind direction, degrees (meteorological)
+ * @param precipitation random list of weather offsets to draw,
  * @param modifier Modifier
+ * @param sceneHeight height in pixel of the desire scene to be used when calculating the Precipitation size,
+ * if no sceneHeight is passed it will use the canvas height
  */
 @Composable
 fun Precipitation(
@@ -152,8 +158,8 @@ fun Precipitation(
         val precipitationToDisplay = precipitation.take(amount)
         precipitationToDisplay.forEachIndexed { index, p ->
             when (form) {
-                SNOW -> SnowFlake(p, sceneHeight)
-                RAIN_AND_SNOW -> {
+                PrecipitationForm.Snow -> SnowFlake(p, sceneHeight)
+                PrecipitationForm.RainAndSnow -> {
                     if (index < precipitationToDisplay.size / 2) {
                         RainDrop(p, sceneHeight)
                     } else {

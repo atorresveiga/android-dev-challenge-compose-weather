@@ -15,20 +15,24 @@
  */
 package com.atorresveiga.bluecloud.data
 
-import com.atorresveiga.bluecloud.ui.DataFormatter
+import com.atorresveiga.bluecloud.ui.forecast.ForecastView
+import com.atorresveiga.bluecloud.ui.formatter.Formatter
+import com.atorresveiga.bluecloud.ui.formatter.HourSystem
+import com.atorresveiga.bluecloud.ui.formatter.TemperatureSystem
+import com.atorresveiga.bluecloud.ui.formatter.WindMeasurementSystem
 
 data class Settings(
     val clouds: Int = 30,
     val stormClouds: Int = 5,
     val hourlyPrecipitation: Int = 150,
     val dailyPrecipitation: Int = 85,
-    val hourSystem: Int = TWELVE,
-    val temperatureSystem: Int = CELSIUS,
-    val windSpeedSystem: Int = METERS,
-    val defaultDisplayView: Int = HOURLY,
-    val dataSource: Int = OPEN_WEATHER
+    val hourSystem: Int = HourSystem.Twelve.ordinal,
+    val temperatureSystem: Int = TemperatureSystem.Celsius.ordinal,
+    val windSpeedSystem: Int = WindMeasurementSystem.Meters.ordinal,
+    val defaultDisplayView: Int = ForecastView.HourlyView.ordinal,
+    val dataSource: Int = ForecastDataSource.OpenWeather.ordinal
 ) {
-    val dataFormatter = DataFormatter(
+    val dataFormatter = Formatter(
         hourSystem = hourSystem,
         temperatureSystem = temperatureSystem,
         windSpeedSystem = windSpeedSystem

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atorresveiga.bluecloud.ui.forecast
+package com.atorresveiga.bluecloud.ui.forecast.hourly
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -34,11 +34,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.atorresveiga.bluecloud.data.BACKWARD
-import com.atorresveiga.bluecloud.data.FORWARD
 import com.atorresveiga.bluecloud.model.HourForecast
 import kotlin.math.roundToInt
 
+enum class NavigationDirection { Forward, Backward }
+
+/**
+ * HourNavigation composable to navigate between the hours of the hourly forecast
+ * @param hourlyForecast list of [HourForecast] to display
+ * @param selected position of the current selected hour
+ * @param interactionSource MutableInteractionSource
+ * @param onSelectedChange the callback that is triggered when the selected hour change.An updated
+ * position comes as a parameter of the callback
+ * @param onDirectionChange the callback that is triggered when the navigation direction change.An updated
+ * [NavigationDirection] comes as a parameter of the callback
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HourNavigation(
@@ -46,7 +56,7 @@ fun HourNavigation(
     selected: Int,
     interactionSource: MutableInteractionSource,
     onSelectedChange: (index: Int) -> Unit,
-    onDirectionChange: (direction: Int) -> Unit
+    onDirectionChange: (direction: NavigationDirection) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
@@ -64,7 +74,7 @@ fun HourNavigation(
 
         val index = (-1 * (hourlyForecast.size - 1) * offset / screenWidthPx).roundToInt()
 
-        val direction = if (delta < 0) FORWARD else BACKWARD
+        val direction = if (delta < 0) NavigationDirection.Forward else NavigationDirection.Backward
 
         onSelectedChange(index)
         onDirectionChange(direction)
