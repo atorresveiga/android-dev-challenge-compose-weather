@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +44,7 @@ import com.atorresveiga.bluecloud.R
 import com.atorresveiga.bluecloud.data.Settings
 import com.atorresveiga.bluecloud.ui.common.BlueCloudTitle
 import com.atorresveiga.bluecloud.ui.common.BooleanProvider
+import com.atorresveiga.bluecloud.ui.common.NavigationBackButton
 import com.atorresveiga.bluecloud.ui.common.settings
 import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
 import com.google.accompanist.insets.navigationBarsPadding
@@ -61,16 +63,21 @@ fun SettingsScreen(
     val settings by viewModel.settings.collectAsState()
     SettingsScreen(
         settings = settings,
-        onUpdateSettings = viewModel::updateSettings
+        onUpdateSettings = viewModel::updateSettings,
+        onNavigationBack = { navController.popBackStack() }
     )
 }
 
 @Composable
-fun SettingsScreen(settings: Settings?, onUpdateSettings: (settings: Settings) -> Unit) {
+fun SettingsScreen(
+    settings: Settings?,
+    onUpdateSettings: (settings: Settings) -> Unit,
+    onNavigationBack: () -> Unit
+) {
 
     if (settings == null) return
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+    Box(modifier = Modifier.fillMaxSize()) {
         val scrollState = rememberScrollState()
 
         val alpha = 1f - scrollState.value.toFloat() / (scrollState.maxValue * .1f)
@@ -79,12 +86,14 @@ fun SettingsScreen(settings: Settings?, onUpdateSettings: (settings: Settings) -
             text = stringResource(id = R.string.settings),
             textAlign = TextAlign.Center,
             modifier = Modifier
+                .align(Alignment.TopCenter)
                 .systemBarsPadding()
                 .padding(top = 48.dp, bottom = 16.dp)
                 .alpha(alpha = alpha)
         )
         Column(
             modifier = Modifier
+                .align(Alignment.TopCenter)
                 .verticalScroll(scrollState)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -121,6 +130,16 @@ fun SettingsScreen(settings: Settings?, onUpdateSettings: (settings: Settings) -
                     .navigationBarsPadding()
             )
         }
+
+        NavigationBackButton(
+            onClick = onNavigationBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .systemBarsPadding()
+                .padding(top = 4.dp, start = 8.dp)
+                .alpha(alpha = alpha)
+                .size(48.dp)
+        )
     }
 }
 
@@ -130,7 +149,7 @@ fun SettingsScreen(settings: Settings?, onUpdateSettings: (settings: Settings) -
 fun SettingsScreenPreview(@PreviewParameter(BooleanProvider::class) isDarkTheme: Boolean) {
     BlueCloudTheme(darkTheme = isDarkTheme) {
         Surface {
-            SettingsScreen(settings = settings, onUpdateSettings = {})
+            SettingsScreen(settings = settings, onUpdateSettings = {}, onNavigationBack = {})
         }
     }
 }

@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.systemBarsPadding
 
 /**
  * ScaffoldWithErrorSnackBar with an error styled [Snackbar]
@@ -58,7 +57,6 @@ fun ScaffoldWithErrorSnackBar(
             },
             modifier = Modifier
                 .widthIn(max = 600.dp)
-                .systemBarsPadding()
         ) {
             content()
         }

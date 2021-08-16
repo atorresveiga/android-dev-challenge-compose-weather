@@ -37,6 +37,7 @@ import com.atorresveiga.bluecloud.R
 import com.atorresveiga.bluecloud.model.Location
 import com.atorresveiga.bluecloud.ui.common.locations
 import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
+import com.google.accompanist.insets.navigationBarsPadding
 
 /**
  * LastSelectedLocation composable to show last selected locations
@@ -60,10 +61,12 @@ fun LastSelectedLocation(
         )
 
         LazyColumn(
-            Modifier.background(
-                color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
-                shape = MaterialTheme.shapes.small
-            )
+            Modifier
+                .navigationBarsPadding()
+                .background(
+                    color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
+                    shape = MaterialTheme.shapes.small
+                )
         ) {
             itemsIndexed(lastSelectedLocations) { index, location ->
                 key(location.name) {
@@ -86,7 +89,10 @@ fun LastSelectedLocation(
 fun LastSelectedLocationPreview() {
     BlueCloudTheme {
         Surface {
-            LastSelectedLocation(lastSelectedLocations = locations, modifier = Modifier.padding(8.dp))
+            LastSelectedLocation(
+                lastSelectedLocations = locations,
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }

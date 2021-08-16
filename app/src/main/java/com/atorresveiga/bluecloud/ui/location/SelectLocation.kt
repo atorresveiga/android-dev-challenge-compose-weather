@@ -75,7 +75,8 @@ fun SelectLocation(
 
         BlueCloudTitle(
             text = stringResource(id = R.string.select_location),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(start = 48.dp, end = 48.dp)
         )
 
         SearchLocation(

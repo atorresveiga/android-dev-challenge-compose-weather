@@ -20,8 +20,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -44,9 +47,11 @@ import com.atorresveiga.bluecloud.model.Location
 import com.atorresveiga.bluecloud.ui.common.BlueCloudTitle
 import com.atorresveiga.bluecloud.ui.common.BooleanProvider
 import com.atorresveiga.bluecloud.ui.common.Information
+import com.atorresveiga.bluecloud.ui.common.NavigationBackButton
 import com.atorresveiga.bluecloud.ui.common.ScaffoldWithErrorSnackBar
 import com.atorresveiga.bluecloud.ui.common.locations
 import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
+import com.google.accompanist.insets.systemBarsPadding
 
 /**
  * LocationScreen screen to select the location from which we want to know the forecast
@@ -68,7 +73,8 @@ fun LocationScreen(
         findUserLocation = findUserLocationWithPermission,
         updateSearchQuery = viewModel::updateSearchQuery,
         onSelectLocation = viewModel::selectLocation,
-        onLocationSelected = onLocationSelected
+        onLocationSelected = onLocationSelected,
+        onNavigationBack = { navController.popBackStack() }
     )
 }
 
@@ -78,7 +84,8 @@ fun LocationScreen(
     findUserLocation: () -> Unit,
     updateSearchQuery: (searchQuery: String) -> Unit,
     onSelectLocation: (location: Location) -> Unit,
-    onLocationSelected: () -> Unit
+    onLocationSelected: () -> Unit,
+    onNavigationBack: () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
     when (uiState) {
@@ -100,19 +107,31 @@ fun LocationScreen(
                     scaffoldState.snackbarHostState.showSnackbar(errorString)
                 }
             }
+            Box(modifier = Modifier.fillMaxWidth()) {
 
-            ScaffoldWithErrorSnackBar(
-                scaffoldState = scaffoldState,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                SelectLocation(
-                    lastSelectedLocations = lastSelectedLocations,
-                    isSearching = isSearching,
-                    foundLocations = foundLocations,
-                    searchQuery = searchQuery,
-                    updateSearchQuery = updateSearchQuery,
-                    findUserLocation = findUserLocation,
-                    onSelectLocation = onSelectLocation,
+                ScaffoldWithErrorSnackBar(
+                    scaffoldState = scaffoldState,
+                    modifier = Modifier
+                        .padding(top = 48.dp)
+                        .fillMaxSize()
+                ) {
+                    SelectLocation(
+                        lastSelectedLocations = lastSelectedLocations,
+                        isSearching = isSearching,
+                        foundLocations = foundLocations,
+                        searchQuery = searchQuery,
+                        updateSearchQuery = updateSearchQuery,
+                        findUserLocation = findUserLocation,
+                        onSelectLocation = onSelectLocation,
+                    )
+                }
+                NavigationBackButton(
+                    onClick = onNavigationBack,
+                    modifier = Modifier
+                        .systemBarsPadding()
+                        .padding(top = 4.dp, start = 8.dp)
+                        .size(48.dp)
+
                 )
             }
         }
@@ -182,7 +201,8 @@ fun LocationScreenPreview(@PreviewParameter(BooleanProvider::class) isDarkTheme:
                 findUserLocation = {},
                 updateSearchQuery = {},
                 onSelectLocation = {},
-                onLocationSelected = {}
+                onLocationSelected = {},
+                onNavigationBack = {}
             )
         }
     }

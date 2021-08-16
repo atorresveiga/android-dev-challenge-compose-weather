@@ -62,7 +62,7 @@
     <string name="with_thunder">with thunder</string>
     <string name="weather_with_scale">%1$s %2$s</string>
 
-    <string name="select_location">"Where would you like to know\nthe weather from?"</string>
+    <string name="select_location">"Where would you like to know the weather from?"</string>
     <string name="without_location">"Start by selecting a location\nto check the weather"</string>
     <string name="select_location_action">"Select location"</string>
     <string name="finding_location">"Finding your location"</string>
