@@ -127,7 +127,11 @@ fun SettingsScreen(
                 settingModifier = settingModifier,
                 modifier = Modifier
                     .padding(top = 24.dp)
+            )
+            AboutSection(
+                modifier = Modifier
                     .navigationBarsPadding()
+                    .padding(vertical = 24.dp, horizontal = 16.dp)
             )
         }
 

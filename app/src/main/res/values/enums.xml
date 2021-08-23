@@ -10,5 +10,5 @@
     <string name="kilometers" translatable="false">km/h</string>
     <string name="miles" translatable="false">mph</string>
     <string name="open_weather">Open Weather</string>
-    <string name="met_no">Norwegian MET</string>
+    <string name="met_no">MET Norway</string>
 </resources>

@@ -21,6 +21,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -54,6 +55,11 @@ fun GeneralSettings(
         }
     }
 
+    val description = when (ForecastDataSource.values()[settings.dataSource]) {
+        ForecastDataSource.MetNo -> stringResource(id = R.string.met_no_description)
+        ForecastDataSource.OpenWeather -> stringResource(id = R.string.open_weather_description)
+    }
+
     Card(
         modifier = modifier,
         backgroundColor = MaterialTheme.colors.cardsBackground
@@ -76,6 +82,8 @@ fun GeneralSettings(
                 },
                 modifier = settingModifier
             )
+
+            Text(text = description, modifier = settingModifier.padding(16.dp))
         }
     }
 }

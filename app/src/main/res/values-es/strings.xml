@@ -74,4 +74,8 @@
     <string name="precipitation_number">Cantidad de precipitación (vista hora)</string>
     <string name="list_item_precipitation_number">Cantidad de precipitación (vista día)</string>
     <string name="data_sources">Origen de los datos</string>
+    <string name="open_weather_description">OpenWeather es un equipo de expertos en tecnología y científicos de datos que han estado practicando deep weather data science desde 2014. Para cada punto del mundo, OpenWeather proporciona datos meteorológicos históricos, actuales y pronosticados a través de light-speed APIs. OpenWeather tiene su sede principal en Londres, Reino Unido.</string>
+    <string name="met_no_description">El Instituto Meteorológico de Noruega (en noruego: Meteorologisk institutt), también conocido internacionalmente como MET Norway, es el instituto meteorológico nacional de Noruega. Proporciona previsiones meteorológicas para usos civiles y militares y realiza investigaciones en meteorología, oceanografía y climatología. El Instituto Meteorológico de Noruega tiene su sede principal en Oslo, Noruega.</string>
+    <string name="version">Versión %1$s (%2$s)</string>
+    <string name="view_on_github">Ver en GitHub</string>
 </resources>

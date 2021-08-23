@@ -5,5 +5,5 @@
     <string name="hour_system_12">12 horas</string>
     <string name="hour_system_24">24 horas</string>
     <string name="open_weather">Open Weather</string>
-    <string name="met_no">MET de Noruega</string>
+    <string name="met_no">MET Noruega</string>
 </resources>
