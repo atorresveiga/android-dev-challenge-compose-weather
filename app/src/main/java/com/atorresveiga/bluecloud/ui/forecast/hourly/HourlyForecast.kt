@@ -173,7 +173,7 @@ fun HourlyForecastScreen(
         WeatherInformation(
             locationName = indexForecast.location.name,
             datetime = selectedHour.datetime,
-            weatherId = currentDay.weatherId,
+            weatherId = selectedHour.weatherId,
             temperature = selectedHour.temperature,
             feelsLike = selectedHour.feelsLike,
             uvi = selectedHour.uvi,
