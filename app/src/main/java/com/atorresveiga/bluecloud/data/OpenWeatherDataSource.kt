@@ -21,9 +21,6 @@ import com.atorresveiga.bluecloud.model.HourForecast
 import com.atorresveiga.bluecloud.model.Location
 import com.atorresveiga.bluecloud.ui.formatter.MoonPhaseFormatter
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -119,14 +116,10 @@ class OpenWeatherDataSource @Inject constructor(private val api: OpenWeatherAPI)
             hours.add(hourForecast)
         }
 
-        val timezone = TimeZone.of(location.timezoneId)
         var previousPhase = -1
 
         for (day in openWeatherForecast.daily) {
-            val date = Instant.fromEpochSeconds(day.datetime)
-                .toLocalDateTime(timezone).date
-
-            val moonPhase = getMoonPhase(date).ordinal
+            val moonPhase = fromPhase(day.moonPhase).ordinal
             val dayForecast = DayForecast(
                 datetime = day.datetime,
                 pressure = day.pressure,

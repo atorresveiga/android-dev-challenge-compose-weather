@@ -67,7 +67,9 @@ data class OpenWeatherDayForecast(
     @SerialName("feels_like")
     val feelsLike: FeelsLikeTemperature,
     val rain: Float = 0f,
-    val snow: Float = 0f
+    val snow: Float = 0f,
+    @SerialName("moon_phase")
+    val moonPhase: Double
 )
 
 @Serializable
