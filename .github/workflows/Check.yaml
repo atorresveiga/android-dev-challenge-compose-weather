@@ -23,7 +23,7 @@ jobs:
           java-version: 11
 
       - name: Build project
-        run: ./gradlew spotlessCheck assembleDebug lintDebug --stacktrace
+        run: ./gradlew spotlessCheck assembleFakeDebug lintFakeDebug --stacktrace
 
       - name: Upload build outputs (APKs)
         uses: actions/upload-artifact@v2
