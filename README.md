@@ -1,27 +1,28 @@
-# Template repository
+# Blue Cloud
 
-Template repository for the Jetpack Compose [#AndroidDevChallenge](https://developer.android.com/dev-challenge).
+![Workflow result](https://github.com/atorresveiga/android-dev-challenge-compose-weather/workflows/Check/badge.svg)
 
-## Getting started
-Copy this repository by pressing the "Use this template" button in Github.
-Clone your repository and open it in the latest [Android Studio (Canary build)](https://developer.android.com/studio/preview).
+## :scroll: Description
+Blue Cloud is another weather app that attempts to use the latest cutting edge libraries and tools. As a summary:
+*Entirely written in Kotlin.
+*UI completely written in Jetpack Compose (see below).
+*Uses Kotlin Coroutines throughout.
+*Uses many of the Architecture Components, including: Room, WorkManager, Navigation.
+*Uses Hilt for dependency injection
 
-## Submission requirements
-- Follow the challenge description on the project website: [developer.android.com/dev-challenge](https://developer.android.com/dev-challenge)
-- All UI should be written using Jetpack Compose
-- The Github Actions workflow should complete successfully
-- Include two screenshots of your submission in the [results](results) folder. The names should be
-  screenshot_1.png and screenshot_2.png.
-- Include a screen record of your submission in the [results](results) folder. The name should be
-  video.mp4
-- Replace the contents of [README.md](README.md) with the contents of [README-template.md](README-template.md) and fill out the template.
+## :bulb: Motivation and Context
+This project started as an Android Dev Challenge that I had not the time to finish. The idea, animations and the and all the crazy things I wanted to try with Jetpack Compose stayed spinning in my head though. Therefore, I decided to keep working on it and also use it to try many other interesting libraries that I had no chance yet to use in a real project.
 
-## Code formatting
-The CI uses [Spotless](https://github.com/diffplug/spotless) to check if your code is formatted correctly and contains the right licenses.
-Internally, Spotless uses [ktlint](https://github.com/pinterest/ktlint) to check the formatting of your code.
-To set up ktlint correctly with Android Studio, follow one of the [listed setup options](https://github.com/pinterest/ktlint#-with-intellij-idea).
+## :camera_flash: Screenshots
 
-Before committing your code, run `./gradlew app:spotlessApply` to automatically format your code.
+### Hourly Navigation
+<img src="/results/screenshot_1.gif" width="260">&emsp;<img src="/results/screenshot_2.gif" width="260">
+
+### Active/Inactive/Idle
+<img src="/results/screenshot_3.gif" width="260">
+
+### Tablet
+<img src="/results/screenshot_4.gif" width="260">&emsp;<img src="/results/screenshot_5.gif" width="260">
 
 ## License
 ```
