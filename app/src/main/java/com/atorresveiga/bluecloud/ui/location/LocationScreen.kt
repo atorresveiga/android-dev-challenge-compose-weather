@@ -51,6 +51,7 @@ import com.atorresveiga.bluecloud.ui.common.NavigationBackButton
 import com.atorresveiga.bluecloud.ui.common.ScaffoldWithErrorSnackBar
 import com.atorresveiga.bluecloud.ui.common.locations
 import com.atorresveiga.bluecloud.ui.theme.BlueCloudTheme
+import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
 
 /**
@@ -113,6 +114,7 @@ fun LocationScreen(
                     scaffoldState = scaffoldState,
                     modifier = Modifier
                         .padding(top = 48.dp)
+                        .navigationBarsPadding()
                         .fillMaxSize()
                 ) {
                     SelectLocation(
