@@ -5,6 +5,7 @@ build/
 captures
 
 /local.properties
+/keystore.properties
 
 # IntelliJ .idea folder
 /.idea

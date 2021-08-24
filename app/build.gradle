@@ -9,11 +9,6 @@ plugins {
     id 'com.google.firebase.appdistribution'
 }
 
-// Load keystore
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
 android {
     compileSdkVersion 30
 
@@ -42,10 +37,10 @@ android {
             keyPassword 'android'
         }
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            storeFile rootProject.file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
     }
 
@@ -64,7 +59,7 @@ android {
                 releaseNotes = "Release version"
                 groups = "release"
             }
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
     }
 
