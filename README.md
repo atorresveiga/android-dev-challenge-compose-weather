@@ -13,6 +13,31 @@ Blue Cloud is another weather app that attempts to use the latest cutting edge l
 ## :bulb: Motivation and Context
 This project started as an Android Dev Challenge that I had not the time to finish. The idea, animations and the and all the crazy things I wanted to try with Jetpack Compose stayed spinning in my head though. Therefore, I decided to keep working on it and also use it to try many other interesting libraries that I had no chance yet to use in a real project.
 
+## :construction: Development Setup
+You require the latest Android Studio Arctic Fox release to be able to build the app. This is because the project is written in Jetpack Compose
+
+### API keys
+You need to supply API / client key (OpenWeather), user name (GeoNames) and contact email (MetNo) for the various services the app uses:
+
+ * [GeoNames](https://www.geonames.org/)
+ * [OpenWeather](https://openweathermap.org/api)
+ * [MetNo](https://api.met.no/weatherapi/)
+
+Once you obtain the keys and user, you can set them in your `~/.gradle/gradle.properties`:
+
+```
+# Get this from https://openweathermap.org/ 
+OpenWeatherAPIKey = "[Open Weather API Key]"
+
+# Create a new user in https://www.geonames.org/
+GeoNamesUser = "[GeoNames User]"
+
+# An email address
+MetNoContact = "[MetNo Contact]"
+```
+
+If you don't want to do this setting, you can always select the fake flavor and run the app with random data
+
 ## :camera_flash: Screenshots
 
 ### Hourly Navigation
@@ -23,6 +48,9 @@ This project started as an Android Dev Challenge that I had not the time to fini
 
 ### Tablet
 <img src="/results/screenshot_4.png" width="260">&emsp;<img src="/results/screenshot_5.png" width="260">
+
+## Contributions
+If you've found an error in this sample, please file an issue.
 
 ## License
 ```
